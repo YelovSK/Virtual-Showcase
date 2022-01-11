@@ -13,22 +13,10 @@ public sealed class KeyPointsUpdater : MonoBehaviour
 
         #region Private members
 
-        Marker _marker;
+        EyeTracker _tracker;
         RectTransform _xform;
         RectTransform _parent;
         UI.Text _label;
-
-        // Smoothing
-        Vector2 leftEye;
-        Vector2 rightEye;
-        // Average
-        List<Vector2> leftEyeHistory;
-        List<Vector2> rightEyeHistory;
-        int framesSmoothed = 30;
-        // Kalman
-        KalmanFilter _kalmanFilter;
-        KalmanFilter.Measurement<Vector2> leftMeasurement;
-        KalmanFilter.Measurement<Vector2> rightMeasurement;
 
         void SetKeyPoint(RectTransform xform, Vector2 point)
           => xform.anchoredPosition =
@@ -40,34 +28,17 @@ public sealed class KeyPointsUpdater : MonoBehaviour
 
         void Start()
         {
-            _marker = GetComponent<Marker>();
             _xform = GetComponent<RectTransform>();
             _parent = (RectTransform)_xform.parent;
             _label = GetComponentInChildren<UI.Text>();
-            leftEyeHistory = new List<Vector2>();
-            rightEyeHistory = new List<Vector2>();
-            _kalmanFilter = new KalmanFilter(0.0005f, 0.2f);
-            leftMeasurement = new KalmanFilter.Measurement<Vector2>();
-            rightMeasurement = new KalmanFilter.Measurement<Vector2>();
+            _tracker = GetComponent<EyeTracker>();
         }
 
         void LateUpdate()
         {
-            var detection = _marker.detection;
-
-            leftEye = detection.leftEye;
-            rightEye = detection.rightEye;
-            switch (GlobalVars.smoothing)
-            {
-                case "Kalman":
-                    smoothKalman();
-                    break;
-                case "Average":
-                    smoothAverage();
-                    break;
-                case "Off":
-                    break;
-            }
+            FaceDetector.Detection detection = _tracker.getDetection();
+            Vector2 leftEye = _tracker.getLeftEye();
+            Vector2 rightEye = _tracker.getRightEye();
 
             // Bounding box center
             _xform.anchoredPosition = detection.center * _parent.rect.size;
@@ -87,42 +58,6 @@ public sealed class KeyPointsUpdater : MonoBehaviour
 
             // Label
             _label.text = $"{(int)(detection.score * 100)}%";
-        }
-
-        void smoothKalman()
-        {
-            leftMeasurement.SetObservedValue(leftEye);
-            rightMeasurement.SetObservedValue(rightEye);
-            _kalmanFilter.KalmanUpdate(leftMeasurement);
-            _kalmanFilter.KalmanUpdate(rightMeasurement);
-            leftEye = leftMeasurement.x;
-            rightEye = rightMeasurement.x;
-        }
-
-        void smoothAverage()
-        {
-            if (framesSmoothed > 1)
-            {
-                leftEyeHistory.Add(leftEye);
-                rightEyeHistory.Add(rightEye);
-                if (leftEyeHistory.Count > framesSmoothed)
-                {
-                    leftEyeHistory.RemoveAt(0);
-                    rightEyeHistory.RemoveAt(0);
-                }
-                var leftSum = new Vector2(0, 0);
-                var rightSum = new Vector2(0, 0);
-                foreach (var l in leftEyeHistory)
-                {
-                    leftSum += l;
-                }
-                foreach (var l in rightEyeHistory)
-                {
-                    rightSum += l;
-                }
-                leftEye = leftSum / leftEyeHistory.Count;
-                rightEye = rightSum / rightEyeHistory.Count;
-            }
         }
 
         #endregion

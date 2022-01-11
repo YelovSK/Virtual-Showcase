@@ -18,8 +18,6 @@ public class ModelLoader : MonoBehaviour
 	{
 		yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.FilesAndFolders, true, null, null, "Load Files and Folders", "Load");
 
-		Debug.Log(FileBrowser.Success);
-
 		if (FileBrowser.Success)
 		{
 			string path = FileBrowser.Result[0];

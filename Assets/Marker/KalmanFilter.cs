@@ -2,73 +2,103 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class KalmanFilter
+// source https://gist.github.com/davidfoster/48acce6c13e5f7f247dc5d5909dce349
+
+public class KalmanFilter<T>
 {
 
+	//-----------------------------------------------------------------------------------------
+	// Constants:
+	//-----------------------------------------------------------------------------------------
 
-    float paramQ; //0.001
-    float paramR; //0.0015
-    public KalmanFilter(float q, float r)
-    {
-        paramQ = q;
-        paramR = r;
-    }
+	public const float DEFAULT_Q = 0.000001f;
+	public const float DEFAULT_R = 0.01f;
 
+	public const float DEFAULT_P = 1;
 
+	//-----------------------------------------------------------------------------------------
+	// Private Fields:
+	//-----------------------------------------------------------------------------------------
 
-    public class Measurement<T>
-    {
-        public T x; //optimal value
-        public T predictX;
-        public T z;
-        public float P;
-        public float K;
+	private float q;
+	private float r;
+	private float p = DEFAULT_P;
+	private T x;
+	private float k;
 
-        public void SetObservedValue(T val)
-        {
-            z = val;
-        }
-    }
+	//-----------------------------------------------------------------------------------------
+	// Constructors:
+	//-----------------------------------------------------------------------------------------
 
-    public void KalmanUpdate(Measurement<float> measurement)
-    {
-        MeasurementUpdate(measurement);
-        measurement.x = measurement.predictX + (measurement.z - measurement.predictX) * measurement.K;
-        measurement.predictX = measurement.x;
-    }
+	// N.B. passing in DEFAULT_Q is necessary, even though we have the same value (as an optional parameter), because this
+	// defines a parameterless constructor, allowing us to be new()'d in generics contexts.
+	public KalmanFilter() : this(DEFAULT_Q) { }
 
-    void MeasurementUpdate(Measurement<float> measurement)
-    {
-        measurement.K = (measurement.P + paramQ) / (measurement.P + paramQ + paramR);
-        measurement.P = paramR * (measurement.P + paramQ) / (paramR + measurement.P + paramQ);
-    }
+	public KalmanFilter(float aQ = DEFAULT_Q, float aR = DEFAULT_R)
+	{
+		q = aQ;
+		r = aR;
+	}
 
-    public void KalmanUpdate(Measurement<Vector3> measurement)
-    {
-        MeasurementUpdate(measurement);
-        measurement.x = measurement.predictX + (measurement.z - measurement.predictX) * measurement.K;
-        measurement.predictX = measurement.x;
-    }
+	//-----------------------------------------------------------------------------------------
+	// Public Methods:
+	//-----------------------------------------------------------------------------------------
 
-    void MeasurementUpdate(Measurement<Vector3> measurement)
-    {
-        measurement.K = (measurement.P + paramQ) / (measurement.P + paramQ + paramR);
-        measurement.P = paramR * (measurement.P + paramQ) / (paramR + measurement.P + paramQ);
-    }
+	public T Update(T measurement, float? newQ = null, float? newR = null)
+	{
 
+		// update values if supplied.
+		if (newQ != null && q != newQ)
+		{
+			q = (float)newQ;
+		}
+		if (newR != null && r != newR)
+		{
+			r = (float)newR;
+		}
 
-    public void KalmanUpdate(Measurement<Vector2> measurement)
-    {
-        MeasurementUpdate(measurement);
-        measurement.x = measurement.predictX + (measurement.z - measurement.predictX) * measurement.K;
-        measurement.predictX = measurement.x;
-    }
+		// update measurement.
+		{
+			k = (p + q) / (p + q + r);
+			p = r * (p + q) / (r + p + q);
+		}
 
-    void MeasurementUpdate(Measurement<Vector2> measurement)
-    {
-        measurement.K = (measurement.P + paramQ) / (measurement.P + paramQ + paramR);
-        measurement.P = paramR * (measurement.P + paramQ) / (paramR + measurement.P + paramQ);
-    }
+		// filter result back into calculation.
+		dynamic dynamicMeasurement = measurement;
+		dynamic result = x + (dynamicMeasurement - x) * k;
+		x = result;
+		return result;
+	}
 
+	public T Update(List<T> measurements, bool areMeasurementsNewestFirst = false, float? newQ = null, float? newR = null)
+	{
 
+		T result = default(T);
+		int i = (areMeasurementsNewestFirst) ? measurements.Count - 1 : 0;
+
+		while (i < measurements.Count && i >= 0)
+		{
+
+			// decrement or increment the counter.
+			if (areMeasurementsNewestFirst)
+			{
+				--i;
+			}
+			else
+			{
+				++i;
+			}
+
+			result = Update(measurements[i], newQ, newR);
+		}
+
+		return result;
+	}
+
+	public void Reset()
+	{
+		p = 1;
+		x = default(T);
+		k = 0;
+	}
 }
