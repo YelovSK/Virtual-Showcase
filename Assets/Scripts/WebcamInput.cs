@@ -30,7 +30,7 @@ public sealed class WebcamInput : MonoBehaviour
     {
         if (camName == "")
         {
-            camName = GlobalVars.camName;
+            camName = GlobalVars.cam.name;
         }
         _webcam = new WebCamTexture(camName, _resolution.x, _resolution.y);
         _buffer = new RenderTexture(_resolution.x, _resolution.y, 0);

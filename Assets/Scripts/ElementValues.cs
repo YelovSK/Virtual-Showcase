@@ -1,106 +1,65 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class ElementValues : MonoBehaviour
 {
     public TMP_Dropdown webcamDropdown;
     public TMP_Dropdown smoothingDropdown;
-    public Slider thresholdSlider;
-    public AspectRatioFitter fitter;
     public GameObject faceTracking;
-    GameObject faceTrackingInstance;
+    private GameObject _faceTrackingInstance;
 
     void Start()
     {
-        webcamDropdown.options.Clear();
-
-        WebCamDevice[] webcams = WebCamTexture.devices;
-        List<string> webcamNames = new List<string>();
-        foreach (WebCamDevice webcam in webcams)
-        {
-            webcamNames.Add(webcam.name);
-        }
-        foreach (var webcamName in webcamNames)
-        {
-            webcamDropdown.options.Add(new TMP_Dropdown.OptionData() { text = webcamName });
-        }
         // set to values in GlobalVars
-        setCamName();
-        setSmoothingOption();
-        setThreshold();
+        SetCamName(GlobalVars.cam.name);
+        SetSmoothingOption(GlobalVars.smoothing);
 
-        changeCamPreview(webcamDropdown);
+        ChangeCamPreview(webcamDropdown);
         webcamDropdown.onValueChanged.AddListener(delegate
         {
-            changeCamPreview(webcamDropdown);
+            ChangeCamPreview(webcamDropdown);
         });
         smoothingDropdown.onValueChanged.AddListener(delegate
         {
-            changeSmoothing(smoothingDropdown);
-        });
-        thresholdSlider.onValueChanged.AddListener(delegate
-        {
-            changeThreshold(thresholdSlider);
+            ChangeSmoothing(smoothingDropdown);
         });
     }
 
-    public string getCamName()
+    public void SetCamName(string camName)
     {
-        return webcamDropdown.options[webcamDropdown.value].text;
+        webcamDropdown.options = GlobalVars.webcams
+            .Select(cam => new TMP_Dropdown.OptionData() {text = cam.name})
+            .ToList();
+        webcamDropdown.value = webcamDropdown.options.FindIndex(option => option.text == camName);
     }
 
-    public void setCamName()
+    public void SetSmoothingOption(string smoothingOption)
     {
-        webcamDropdown.value = webcamDropdown.options.FindIndex(option => option.text == GlobalVars.camName);
+        smoothingDropdown.AddOptions(GlobalVars.SmoothingOptionsArr.ToList());
+        smoothingDropdown.value = smoothingDropdown.options.FindIndex(option => option.text == smoothingOption);
     }
 
-    public string getSmoothingOption()
+    void ChangeCamPreview(TMP_Dropdown sender)
     {
-        return smoothingDropdown.options[smoothingDropdown.value].text;
+        GlobalVars.cam = GlobalVars.webcams.Find(cam => cam.name == webcamDropdown.options[sender.value].text);
+        if (_faceTrackingInstance != null)
+            Destroy(_faceTrackingInstance);
+        _faceTrackingInstance = Instantiate(faceTracking);
+        _faceTrackingInstance.SetActive(true);
     }
 
-    public void setSmoothingOption()
-    {
-        smoothingDropdown.value = smoothingDropdown.options.FindIndex(option => option.text == GlobalVars.smoothing);
-    }
-
-    public float getThreshold()
-    {
-        return thresholdSlider.value;
-    }
-
-    public void setThreshold()
-    {
-        thresholdSlider.value = GlobalVars.threshold;
-    }
-
-    void changeCamPreview(TMP_Dropdown sender)
-    {
-        GlobalVars.camName = webcamDropdown.options[sender.value].text;
-        if (faceTrackingInstance != null)
-        {
-            Destroy(faceTrackingInstance);
-        }
-        faceTrackingInstance = Instantiate(faceTracking);
-        faceTrackingInstance.SetActive(true);
-    }
-
-    void changeSmoothing(TMP_Dropdown sender)
+    void ChangeSmoothing(TMP_Dropdown sender)
     {
         GlobalVars.smoothing = smoothingDropdown.options[sender.value].text;
     }
 
-    void changeThreshold(Slider sender)
-    {
-        GlobalVars.threshold = sender.value;
-    }
-
     private void OnDestroy()
     {
-        if (faceTrackingInstance != null)
-            Destroy(faceTrackingInstance);
+        if (_faceTrackingInstance != null)
+            Destroy(_faceTrackingInstance);
     }
 }
