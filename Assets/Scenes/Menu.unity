@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2433,7 +2433,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1186644608}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 86710e43de46f6f4bac7c8e50813a599, type: 3}
   m_Name: 
@@ -3207,9 +3207,9 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1685932758}
+      - m_Target: {fileID: 2010569700}
         m_TargetAssemblyTypeName: ShowThresholdValue, Assembly-CSharp
-        m_MethodName: textUpdate
+        m_MethodName: SliderUpdate
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3780,13 +3780,7 @@ MonoBehaviour:
   m_ItemImage: {fileID: 0}
   m_Value: 0
   m_Options:
-    m_Options:
-    - m_Text: Kalman
-      m_Image: {fileID: 0}
-    - m_Text: Average
-      m_Image: {fileID: 0}
-    - m_Text: Off
-      m_Image: {fileID: 0}
+    m_Options: []
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -3877,7 +3871,6 @@ GameObject:
   - component: {fileID: 1685932755}
   - component: {fileID: 1685932757}
   - component: {fileID: 1685932756}
-  - component: {fileID: 1685932758}
   m_Layer: 5
   m_Name: ThresholdValueText
   m_TagString: Untagged
@@ -4001,18 +3994,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1685932754}
   m_CullTransparentMesh: 1
---- !u!114 &1685932758
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1685932754}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17faa55c923d8f2488f4eeba893a7e77, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1726277694
 GameObject:
   m_ObjectHideFlags: 0
@@ -4865,6 +4846,7 @@ GameObject:
   - component: {fileID: 2010569699}
   - component: {fileID: 2010569697}
   - component: {fileID: 2010569698}
+  - component: {fileID: 2010569700}
   - component: {fileID: 2010569701}
   m_Layer: 5
   m_Name: Canvas
@@ -4982,8 +4964,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   webcamDropdown: {fileID: 1762262111}
   smoothingDropdown: {fileID: 1613875011}
-  thresholdSlider: {fileID: 1408816266}
-  fitter: {fileID: 1186644612}
   faceTracking: {fileID: 1609501659}
 --- !u!114 &2010569699
 MonoBehaviour:
@@ -5038,6 +5018,20 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_AlphaFadeSpeed: 0.15
+--- !u!114 &2010569700
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2010569692}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17faa55c923d8f2488f4eeba893a7e77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  thresholdText: {fileID: 1685932756}
+  thresholdSlider: {fileID: 1408816266}
 --- !u!114 &2010569701
 MonoBehaviour:
   m_ObjectHideFlags: 0

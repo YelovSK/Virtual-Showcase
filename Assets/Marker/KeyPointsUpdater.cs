@@ -41,10 +41,11 @@ public sealed class KeyPointsUpdater : MonoBehaviour
             Vector2 rightEye = _tracker.getRightEye();
 
             // Bounding box center
-            _xform.anchoredPosition = detection.center * _parent.rect.size;
+            var rect = _parent.rect;
+            _xform.anchoredPosition = detection.center * rect.size;
 
             // Bounding box size
-            var size = detection.extent * _parent.rect.size;
+            var size = detection.extent * rect.size;
             _xform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
             _xform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
 
