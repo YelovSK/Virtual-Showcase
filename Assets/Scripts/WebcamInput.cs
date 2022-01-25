@@ -33,6 +33,8 @@ public sealed class WebcamInput : MonoBehaviour
 
     void Update()
     {
+        if (_webcam == null)
+            return;
         if (!_webcam.didUpdateThisFrame) return;
 
         var aspect1 = (float)_webcam.width / _webcam.height;
