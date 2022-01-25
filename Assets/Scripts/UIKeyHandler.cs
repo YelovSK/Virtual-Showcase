@@ -38,4 +38,10 @@ public class UIKeyHandler : MonoBehaviour
                 break;
         }
     }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown("f12"))    // hide/show canvas when F12 is pressed
+            GetComponent<CanvasGroup>().alpha = GetComponent<CanvasGroup>().alpha == 0 ? 1 : 0;
+    }
 }
