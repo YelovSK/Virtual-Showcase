@@ -13,4 +13,5 @@ public class GlobalVars : MonoBehaviour
     public static WebCamDevice cam = webcams[0];
     public static float threshold = 0.5f;   // 0.0-1.0
     public static string modelPath = "Assets\\Objects\\IronMan.obj";
+    public static int previewIx = 0;
 }
