@@ -1,13 +1,11 @@
+using System;
 using UnityEngine;
-
-namespace MediaPipe.BlazeFace {
 
 public sealed class WebcamInput : MonoBehaviour
 {
     #region Editable attributes
 
     [SerializeField] Vector2Int _resolution = new Vector2Int(1920, 1080);
-    [SerializeField] string camName = "";
 
     #endregion
 
@@ -25,17 +23,6 @@ public sealed class WebcamInput : MonoBehaviour
     #endregion
 
     #region MonoBehaviour implementation
-
-    void Start()
-    {
-        if (camName == "")
-        {
-            camName = GlobalVars.cam.name;
-        }
-        _webcam = new WebCamTexture(camName, _resolution.x, _resolution.y);
-        _buffer = new RenderTexture(_resolution.x, _resolution.y, 0);
-        _webcam.Play();
-    }
 
     void OnDestroy()
     {
@@ -58,7 +45,22 @@ public sealed class WebcamInput : MonoBehaviour
 
         Graphics.Blit(_webcam, _buffer, scale, offset);
     }
-    #endregion
-}
 
-} // namespace MediaPipe.BlazeFace
+    public bool IsCameraRunning()
+    {
+        return _webcam != null && _webcam.isPlaying;
+    }
+
+    public WebCamTexture GetWebcam()
+    {
+        return _webcam;
+    }
+    #endregion
+
+    public void StartWebcam()
+    {
+        _webcam = new WebCamTexture(GlobalVars.cam.name, _resolution.x, _resolution.y);
+        _buffer = new RenderTexture(_resolution.x, _resolution.y, 0);
+        _webcam.Play();
+    }
+}

@@ -1,19 +1,21 @@
 using System.Linq;
+using System.Threading;
+using MediaPipe.BlazeFace;
+using Unity.Barracuda;
 using UnityEngine;
-using UI = UnityEngine.UI;
-
-namespace MediaPipe.BlazeFace {
+using UnityEngine.UI;
 
 public sealed class Visualizer : MonoBehaviour
 {
     #region Editable attributes
 
-    [SerializeField] WebcamInput _webcam = null;
+    [SerializeField] WebcamInput _webcam;
     [Space]
-    [SerializeField] UI.RawImage _previewUI = null;
+    [SerializeField] RawImage _previewUI;
     [Space]
-    [SerializeField] ResourceSet _resources = null;
-    [SerializeField] Marker _markerPrefab = null;
+    [SerializeField] ResourceSet _resources;
+    [SerializeField] Marker _markerPrefab;
+    [SerializeField] Texture2D _defaultCamTexture;
 
     #endregion
 
@@ -51,6 +53,11 @@ public sealed class Visualizer : MonoBehaviour
 
     void Start()
     {
+        _webcam.StartWebcam();  // doesn't initialize in time if put in default _webcam Start method
+        if (!_webcam.IsCameraRunning()) {   // broken webcam, image set to "NO WEBCAM SHOWING"
+            _previewUI.texture = _defaultCamTexture;
+            return;
+        }
         // Face detector initialization
         _detector = new FaceDetector(_resources);
 
@@ -70,10 +77,8 @@ public sealed class Visualizer : MonoBehaviour
     void LateUpdate()
     {
         // Webcam test: Run the detector every frame.
-        if (_webcam != null) RunDetector(_webcam.Texture);
+        if (_webcam != null && _webcam.IsCameraRunning()) RunDetector(_webcam.Texture);
     }
 
     #endregion
 }
-
-} // namespace MediaPipe.BlazeFace

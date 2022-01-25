@@ -15,7 +15,6 @@ namespace MediaPipe.BlazeFace
         // Average
         List<Vector2> leftEyeHistory;
         List<Vector2> rightEyeHistory;
-        int framesSmoothed = 30;
         // Kalman
         KalmanFilter<Vector2> leftMeasurement;
         KalmanFilter<Vector2> rightMeasurement;
@@ -58,11 +57,11 @@ namespace MediaPipe.BlazeFace
 
         void smoothAverage()
         {
-            if (framesSmoothed > 1)
+            if (GlobalVars.framesSmoothed > 1)
             {
                 leftEyeHistory.Add(leftEye);
                 rightEyeHistory.Add(rightEye);
-                if (leftEyeHistory.Count > framesSmoothed)
+                if (leftEyeHistory.Count > GlobalVars.framesSmoothed)
                 {
                     leftEyeHistory.RemoveAt(0);
                     rightEyeHistory.RemoveAt(0);
