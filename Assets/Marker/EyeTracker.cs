@@ -61,10 +61,10 @@ namespace MediaPipe.BlazeFace
             {
                 leftEyeHistory.Add(leftEye);
                 rightEyeHistory.Add(rightEye);
-                if (leftEyeHistory.Count > GlobalVars.framesSmoothed)
+                if (leftEyeHistory.Count > GlobalVars.framesSmoothed)   // remove first values
                 {
-                    leftEyeHistory.RemoveAt(0);
-                    rightEyeHistory.RemoveAt(0);
+                    leftEyeHistory.RemoveRange(0, leftEyeHistory.Count - GlobalVars.framesSmoothed);
+                    rightEyeHistory.RemoveRange(0, rightEyeHistory.Count - GlobalVars.framesSmoothed);
                 }
                 leftEye = new Vector2(
                     leftEyeHistory.Average(x => x[0]),
