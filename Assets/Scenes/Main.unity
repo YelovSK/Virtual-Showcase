@@ -157,6 +157,7 @@ MonoBehaviour:
   _previewUI: {fileID: 1048845896}
   _resources: {fileID: 11400000, guid: 5594fd2934aca864980b90fe058f4161, type: 2}
   _markerPrefab: {fileID: -8667460914361412726, guid: 47a0fcd207399f14b8f37638653245e1, type: 3}
+  _defaultCamTexture: {fileID: 2800000, guid: 206ba24cdf772b24e979bf09f3ec3461, type: 3}
 --- !u!114 &33135769
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -170,7 +171,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _resolution: {x: 1080, y: 1080}
-  camName: 
 --- !u!4 &33135770
 Transform:
   m_ObjectHideFlags: 0
@@ -897,7 +897,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 68fd344b4f8c66c40a0919b412a136c6, type: 2}
+  - {fileID: 2100000, guid: d1e57686f5779cd448726838c6794e9b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1116,6 +1116,7 @@ GameObject:
   - component: {fileID: 819570169}
   - component: {fileID: 819570168}
   - component: {fileID: 819570172}
+  - component: {fileID: 819570173}
   m_Layer: 5
   m_Name: Camera preview canvas
   m_TagString: Untagged
@@ -1220,6 +1221,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   camPreview: {fileID: 1048845893}
   previewDropdown: {fileID: 1746090202}
+--- !u!225 &819570173
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 819570167}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!4 &946726627 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400012, guid: 1ee76940f560f654fbbe86776c26942b, type: 3}
@@ -1495,7 +1508,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 0}
+  m_Texture: {fileID: 2800000, guid: 206ba24cdf772b24e979bf09f3ec3461, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -1657,7 +1670,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: 320b1c2af77554f99a1658df4a6d3d5c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.11
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: 320b1c2af77554f99a1658df4a6d3d5c, type: 3}
       propertyPath: m_LocalPosition.z
