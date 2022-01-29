@@ -4,6 +4,7 @@
 [Oo]bj/
 [Bb]uild/
 [Bb]uilds/
+[Uu]ser[Ss]ettings/
 Assets/AssetStoreTools*
 Assets/objects
 
@@ -43,4 +44,3 @@ sysinfo.txt
 .idea/
 .vsconfig
 .gitattributes
-/[Uu]ser[Ss]ettings/
