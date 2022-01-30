@@ -25,10 +25,8 @@ namespace MediaPipe.BlazeFace
             _marker = GetComponent<Marker>();
             leftEyeHistory = new List<Vector2>();
             rightEyeHistory = new List<Vector2>();
-            float _aQ = 0.0001f;
-            float _aR = 0.1f;
-            leftMeasurement = new KalmanFilter<Vector2>(aQ: _aQ, aR: _aR);
-            rightMeasurement = new KalmanFilter<Vector2>(aQ: _aQ, aR: _aR);
+            leftMeasurement = new KalmanFilter<Vector2>(GlobalVars.kalmanQ, GlobalVars.kalmanR);
+            rightMeasurement = new KalmanFilter<Vector2>(GlobalVars.kalmanQ, GlobalVars.kalmanR);
         }
 
         void LateUpdate()
@@ -51,8 +49,8 @@ namespace MediaPipe.BlazeFace
 
         void smoothKalman()
         {
-            leftEye = leftMeasurement.Update(leftEye);
-            rightEye = rightMeasurement.Update(rightEye);
+            leftEye = leftMeasurement.Update(leftEye, GlobalVars.kalmanQ, GlobalVars.kalmanR);
+            rightEye = rightMeasurement.Update(rightEye, GlobalVars.kalmanQ, GlobalVars.kalmanR);
         }
 
         void smoothAverage()
