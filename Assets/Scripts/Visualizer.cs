@@ -22,7 +22,7 @@ public sealed class Visualizer : MonoBehaviour
     #region Private members
 
     FaceDetector _detector;
-    Marker[] _markers = new Marker[16];
+    Marker[] _markers = new Marker[1]; // default 16
 
     void RunDetector(Texture input)
     {
