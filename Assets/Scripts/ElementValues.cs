@@ -12,17 +12,35 @@ public class ElementValues : MonoBehaviour
     public TMP_Dropdown smoothingDropdown;
     public GameObject faceTracking;
     public TMP_Text currentModelText;
-    public Slider avgSlider;
-    public TMP_Text avgText;
+    public Toggle stereoCheck;
+    public GameObject averageElements;
+    private Slider avgSlider;
+    private TMP_Text avgText;
+    public GameObject kalmanElements;
+    private Slider qSlider;
+    private Slider rSlider;
+    private TMP_Text qValue;
+    private TMP_Text rValue;
     private GameObject _faceTrackingInstance;
 
     void Start()
     {
+        avgSlider = averageElements.GetComponentInChildren<Slider>(true);
+        avgText = averageElements.GetComponentInChildren<TMP_Text>(true);
+        var kalmanSliders = kalmanElements.GetComponentsInChildren<Slider>(true);
+        qSlider = kalmanSliders[0];
+        rSlider = kalmanSliders[1];
+        var kalmanValues = kalmanElements.GetComponentsInChildren<TMP_Text>(true);
+        qValue = kalmanValues[0];
+        rValue = kalmanValues[1];
         // set to values in GlobalVars
         currentModelText.text = "Current model: " + GlobalVars.modelPath;
         SetCamName(GlobalVars.cam.name);
         SetSmoothingOption(GlobalVars.smoothing);
         SetAvgSliderAndText(GlobalVars.framesSmoothed);
+        stereoCheck.isOn = GlobalVars.stereoChecked;
+        qSlider.value = GlobalVars.kalmanQ;
+        rSlider.value = GlobalVars.kalmanR;
         
         ChangeCamPreview(webcamDropdown);
         webcamDropdown.onValueChanged.AddListener(delegate
@@ -41,6 +59,41 @@ public class ElementValues : MonoBehaviour
         {
             ChangeAvgFrames(avgSlider);
         });
+        
+        stereoCheck.onValueChanged.AddListener(delegate
+        {
+            ChangeStereo(stereoCheck);
+        });
+        
+        ChangeQslider(qSlider);
+        qSlider.onValueChanged.AddListener(delegate
+        {
+            ChangeQslider(qSlider);
+        });
+        
+        ChangeRslider(rSlider);
+        rSlider.onValueChanged.AddListener(delegate
+        {
+            ChangeRslider(rSlider);
+        });
+    }
+
+    private void ChangeRslider(Slider slider)
+    {
+        GlobalVars.kalmanR = slider.value;
+        rValue.text = slider.value.ToString();
+    }
+
+    private void ChangeQslider(Slider slider)
+    {
+        GlobalVars.kalmanQ = slider.value;
+        qValue.text = slider.value.ToString();
+
+    }
+
+    private void ChangeStereo(Toggle sender)
+    {
+        GlobalVars.stereoChecked = sender.isOn;
     }
 
     private void SetAvgSliderAndText(int framesSmoothed)
@@ -75,16 +128,8 @@ public class ElementValues : MonoBehaviour
     void ChangeSmoothing(TMP_Dropdown sender)
     {
         GlobalVars.smoothing = smoothingDropdown.options[sender.value].text;
-        if (GlobalVars.smoothing == "Average")
-        {
-            avgSlider.gameObject.SetActive(true);
-            avgText.gameObject.SetActive(true);
-        }
-        else
-        {
-            avgSlider.gameObject.SetActive(false);
-            avgText.gameObject.SetActive(false);
-        }
+        averageElements.SetActive(GlobalVars.smoothing == "Average");
+        kalmanElements.SetActive(GlobalVars.smoothing == "Kalman");
     }
     
     private void ChangeAvgFrames(Slider slider)
