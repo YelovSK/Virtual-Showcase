@@ -1,28 +1,35 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace MediaPipe.BlazeFace {
 
     public class CameraTransform : MonoBehaviour
     {
         EyeTracker _tracker;
-        new Camera camera;
+        private Camera leftCamera;
+        private Camera rightCamera;
         float camX = 0;
         float camY = 1;
         float camZ = -10;
         float camFOV = 30;
-        float prevAngle = 0;
 
         void Start()
         {
-            camera = GameObject.Find("Main Camera").GetComponent<Camera>();
+            if (SceneManager.GetActiveScene().name != "Main")
+                return;
+            leftCamera = GameObject.Find("CameraLeft").GetComponent<Camera>();
+            if (GlobalVars.stereoChecked)
+                rightCamera = GameObject.Find("CameraRight").GetComponent<Camera>();
             _tracker = GetComponent<EyeTracker>();
         }
 
         void LateUpdate()
         {
-            Transform();
+            if (SceneManager.GetActiveScene().name == "Main")
+                Transform();
         }
 
         void Transform()
@@ -32,19 +39,29 @@ namespace MediaPipe.BlazeFace {
             var diff = rightEye - leftEye;
             var angle = Vector2.Angle(diff, Vector2.right);
             if (leftEye.y > rightEye.y) angle *= -1;
-            Vector3 pos = camera.transform.position;
             var x = (leftEye[0] - 0.5f + rightEye[0] - 0.5f) / 2;
             var y = (leftEye[1] - 0.5f + rightEye[1] - 0.5f) / 2;
             var z = Mathf.Abs(leftEye[0] - rightEye[0]);
             var fov = camFOV + Mathf.Abs(z) * 200;
+            
+            Vector3 pos;
             pos.x = camX - (x * 5);
             pos.y = camY + (y * 5);
             pos.z = camZ + z * 5;
-            camera.transform.position = pos;
-            camera.fieldOfView = fov;
-            camera.transform.Rotate(0, 0, prevAngle);
-            camera.transform.Rotate(0, 0, -angle);
-            prevAngle = angle;
+            UpdateCamView(leftCamera, fov, pos, angle);
+            if (GlobalVars.stereoChecked)
+            {
+                pos.x += 0.1f;
+                UpdateCamView(rightCamera, fov, pos, angle);
+            }
+        }
+
+        void UpdateCamView(Camera cam, float fov, Vector3 pos, float angle)
+        {
+            var camTransform = cam.transform;
+            cam.fieldOfView = fov;
+            camTransform.position = pos;
+            camTransform.localEulerAngles = new Vector3(0, 0, -angle);
         }
     }
 
