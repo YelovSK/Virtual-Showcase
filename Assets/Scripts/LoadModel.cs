@@ -6,6 +6,8 @@ using Dummiesman;
 public class LoadModel : MonoBehaviour
 {
     GameObject loadedObject;
+    public Camera leftCam;
+    public Camera rightCam;
 
     void Start()
     {
@@ -15,6 +17,22 @@ public class LoadModel : MonoBehaviour
         loadedObject = new OBJLoader().Load(GlobalVars.modelPath);
         loadedObject.transform.Translate(0, 0, -7);
         loadedObject.transform.Rotate(0, 180, 0);
+        SetStereoCamera();
+    }
+
+    void SetStereoCamera()
+    {
+        Debug.Log(GlobalVars.stereoChecked);
+        if (GlobalVars.stereoChecked)
+        {
+            rightCam.gameObject.SetActive(true);
+            leftCam.rect = new Rect(0, 0, 0.5f, 1);
+        }
+        else
+        {
+            rightCam.gameObject.SetActive(false);
+            leftCam.rect = new Rect(0, 0, 1, 1);
+        }
     }
 
     void Update()
