@@ -12,7 +12,6 @@ public class ElementValues : MonoBehaviour
     public TMP_Dropdown smoothingDropdown;
     public GameObject faceTracking;
     public TMP_Text currentModelText;
-    public Toggle stereoCheck;
     public GameObject averageElements;
     private Slider avgSlider;
     private TMP_Text avgText;
@@ -38,7 +37,6 @@ public class ElementValues : MonoBehaviour
         SetCamName(GlobalVars.cam.name);
         SetSmoothingOption(GlobalVars.smoothing);
         SetAvgSliderAndText(GlobalVars.framesSmoothed);
-        stereoCheck.isOn = GlobalVars.stereoChecked;
         qSlider.value = GlobalVars.kalmanQ;
         rSlider.value = GlobalVars.kalmanR;
         
@@ -58,11 +56,6 @@ public class ElementValues : MonoBehaviour
         avgSlider.onValueChanged.AddListener(delegate
         {
             ChangeAvgFrames(avgSlider);
-        });
-        
-        stereoCheck.onValueChanged.AddListener(delegate
-        {
-            ChangeStereo(stereoCheck);
         });
         
         ChangeQslider(qSlider);
@@ -89,11 +82,6 @@ public class ElementValues : MonoBehaviour
         GlobalVars.kalmanQ = slider.value;
         qValue.text = slider.value.ToString();
 
-    }
-
-    private void ChangeStereo(Toggle sender)
-    {
-        GlobalVars.stereoChecked = sender.isOn;
     }
 
     private void SetAvgSliderAndText(int framesSmoothed)

@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,8 +8,7 @@ namespace MediaPipe.BlazeFace {
     public class CameraTransform : MonoBehaviour
     {
         EyeTracker _tracker;
-        private Camera leftCamera;
-        private Camera rightCamera;
+        private Camera camera;
         float camX = 0;
         float camY = 1;
         float camZ = -10;
@@ -20,9 +18,7 @@ namespace MediaPipe.BlazeFace {
         {
             if (SceneManager.GetActiveScene().name != "Main")
                 return;
-            leftCamera = GameObject.Find("CameraLeft").GetComponent<Camera>();
-            if (GlobalVars.stereoChecked)
-                rightCamera = GameObject.Find("CameraRight").GetComponent<Camera>();
+            camera = GameObject.Find("Main Camera").GetComponent<Camera>();
             _tracker = GetComponent<EyeTracker>();
         }
 
@@ -48,18 +44,13 @@ namespace MediaPipe.BlazeFace {
             pos.x = camX - (x * 5);
             pos.y = camY + (y * 5);
             pos.z = camZ + z * 5;
-            UpdateCamView(leftCamera, fov, pos, angle);
-            if (GlobalVars.stereoChecked)
-            {
-                pos.x += 0.1f;
-                UpdateCamView(rightCamera, fov, pos, angle);
-            }
+            UpdateCamView(fov, pos, angle);
         }
 
-        void UpdateCamView(Camera cam, float fov, Vector3 pos, float angle)
+        void UpdateCamView(float fov, Vector3 pos, float angle)
         {
-            var camTransform = cam.transform;
-            cam.fieldOfView = fov;
+            var camTransform = camera.transform;
+            camera.fieldOfView = fov;
             camTransform.position = pos;
             camTransform.localEulerAngles = new Vector3(0, 0, -angle);
         }
