@@ -15,7 +15,6 @@ public class GlobalVars : MonoBehaviour
     public static string modelPath = "Assets\\Objects\\IronMan.obj";
     public static int previewIx = 0;
     public static int framesSmoothed = 30;
-    public static bool stereoChecked = false;
     public static float kalmanQ = 0.0001f;
     public static float kalmanR = 0.1f;
 }

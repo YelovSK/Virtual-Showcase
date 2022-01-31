@@ -5,10 +5,9 @@ using Dummiesman;
 
 public class LoadModel : MonoBehaviour
 {
+    public GameObject camPreview;
+    public CanvasGroup canvasGroup;
     GameObject loadedObject;
-    public Camera leftCam;
-    public Camera rightCam;
-
     void Start()
     {
         if (loadedObject != null)
@@ -17,26 +16,38 @@ public class LoadModel : MonoBehaviour
         loadedObject = new OBJLoader().Load(GlobalVars.modelPath);
         loadedObject.transform.Translate(0, 0, -7);
         loadedObject.transform.Rotate(0, 180, 0);
-        SetStereoCamera();
-    }
-
-    void SetStereoCamera()
-    {
-        Debug.Log(GlobalVars.stereoChecked);
-        if (GlobalVars.stereoChecked)
-        {
-            rightCam.gameObject.SetActive(true);
-            leftCam.rect = new Rect(0, 0, 0.5f, 1);
-        }
-        else
-        {
-            rightCam.gameObject.SetActive(false);
-            leftCam.rect = new Rect(0, 0, 1, 1);
-        }
     }
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            loadedObject.transform.localScale = new Vector3(1f, 1f, 1f);
+            loadedObject.transform.localPosition = new Vector3(0f, 0f, -7f);
+            loadedObject.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
+        }
+        if (Input.GetKeyDown("f12"))
+        {
+            GlobalVars.previewIx++;
+            if (GlobalVars.previewIx == 3)
+                GlobalVars.previewIx = 0;
+            switch (GlobalVars.previewIx)
+            {
+                case 0: // Preview on
+                    camPreview.SetActive(true);
+                    canvasGroup.alpha = 1;
+                    break;
+                case 1: // Preview off
+                    camPreview.SetActive(true);
+                    canvasGroup.alpha = 0;
+                    break;
+                case 2: // Preview off and disabled tracking
+                    camPreview.SetActive(false);
+                    break;
+            }
+        }
+        if (Cursor.visible)    // means 3D settings are showing in UI
+            return;
         var mouseX = Input.GetAxis("Mouse X");
         var mouseY = Input.GetAxis("Mouse Y");
         if (Input.GetMouseButton(0) && Input.GetMouseButton(1))
@@ -59,12 +70,6 @@ public class LoadModel : MonoBehaviour
         if (Input.GetAxis("Mouse ScrollWheel") < 0f)
         {
             loadedObject.transform.localScale *= 0.9f;
-        }
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            loadedObject.transform.localScale = new Vector3(1f, 1f, 1f);
-            loadedObject.transform.localPosition = new Vector3(0f, 0f, -7f);
-            loadedObject.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
         }
     }
 
