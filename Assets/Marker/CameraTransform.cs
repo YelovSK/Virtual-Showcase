@@ -30,8 +30,8 @@ namespace MediaPipe.BlazeFace {
 
         void Transform()
         {
-            Vector2 leftEye = _tracker.getLeftEye();
-            Vector2 rightEye = _tracker.getRightEye();
+            Vector2 leftEye = _tracker.GetLeftEye();
+            Vector2 rightEye = _tracker.GetRightEye();
             var diff = rightEye - leftEye;
             var angle = Vector2.Angle(diff, Vector2.right);
             if (leftEye.y > rightEye.y) angle *= -1;

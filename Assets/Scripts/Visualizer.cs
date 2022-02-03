@@ -27,7 +27,7 @@ public sealed class Visualizer : MonoBehaviour
     void RunDetector(Texture input)
     {
         // Face detection
-        _detector.ProcessImage(input, GlobalVars.threshold);
+        _detector.ProcessImage(input, PlayerPrefs.GetFloat("threshold"));
 
         // Marker update
         var i = 0;

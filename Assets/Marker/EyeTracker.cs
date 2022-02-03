@@ -8,84 +8,82 @@ namespace MediaPipe.BlazeFace
     public sealed class EyeTracker : MonoBehaviour
     {
         Marker _marker;
-
-        // Smoothing
-        Vector2 leftEye;
-        Vector2 rightEye;
+        // Current eye position
+        Vector2 _leftEye;
+        Vector2 _rightEye;
         // Average
-        List<Vector2> leftEyeHistory;
-        List<Vector2> rightEyeHistory;
+        List<Vector2> _leftEyeHistory;
+        List<Vector2> _rightEyeHistory;
         // Kalman
-        KalmanFilter<Vector2> leftMeasurement;
-        KalmanFilter<Vector2> rightMeasurement;
+        KalmanFilter<Vector2> _leftMeasurement;
+        KalmanFilter<Vector2> _rightMeasurement;
 
 
         void Start()
         {
             _marker = GetComponent<Marker>();
-            leftEyeHistory = new List<Vector2>();
-            rightEyeHistory = new List<Vector2>();
-            leftMeasurement = new KalmanFilter<Vector2>(GlobalVars.kalmanQ, GlobalVars.kalmanR);
-            rightMeasurement = new KalmanFilter<Vector2>(GlobalVars.kalmanQ, GlobalVars.kalmanR);
+            _leftEyeHistory = new List<Vector2>();
+            _rightEyeHistory = new List<Vector2>();
+            _leftMeasurement = new KalmanFilter<Vector2>(PlayerPrefs.GetFloat("kalmanQ"), PlayerPrefs.GetFloat("kalmanR"));
+            _rightMeasurement = new KalmanFilter<Vector2>(PlayerPrefs.GetFloat("kalmanQ"), PlayerPrefs.GetFloat("kalmanR"));
         }
 
         void LateUpdate()
         {
             var detection = _marker.detection;
-            leftEye = detection.leftEye;
-            rightEye = detection.rightEye;
-            switch (GlobalVars.smoothing)
+            _leftEye = detection.leftEye;
+            _rightEye = detection.rightEye;
+            switch (PlayerPrefs.GetString("smoothing"))
             {
                 case "Kalman":
-                    smoothKalman();
+                    SmoothKalman();
                     break;
                 case "Average":
-                    smoothAverage();
+                    SmoothAverage();
                     break;
                 case "Off":
                     break;
             }
         }
 
-        void smoothKalman()
+        void SmoothKalman()
         {
-            leftEye = leftMeasurement.Update(leftEye, GlobalVars.kalmanQ, GlobalVars.kalmanR);
-            rightEye = rightMeasurement.Update(rightEye, GlobalVars.kalmanQ, GlobalVars.kalmanR);
+            _leftEye = _leftMeasurement.Update(_leftEye, PlayerPrefs.GetFloat("kalmanQ"), PlayerPrefs.GetFloat("kalmanR"));
+            _rightEye = _rightMeasurement.Update(_rightEye, PlayerPrefs.GetFloat("kalmanQ"), PlayerPrefs.GetFloat("kalmanR"));
         }
 
-        void smoothAverage()
+        void SmoothAverage()
         {
-            if (GlobalVars.framesSmoothed > 1)
+            if (PlayerPrefs.GetFloat("framesSmoothed") < 1)
+                return;
+            _leftEyeHistory.Add(_leftEye);
+            _rightEyeHistory.Add(_rightEye);
+            if (_leftEyeHistory.Count > PlayerPrefs.GetInt("framesSmoothed"))   // remove first values
             {
-                leftEyeHistory.Add(leftEye);
-                rightEyeHistory.Add(rightEye);
-                if (leftEyeHistory.Count > GlobalVars.framesSmoothed)   // remove first values
-                {
-                    leftEyeHistory.RemoveRange(0, leftEyeHistory.Count - GlobalVars.framesSmoothed);
-                    rightEyeHistory.RemoveRange(0, rightEyeHistory.Count - GlobalVars.framesSmoothed);
-                }
-                leftEye = new Vector2(
-                    leftEyeHistory.Average(x => x[0]),
-                    leftEyeHistory.Average(x => x[1])
-                );
-                rightEye = new Vector2(
-                    rightEyeHistory.Average(x => x[0]),
-                    rightEyeHistory.Average(x => x[1])
-                );
+                _leftEyeHistory.RemoveRange(0, _leftEyeHistory.Count - PlayerPrefs.GetInt("framesSmoothed"));
+                _rightEyeHistory.RemoveRange(0, _rightEyeHistory.Count - PlayerPrefs.GetInt("framesSmoothed"));
             }
+            _leftEye = new Vector2(
+                _leftEyeHistory.Average(x => x[0]),
+                _leftEyeHistory.Average(x => x[1])
+            );
+            _rightEye = new Vector2(
+                _rightEyeHistory.Average(x => x[0]),
+                _rightEyeHistory.Average(x => x[1])
+            );
         }
 
-        public Vector2 getLeftEye()
+        public Vector2 GetLeftEye()
         {
-            return leftEye;
+            return _leftEye;
         }
 
-        public Vector2 getRightEye()
+        public Vector2 GetRightEye()
         {
-            return rightEye;
+            return _rightEye;
         }
 
-        public FaceDetector.Detection getDetection()
+        public FaceDetector.Detection GetDetection()
         {
             return _marker.detection;
         }

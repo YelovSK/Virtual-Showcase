@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using SimpleFileBrowser;
 using TMPro;
 
 public class ModelLoader : MonoBehaviour
 {
-	public TMP_Text modelText;
+	[SerializeField] TMP_Text modelText;
     public void ShowFileExplorer()
     {
         FileBrowser.SetFilters(true, new FileBrowser.Filter("Objects", ".obj"));
@@ -24,8 +25,8 @@ public class ModelLoader : MonoBehaviour
 		{
 			string path = FileBrowser.Result[0];
 			Debug.Log(path);
-			GlobalVars.modelPath = path;
-			modelText.text = "Current model: " + path;
+			PlayerPrefs.SetString("modelPath", path);
+			modelText.text = "Current model: " + path.Split('\\').Last();
 		}
 	}
 
