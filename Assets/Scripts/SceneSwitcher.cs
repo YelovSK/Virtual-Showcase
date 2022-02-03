@@ -21,13 +21,9 @@ public class SceneSwitcher : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (SceneManager.GetActiveScene().name == "Main")
-            {
                 SceneManager.LoadScene("Menu");
-            }
             else
-            {
-                switchMain();
-            }
+                SceneManager.LoadScene("Main");
         }
     }
 

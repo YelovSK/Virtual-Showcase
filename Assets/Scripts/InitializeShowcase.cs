@@ -3,35 +3,34 @@ using System.Collections.Generic;
 using UnityEngine;
 using Dummiesman;
 
-public class LoadModel : MonoBehaviour
+public class InitializeShowcase : MonoBehaviour
 {
-    public GameObject camPreview;
-    public CanvasGroup canvasGroup;
+    [SerializeField] GameObject camPreview;
+    [SerializeField] CanvasGroup canvasGroup;
     GameObject loadedObject;
     void Start()
     {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
         if (loadedObject != null)
             Destroy(loadedObject);
-        Debug.Log(GlobalVars.modelPath);
-        loadedObject = new OBJLoader().Load(GlobalVars.modelPath);
+        if (PlayerPrefs.GetString("modelPath") == "")
+            return;
+        Debug.Log(PlayerPrefs.GetString("modelPath"));
+        loadedObject = new OBJLoader().Load(PlayerPrefs.GetString("modelPath"));
         loadedObject.transform.Translate(0, 0, -7);
         loadedObject.transform.Rotate(0, 180, 0);
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            loadedObject.transform.localScale = new Vector3(1f, 1f, 1f);
-            loadedObject.transform.localPosition = new Vector3(0f, 0f, -7f);
-            loadedObject.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
-        }
         if (Input.GetKeyDown("f12"))
         {
-            GlobalVars.previewIx++;
-            if (GlobalVars.previewIx == 3)
-                GlobalVars.previewIx = 0;
-            switch (GlobalVars.previewIx)
+            PlayerPrefs.SetInt("previewIx", PlayerPrefs.GetInt("previewIx")+1);
+            // GlobalVars.previewIx++;
+            if (PlayerPrefs.GetInt("previewIx") == 3)
+                PlayerPrefs.SetInt("previewIx", 0);
+            switch (PlayerPrefs.GetInt("previewIx"))
             {
                 case 0: // Preview on
                     camPreview.SetActive(true);
@@ -46,8 +45,14 @@ public class LoadModel : MonoBehaviour
                     break;
             }
         }
-        if (Cursor.visible)    // means 3D settings are showing in UI
+        if (Cursor.visible || loadedObject == null)    // means 3D settings are showing in UI
             return;
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            loadedObject.transform.localScale = new Vector3(1f, 1f, 1f);
+            loadedObject.transform.localPosition = new Vector3(0f, 0f, -7f);
+            loadedObject.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
+        }
         var mouseX = Input.GetAxis("Mouse X");
         var mouseY = Input.GetAxis("Mouse Y");
         if (Input.GetMouseButton(0) && Input.GetMouseButton(1))
