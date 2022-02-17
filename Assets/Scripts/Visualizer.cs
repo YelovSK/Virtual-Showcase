@@ -53,8 +53,8 @@ public sealed class Visualizer : MonoBehaviour
 
     void Start()
     {
-        _webcam.StartWebcam();  // doesn't initialize in time if put in default _webcam Start method
-        if (!_webcam.IsCameraRunning()) {   // broken webcam, image set to "NO WEBCAM SHOWING"
+        if (!_webcam.IsCameraRunning())   // broken webcam, image set to "NO WEBCAM SHOWING"
+        {
             _previewUI.texture = _defaultCamTexture;
             return;
         }
@@ -77,7 +77,7 @@ public sealed class Visualizer : MonoBehaviour
     void LateUpdate()
     {
         // Webcam test: Run the detector every frame.
-        if (_webcam != null && _webcam.IsCameraRunning()) RunDetector(_webcam.Texture);
+        if (_webcam != null && _webcam.IsCameraRunning() && _webcam.CameraUpdated()) RunDetector(_webcam.Texture);
     }
 
     #endregion
