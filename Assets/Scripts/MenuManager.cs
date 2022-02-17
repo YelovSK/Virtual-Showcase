@@ -16,12 +16,12 @@ public class MenuManager : MonoBehaviour
     [SerializeField] TMP_Text thresholdText;
     [SerializeField] Slider thresholdSlider;
     [SerializeField] GameObject faceTracking;
-    Slider avgSlider;
-    TMP_Text avgText;
-    Slider qSlider;
-    Slider rSlider;
-    TMP_Text qValue;
-    TMP_Text rValue;
+    Slider _avgSlider;
+    TMP_Text _avgText;
+    Slider _qSlider;
+    Slider _rSlider;
+    TMP_Text _qValue;
+    TMP_Text _rValue;
     GameObject _faceTrackingInstance;
 
     void Start()
@@ -42,33 +42,33 @@ public class MenuManager : MonoBehaviour
     private void SetDefaultPrefs()
     {
         if (!PlayerPrefs.HasKey("smoothing"))
-            PlayerPrefs.SetString("smoothing", "Kalman");
+            PlayerPrefs.SetString("smoothing", "Kalman");   // Kalman, Average, Off
         if (!PlayerPrefs.HasKey("cam"))
-            PlayerPrefs.SetString("cam", WebCamTexture.devices.ToList().First().name);
+            PlayerPrefs.SetString("cam", WebCamTexture.devices.First().name);
         if (!PlayerPrefs.HasKey("threshold"))
-            PlayerPrefs.SetFloat("threshold", 0.5f);
+            PlayerPrefs.SetFloat("threshold", 0.5f);    // 0.0 - 1.0
         if (!PlayerPrefs.HasKey("modelPath"))
             PlayerPrefs.SetString("modelPath", "");
         if (!PlayerPrefs.HasKey("previewIx"))
-            PlayerPrefs.SetInt("previewIx", 0);
+            PlayerPrefs.SetInt("previewIx", 0); // 0, 1, 2
         if (!PlayerPrefs.HasKey("framesSmoothed"))
-            PlayerPrefs.SetInt("framesSmoothed", 30);
+            PlayerPrefs.SetInt("framesSmoothed", 30);   // 1-200
         if (!PlayerPrefs.HasKey("kalmanQ"))
-            PlayerPrefs.SetFloat("kalmanQ", 0.0001f);
+            PlayerPrefs.SetFloat("kalmanQ", 0.0001f);   // 1e-08 - 1e-02
         if (!PlayerPrefs.HasKey("kalmanR"))
-            PlayerPrefs.SetFloat("kalmanR", 0.1f);
+            PlayerPrefs.SetFloat("kalmanR", 0.1f);  // 0.0001 - 0.5
     }
     
     private void SetElementsToPlayerPrefs()
     {
-        avgSlider = averageElements.GetComponentInChildren<Slider>(true);
-        avgText = averageElements.GetComponentInChildren<TMP_Text>(true);
+        _avgSlider = averageElements.GetComponentInChildren<Slider>(true);
+        _avgText = averageElements.GetComponentInChildren<TMP_Text>(true);
         var kalmanSliders = kalmanElements.GetComponentsInChildren<Slider>(true);
-        qSlider = kalmanSliders[0];
-        rSlider = kalmanSliders[1];
+        _qSlider = kalmanSliders[0];
+        _rSlider = kalmanSliders[1];
         var kalmanValues = kalmanElements.GetComponentsInChildren<TMP_Text>(true);
-        qValue = kalmanValues[0];
-        rValue = kalmanValues[1];
+        _qValue = kalmanValues[0];
+        _rValue = kalmanValues[1];
         if (System.IO.File.Exists(PlayerPrefs.GetString("modelPath")))
             currentModelText.text = "Current model: " + PlayerPrefs.GetString("modelPath").Split('\\').Last();
         else
@@ -76,8 +76,8 @@ public class MenuManager : MonoBehaviour
         SetCamName(PlayerPrefs.GetString("cam"));
         SetSmoothingOption(PlayerPrefs.GetString("smoothing"));
         SetAvgSliderAndText(PlayerPrefs.GetInt("framesSmoothed"));
-        qSlider.value = PlayerPrefs.GetFloat("kalmanQ");
-        rSlider.value = PlayerPrefs.GetFloat("kalmanR");
+        _qSlider.value = PlayerPrefs.GetFloat("kalmanQ");
+        _rSlider.value = PlayerPrefs.GetFloat("kalmanR");
         thresholdText.text = Mathf.RoundToInt(PlayerPrefs.GetFloat("threshold") * 100) + "%";
         thresholdSlider.value = PlayerPrefs.GetFloat("threshold");
     }
@@ -96,22 +96,22 @@ public class MenuManager : MonoBehaviour
             ChangeSmoothing(smoothingDropdown);
         });
         
-        ChangeAvgFrames(avgSlider);
-        avgSlider.onValueChanged.AddListener(delegate
+        ChangeAvgFrames(_avgSlider);
+        _avgSlider.onValueChanged.AddListener(delegate
         {
-            ChangeAvgFrames(avgSlider);
+            ChangeAvgFrames(_avgSlider);
         });
         
-        ChangeQslider(qSlider);
-        qSlider.onValueChanged.AddListener(delegate
+        ChangeQslider(_qSlider);
+        _qSlider.onValueChanged.AddListener(delegate
         {
-            ChangeQslider(qSlider);
+            ChangeQslider(_qSlider);
         });
         
-        ChangeRslider(rSlider);
-        rSlider.onValueChanged.AddListener(delegate
+        ChangeRslider(_rSlider);
+        _rSlider.onValueChanged.AddListener(delegate
         {
-            ChangeRslider(rSlider);
+            ChangeRslider(_rSlider);
         });
         
         ChangeThreshold(thresholdSlider);
@@ -124,20 +124,20 @@ public class MenuManager : MonoBehaviour
     private void ChangeRslider(Slider slider)
     {
         PlayerPrefs.SetFloat("kalmanR", slider.value);
-        rValue.text = slider.value.ToString();
+        _rValue.text = slider.value.ToString();
     }
 
     private void ChangeQslider(Slider slider)
     {
         PlayerPrefs.SetFloat("kalmanQ", slider.value);
-        qValue.text = slider.value.ToString();
+        _qValue.text = slider.value.ToString();
 
     }
 
     private void SetAvgSliderAndText(int framesSmoothed)
     {
-        avgSlider.value = framesSmoothed;
-        avgText.text = framesSmoothed + " frames";
+        _avgSlider.value = framesSmoothed;
+        _avgText.text = framesSmoothed + " frames";
     }
 
     public void SetCamName(string camName)
@@ -175,7 +175,7 @@ public class MenuManager : MonoBehaviour
     private void ChangeAvgFrames(Slider slider)
     {
         PlayerPrefs.SetInt("framesSmoothed", Convert.ToInt16(slider.value));
-        avgText.text = slider.value + " frames";
+        _avgText.text = slider.value + " frames";
     }
     
     public void ResetSettings()
