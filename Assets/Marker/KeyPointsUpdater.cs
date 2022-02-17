@@ -6,13 +6,7 @@ namespace MediaPipe.BlazeFace {
 
 public sealed class KeyPointsUpdater : MonoBehaviour
 {
-        #region Editable attributes
-
         [SerializeField] RectTransform[] _keyPoints;
-        #endregion
-
-        #region Private members
-
         EyeTracker _tracker;
         RectTransform _xform;
         RectTransform _parent;
@@ -21,10 +15,6 @@ public sealed class KeyPointsUpdater : MonoBehaviour
         void SetKeyPoint(RectTransform xform, Vector2 point)
           => xform.anchoredPosition =
                point * _parent.rect.size - _xform.anchoredPosition;
-
-        #endregion
-
-        #region MonoBehaviour implementation
 
         void Start()
         {
@@ -36,9 +26,9 @@ public sealed class KeyPointsUpdater : MonoBehaviour
 
         void LateUpdate()
         {
-            FaceDetector.Detection detection = _tracker.GetDetection();
-            Vector2 leftEye = _tracker.GetLeftEye();
-            Vector2 rightEye = _tracker.GetRightEye();
+            FaceDetector.Detection detection = _tracker.Detection;
+            Vector2 leftEye = _tracker.LeftEye;
+            Vector2 rightEye = _tracker.RightEye;
 
             // Bounding box center
             var rect = _parent.rect;
@@ -60,8 +50,6 @@ public sealed class KeyPointsUpdater : MonoBehaviour
             // Label
             _label.text = $"{(int)(detection.score * 100)}%";
         }
-
-        #endregion
     }
 
 } // namespace MediaPipe.BlazeFace

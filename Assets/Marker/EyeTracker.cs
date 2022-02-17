@@ -4,7 +4,6 @@ using System.Linq;
 
 namespace MediaPipe.BlazeFace
 {
-
     public sealed class EyeTracker : MonoBehaviour
     {
         Marker _marker;
@@ -17,6 +16,9 @@ namespace MediaPipe.BlazeFace
         // Kalman
         KalmanFilter<Vector2> _leftMeasurement;
         KalmanFilter<Vector2> _rightMeasurement;
+        public FaceDetector.Detection Detection => _marker.detection;
+        public Vector2 LeftEye => _leftEye;
+        public Vector2 RightEye => _rightEye;
 
 
         void Start()
@@ -54,11 +56,11 @@ namespace MediaPipe.BlazeFace
 
         void SmoothAverage()
         {
-            if (PlayerPrefs.GetFloat("framesSmoothed") < 1)
+            if (PlayerPrefs.GetInt("framesSmoothed") == 1)
                 return;
             _leftEyeHistory.Add(_leftEye);
             _rightEyeHistory.Add(_rightEye);
-            if (_leftEyeHistory.Count > PlayerPrefs.GetInt("framesSmoothed"))   // remove first values
+            if (_leftEyeHistory.Count > PlayerPrefs.GetInt("framesSmoothed"))   // remove oldest values
             {
                 _leftEyeHistory.RemoveRange(0, _leftEyeHistory.Count - PlayerPrefs.GetInt("framesSmoothed"));
                 _rightEyeHistory.RemoveRange(0, _rightEyeHistory.Count - PlayerPrefs.GetInt("framesSmoothed"));
@@ -72,22 +74,5 @@ namespace MediaPipe.BlazeFace
                 _rightEyeHistory.Average(x => x[1])
             );
         }
-
-        public Vector2 GetLeftEye()
-        {
-            return _leftEye;
-        }
-
-        public Vector2 GetRightEye()
-        {
-            return _rightEye;
-        }
-
-        public FaceDetector.Detection GetDetection()
-        {
-            return _marker.detection;
-        }
-
     }
-
-} // namespace MediaPipe.BlazeFace
+}

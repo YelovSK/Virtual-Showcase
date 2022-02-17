@@ -8,17 +8,15 @@ namespace MediaPipe.BlazeFace {
     public class CameraTransform : MonoBehaviour
     {
         EyeTracker _tracker;
-        private Camera camera;
-        float camX = 0;
-        float camY = 1;
-        float camZ = -10;
-        float camFOV = 30;
+        Camera _camera;
+        Vector3 _camPos = new Vector3(0, 1, -10);
+        float _camFOV = 30;
 
         void Start()
         {
             if (SceneManager.GetActiveScene().name != "Main")
                 return;
-            camera = GameObject.Find("Main Camera").GetComponent<Camera>();
+            _camera = GameObject.Find("Main Camera").GetComponent<Camera>();
             _tracker = GetComponent<EyeTracker>();
         }
 
@@ -30,28 +28,23 @@ namespace MediaPipe.BlazeFace {
 
         void Transform()
         {
-            Vector2 leftEye = _tracker.GetLeftEye();
-            Vector2 rightEye = _tracker.GetRightEye();
-            var diff = rightEye - leftEye;
-            var angle = Vector2.Angle(diff, Vector2.right);
-            if (leftEye.y > rightEye.y) angle *= -1;
-            var x = (leftEye[0] - 0.5f + rightEye[0] - 0.5f) / 2;
-            var y = (leftEye[1] - 0.5f + rightEye[1] - 0.5f) / 2;
-            var z = Mathf.Abs(leftEye[0] - rightEye[0]);
-            var fov = camFOV + Mathf.Abs(z) * 200;
+            // get new tracking position
+            Vector2 leftEye = _tracker.LeftEye;
+            Vector2 rightEye = _tracker.RightEye;
             
-            Vector3 pos;
-            pos.x = camX - (x * 5);
-            pos.y = camY + (y * 5);
-            pos.z = camZ + z * 5;
-            UpdateCamView(fov, pos, angle);
-        }
+            // literally random offset values
+            var angle = Vector2.Angle(rightEye - leftEye, Vector2.right);
+            if (leftEye.y > rightEye.y) angle *= -1;
+            Vector3 offset;
+            offset.x = (leftEye[0] - 0.5f + rightEye[0] - 0.5f) * -2.5f;
+            offset.y = (leftEye[1] - 0.5f + rightEye[1] - 0.5f) * 2.5f;
+            offset.z = Mathf.Abs(leftEye[0] - rightEye[0]) * 5;
+            var fov = _camFOV + Mathf.Abs(offset.z / 5) * 200;
 
-        void UpdateCamView(float fov, Vector3 pos, float angle)
-        {
-            var camTransform = camera.transform;
-            camera.fieldOfView = fov;
-            camTransform.position = pos;
+            // update camera position
+            _camera.fieldOfView = fov;
+            var camTransform = _camera.transform;
+            camTransform.position = offset + _camPos;
             camTransform.localEulerAngles = new Vector3(0, 0, -angle);
         }
     }

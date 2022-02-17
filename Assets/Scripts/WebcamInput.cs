@@ -7,14 +7,16 @@ public sealed class WebcamInput : MonoBehaviour
     WebCamTexture _webcam;
     RenderTexture _buffer;
     public Texture Texture => _buffer;
+    
+    public bool IsCameraRunning() => _webcam != null && _webcam.isPlaying;
 
-    void OnDestroy()
+    public bool CameraUpdated() => _webcam.didUpdateThisFrame;
+
+    void Awake()
     {
-        if (_webcam == null)
-            return;
-        _webcam.Stop();
-        Destroy(_webcam);
-        Destroy(_buffer);
+        _webcam = new WebCamTexture(PlayerPrefs.GetString("cam"), _resolution.x, _resolution.y);
+        _buffer = new RenderTexture(_resolution.x, _resolution.y, 0);
+        _webcam.Play();
     }
 
     void Update()
@@ -33,21 +35,13 @@ public sealed class WebcamInput : MonoBehaviour
 
         Graphics.Blit(_webcam, _buffer, scale, offset);
     }
-
-    public bool IsCameraRunning()
+    
+    void OnDestroy()
     {
-        return _webcam != null && _webcam.isPlaying;
-    }
-
-    public WebCamTexture GetWebcam()
-    {
-        return _webcam;
-    }
-
-    public void StartWebcam()
-    {
-        _webcam = new WebCamTexture(PlayerPrefs.GetString("cam"), _resolution.x, _resolution.y);
-        _buffer = new RenderTexture(_resolution.x, _resolution.y, 0);
-        _webcam.Play();
+        if (_webcam == null)
+            return;
+        _webcam.Stop();
+        Destroy(_webcam);
+        Destroy(_buffer);
     }
 }
