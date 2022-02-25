@@ -18,6 +18,10 @@ namespace MediaPipe.BlazeFace {
         // waiting for coloured glasses around eyes
         bool _transformEnabled = false;
         int _currFrame = 0;
+        Dictionary<string, int> colours = new Dictionary<string, int>()
+        {
+            {"red", 0}, {"yellow", 60}, {"green", 120}, {"cyan", 180}, {"blue", 240}, {"magenta", 300}
+        };
 
         void Start()
         {
@@ -103,16 +107,11 @@ namespace MediaPipe.BlazeFace {
             var pixels = tex.GetPixels(startX, startY, endX - startX, endY - startY);
             
             // go through every pixel
+            int hueThreshold = 30;
             foreach (var col in pixels)
             {
                 // hue component of HSL
                 int hue = GetHueFromPixel(col);
-                var colours = new Dictionary<string, int>()
-                {
-                    {"red", 0}, {"yellow", 60}, {"green", 120}, {"cyan", 180}, {"blue", 240}, {"magenta", 300}
-                };
-                // red ~360/0, green ~100, blue ~230
-                int hueThreshold = 30;
                 if (Math.Abs(hue - colours["blue"]) < hueThreshold)
                     foundPixels++;
             }
