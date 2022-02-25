@@ -76,8 +76,8 @@ public sealed class Visualizer : MonoBehaviour
 
     void LateUpdate()
     {
-        // Webcam test: Run the detector every frame.
-        if (_webcam != null && _webcam.IsCameraRunning() && _webcam.CameraUpdated()) RunDetector(_webcam.Texture);
+        if (_webcam != null && _webcam.IsCameraRunning() && _webcam.CameraUpdated())
+            RunDetector(_webcam.Texture);
     }
 
     #endregion

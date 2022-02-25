@@ -24,8 +24,9 @@ public class ModelLoader : MonoBehaviour
 		if (FileBrowser.Success)
 		{
 			string path = FileBrowser.Result[0];
-			Debug.Log(path);
 			PlayerPrefs.SetString("modelPath", path);
+			Destroy(StaticVars.loadedObject);
+			StaticVars.loadedObject = null;
 			modelText.text = "Current model: " + path.Split('\\').Last();
 		}
 	}
