@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Dummiesman;
 
@@ -12,14 +13,43 @@ public class InitializeShowcase : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        if (_loadedObject != null)
-            Destroy(_loadedObject);
+        SetCamPreview();
         if (PlayerPrefs.GetString("modelPath") == "")
             return;
-        Debug.Log(PlayerPrefs.GetString("modelPath"));
-        _loadedObject = new OBJLoader().Load(PlayerPrefs.GetString("modelPath"));
-        _loadedObject.transform.Translate(0, 0, -7);
-        _loadedObject.transform.Rotate(0, 180, 0);
+        if (StaticVars.loadedObject != null)
+        {
+            _loadedObject = StaticVars.loadedObject;
+            print("Loaded model from static var");
+        }
+        else
+        {
+            _loadedObject = new OBJLoader().Load(PlayerPrefs.GetString("modelPath"));
+            _loadedObject.transform.Translate(0, 0, -7);
+            _loadedObject.transform.Rotate(0, 180, 0);
+            StaticVars.loadedObject = _loadedObject;
+            print("Loaded new model");
+        }
+        DontDestroyOnLoad(_loadedObject);
+    }
+
+    void SetCamPreview()
+    {
+        if (PlayerPrefs.GetInt("previewIx") == 3)
+            PlayerPrefs.SetInt("previewIx", 0);
+        switch (PlayerPrefs.GetInt("previewIx"))
+        {
+            case 0: // Preview on
+                camPreview.SetActive(true);
+                canvasGroup.alpha = 1;
+                break;
+            case 1: // Preview off
+                camPreview.SetActive(true);
+                canvasGroup.alpha = 0;
+                break;
+            case 2: // Preview off and disabled tracking
+                camPreview.SetActive(false);
+                break;
+        }
     }
 
     void Update()
@@ -27,23 +57,7 @@ public class InitializeShowcase : MonoBehaviour
         if (Input.GetKeyDown("f12"))
         {
             PlayerPrefs.SetInt("previewIx", PlayerPrefs.GetInt("previewIx")+1);
-            // GlobalVars.previewIx++;
-            if (PlayerPrefs.GetInt("previewIx") == 3)
-                PlayerPrefs.SetInt("previewIx", 0);
-            switch (PlayerPrefs.GetInt("previewIx"))
-            {
-                case 0: // Preview on
-                    camPreview.SetActive(true);
-                    canvasGroup.alpha = 1;
-                    break;
-                case 1: // Preview off
-                    camPreview.SetActive(true);
-                    canvasGroup.alpha = 0;
-                    break;
-                case 2: // Preview off and disabled tracking
-                    camPreview.SetActive(false);
-                    break;
-            }
+            SetCamPreview();
         }
         if (Cursor.visible || _loadedObject == null)    // means 3D settings are showing in UI
             return;
@@ -58,13 +72,12 @@ public class InitializeShowcase : MonoBehaviour
         if (Input.GetMouseButton(0) && Input.GetMouseButton(1))
         {
             _loadedObject.transform.Translate(0, mouseY/20, 0);
-            return;
         }
-        if (Input.GetMouseButton(0))
+        else if (Input.GetMouseButton(0))
         {
             _loadedObject.transform.Rotate(0, -mouseX, 0);
         }
-        if (Input.GetMouseButton(1))
+        else if (Input.GetMouseButton(1))
         {
             _loadedObject.transform.Translate(mouseX/20, 0, mouseY/20, Space.World);
         }
