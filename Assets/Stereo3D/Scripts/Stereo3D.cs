@@ -12,6 +12,7 @@
 // Tested on Unity 2018, 2019 and 2020 with default render + `Post Processing Stack v2`, URP, and HDRP.
 // Enjoy.
 
+using System;
 using UnityEngine;
 using UnityEngine.Rendering;
 using System.Runtime.InteropServices;
@@ -85,7 +86,24 @@ public class Stereo3D : MonoBehaviour
     bool PPLayerStatus;
 #endif
 
-    void OnEnable()
+	private void Start()
+	{
+		// After reset, no keys are saved
+		if (!PlayerPrefs.HasKey("S3DEnabled"))
+			return;
+		S3DEnabled = PlayerPrefs.GetInt("S3DEnabled") == 1;
+		swapLR = PlayerPrefs.GetInt("swapLR") == 1;
+		userIPD = PlayerPrefs.GetFloat("userIPD");
+		virtualIPD = PlayerPrefs.GetFloat("virtualIPD");
+		matchUserIPD = PlayerPrefs.GetInt("matchUserIPD") == 1;
+		PPI = PlayerPrefs.GetFloat("PPI");
+		pixelPitch = PlayerPrefs.GetFloat("pixelPitch");
+		hFOV = PlayerPrefs.GetFloat("hFOV");
+		method = (Method)PlayerPrefs.GetInt("method");
+		interleavedType = (InterleavedType)PlayerPrefs.GetInt("interleavedType");
+	}
+
+	void OnEnable()
     {
         if (GraphicsSettings.renderPipelineAsset == null)
             defaultRender = true;
@@ -818,5 +836,19 @@ public class Stereo3D : MonoBehaviour
             str = str.Substring(0, 5);
 
         return str;
+    }
+
+    private void OnDestroy()
+    {
+		PlayerPrefs.SetInt("S3DEnabled", S3DEnabled ? 1 : 0);
+		PlayerPrefs.SetInt("swapLR", swapLR ? 1 : 0);
+		PlayerPrefs.SetFloat("userIPD", userIPD);
+		PlayerPrefs.SetFloat("virtualIPD", 66);
+		PlayerPrefs.SetInt("matchUserIPD", matchUserIPD ? 1 : 0);
+		PlayerPrefs.SetFloat("PPI", PPI);
+		PlayerPrefs.SetFloat("pixelPitch", pixelPitch);
+		PlayerPrefs.SetFloat("hFOV", hFOV);
+		PlayerPrefs.SetInt("method", (int)method);
+		PlayerPrefs.SetInt("interleavedType", (int)interleavedType);
     }
 } 

@@ -136,7 +136,7 @@ GameObject:
   - component: {fileID: 33135768}
   m_Layer: 0
   m_Name: Face tracking
-  m_TagString: Untagged
+  m_TagString: Face tracking
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -415,6 +415,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 20500000, guid: 1ee76940f560f654fbbe86776c26942b, type: 3}
+      propertyPath: m_Size
+      value: 5.550887
+      objectReference: {fileID: 0}
+    - target: {fileID: 20500000, guid: 1ee76940f560f654fbbe86776c26942b, type: 3}
+      propertyPath: m_LocalReferencePoint.x
+      value: -0.37741768
+      objectReference: {fileID: 0}
+    - target: {fileID: 20500000, guid: 1ee76940f560f654fbbe86776c26942b, type: 3}
+      propertyPath: m_LocalReferencePoint.y
+      value: 0.029500008
+      objectReference: {fileID: 0}
+    - target: {fileID: 20500000, guid: 1ee76940f560f654fbbe86776c26942b, type: 3}
+      propertyPath: m_LocalReferencePoint.z
+      value: -0.20785356
+      objectReference: {fileID: 0}
+    - target: {fileID: 20500000, guid: 1ee76940f560f654fbbe86776c26942b, type: 3}
+      propertyPath: m_LODs.Array.data[0].screenRelativeHeight
+      value: 0.12664747
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1ee76940f560f654fbbe86776c26942b, type: 3}
 --- !u!1 &658121488
@@ -508,7 +528,7 @@ Transform:
   m_GameObject: {fileID: 658121488}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -9.31}
-  m_LocalScale: {x: 100, y: 100, z: 100}
+  m_LocalScale: {x: 10, y: 10, z: 10}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
