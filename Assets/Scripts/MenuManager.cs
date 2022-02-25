@@ -180,6 +180,8 @@ public class MenuManager : MonoBehaviour
     
     public void ResetSettings()
     {
+        Destroy(StaticVars.loadedObject);
+        StaticVars.loadedObject = null;
         PlayerPrefs.DeleteAll();
         SetDefaultPrefs();
         SetElementsToPlayerPrefs();
