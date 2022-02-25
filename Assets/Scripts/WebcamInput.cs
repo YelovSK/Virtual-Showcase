@@ -3,10 +3,11 @@ using UnityEngine;
 
 public sealed class WebcamInput : MonoBehaviour
 {
-    [SerializeField] Vector2Int _resolution = new Vector2Int(1920, 1080);
+    [SerializeField] Vector2Int _resolution = new Vector2Int(1080, 1080);
     WebCamTexture _webcam;
     RenderTexture _buffer;
     public Texture Texture => _buffer;
+    public WebCamTexture WebCamTexture => _webcam;
     
     public bool IsCameraRunning() => _webcam != null && _webcam.isPlaying;
 
@@ -27,7 +28,8 @@ public sealed class WebcamInput : MonoBehaviour
 
         var aspect1 = (float)_webcam.width / _webcam.height;
         var aspect2 = (float)_resolution.x / _resolution.y;
-        var gap = aspect2 / aspect1;
+        // var gap = aspect2 / aspect1;
+        var gap = 1;
 
         var vflip = _webcam.videoVerticallyMirrored;
         var scale = new Vector2(gap, vflip ? -1 : 1);
