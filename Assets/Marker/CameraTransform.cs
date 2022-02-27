@@ -2,7 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 namespace MediaPipe.BlazeFace {
@@ -22,6 +24,8 @@ namespace MediaPipe.BlazeFace {
         {
             {"red", 0}, {"yellow", 60}, {"green", 120}, {"cyan", 180}, {"blue", 240}, {"magenta", 300}
         };
+        GameObject _colorBox;
+        TMP_Text _pixelCountText;
 
         void Start()
         {
@@ -30,6 +34,8 @@ namespace MediaPipe.BlazeFace {
             _camera = GameObject.Find("Main Camera").GetComponent<Camera>();
             _tracker = GetComponent<EyeTracker>();
             _webcam = GameObject.FindWithTag("Face tracking").GetComponent<WebcamInput>();
+            _colorBox = GameObject.FindWithTag("ColorBox");
+            _pixelCountText = _colorBox.GetComponentInChildren<TMP_Text>();
         }
 
         void LateUpdate()
@@ -81,7 +87,7 @@ namespace MediaPipe.BlazeFace {
             var rightEye = new Vector2(
                 _tracker.RightEye.x * tex.width,
                 _tracker.RightEye.y * tex.height);
-            Vector2 center = leftEye + (rightEye - leftEye);
+            Vector2 center = (leftEye + rightEye) / 2;
             
             // look from (startX, startY) to (endX, endY)
             int radius = (int) (rightEye.x - leftEye.x);
@@ -91,10 +97,10 @@ namespace MediaPipe.BlazeFace {
             int endX = (int) (rightEye.x + radius);
             if (endX > tex.width)
                 endX = tex.width;
-            int startY = (int) (center.y - radius/2);
+            int startY = (int) (center.y - (float)radius/2);
             if (startY < 0)
                 startY = 0;
-            int endY = (int) (center.y + radius/2);
+            int endY = (int) (center.y + (float)radius/2);
             if (endY > tex.height)
                 endY = tex.height;
             
@@ -117,13 +123,44 @@ namespace MediaPipe.BlazeFace {
             }
 
             // check if threshold was passed
-            if ((float) foundPixels / allPixels > threshold)
-            {
-                print("Threshold passed");
+            // if ((float) foundPixels / allPixels > threshold)
                 // _transformEnabled = true;    // todo: test more
-            }
-            else
-                print(foundPixels + " / " + allPixels);
+
+            // set label text to show found pixels
+            _pixelCountText.text = foundPixels + " / " + allPixels;
+            
+            // show overlay on webcam preview
+            var cBox = (RectTransform) _colorBox.transform;
+            var cBoxParent = (RectTransform) cBox.parent;
+            var cBoxParentRect = cBoxParent.rect;
+
+            // center mapped to 0.0-1.0
+            var centerFloat = new Vector2((center.x) / tex.width, center.y / tex.height);
+            cBox.anchoredPosition = centerFloat * cBoxParentRect.size;
+
+            // Bounding box size
+            var width = (float) (endX - startX) / tex.width;
+            var height = (float) (endY - startY) / tex.height;
+            var size = new Vector2(width, height) * cBoxParentRect.size;
+            cBox.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
+            cBox.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+
+            // var epicTexture = new Texture2D((int)endX - startX, (int)endY - startY);
+            // int ix = 0;
+            // // epicTexture.SetPixel(0, 0, Color.blue);
+            // for (int x = 0; x < (int)endX - startX; x++)
+            // {
+            //     for (int y = 0; y < (int)endY - startY; y++)
+            //     {
+            //         epicTexture.SetPixel(x, y, Color.cyan);
+            //         ix++;
+            //     }
+            // }
+            // epicTexture.SetPixel(0, 0, Color.blue);
+            //
+            // epicTexture.Apply();
+            // _colorBox.GetComponent<RawImage>().material.mainTexture = epicTexture;
+
         }
         
         private int GetHueFromPixel(Color pixel)
