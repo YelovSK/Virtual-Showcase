@@ -38,6 +38,7 @@ public sealed class KeyPointsUpdater : MonoBehaviour
             var size = detection.extent * rect.size;
             _xform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
             _xform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+            // print(detection.center + " | " + detection.extent);
 
             // Key points
             SetKeyPoint(_keyPoints[0], leftEye);
