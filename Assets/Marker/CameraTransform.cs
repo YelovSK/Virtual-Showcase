@@ -18,7 +18,6 @@ namespace MediaPipe.BlazeFace {
         float _camFOV = 30;
 
         // waiting for coloured glasses around eyes
-        bool _transformEnabled = false;
         int _currFrame = 0;
         Dictionary<string, int> colours = new Dictionary<string, int>()
         {
@@ -40,17 +39,17 @@ namespace MediaPipe.BlazeFace {
 
         void LateUpdate()
         {
-            if (SceneManager.GetActiveScene().name == "Main" && _webcam.WebCamTexture.didUpdateThisFrame)
+            if (SceneManager.GetActiveScene().name != "Main")
+                return;
+            print("UPDATED");
+            if (_webcam.WebCamTexture.didUpdateThisFrame)
                 Transform();
         }
-
+        
         void Transform()
         {
-            if (!_transformEnabled)
-            {
-                CheckGlassesPosition();
+            if (!CheckGlassesOn())
                 return;
-            }
             // get new tracking position
             Vector2 leftEye = _tracker.LeftEye;
             Vector2 rightEye = _tracker.RightEye;
@@ -71,12 +70,14 @@ namespace MediaPipe.BlazeFace {
             camTransform.localEulerAngles = new Vector3(0, 0, -angle);
         }
 
-        private void CheckGlassesPosition()
+        private bool CheckGlassesOn()
         {
-            // run every 10th frame
-            _currFrame++;
-            if (_currFrame % 10 != 0)
-                return;
+            // todo: hide box when eye not detected
+            // todo: show overlay in menu
+            // run every 10th frame todo: performance seems to be fine running every frame
+            // _currFrame++;
+            // if (_currFrame % 10 != 0)
+            //     return;
             
             WebCamTexture tex = _webcam.WebCamTexture;
             
@@ -107,29 +108,34 @@ namespace MediaPipe.BlazeFace {
             // percentage of found pixels in the area
             float threshold = 0.3f;
             int allPixels = (endX - startX) * (endY - startY);
-            int foundPixels = 0;
             
             // get pixels in range <(startX, startY), (endX, endY)>
-            var pixels = tex.GetPixels(startX, startY, endX - startX, endY - startY);
-            
-            // go through every pixel
-            int hueThreshold = 30;
-            foreach (var col in pixels)
+            // go through every pixel and check if in colour threshold
+            var foundPixels = new List<List<int>>();    // coords of found pixels
+            for (int x = startX; x < endX; x++)
             {
-                // hue component of HSL
-                int hue = GetHueFromPixel(col);
-                if (Math.Abs(hue - colours["blue"]) < hueThreshold)
-                    foundPixels++;
+                for (int y = startY; y < endY; y++)
+                {
+                    var pixel = tex.GetPixel(x, y);
+                    if (PixelInTreshold(pixel))
+                        foundPixels.Add(new List<int>(){x, y});
+                }
             }
-
-            // check if threshold was passed
-            // if ((float) foundPixels / allPixels > threshold)
-                // _transformEnabled = true;    // todo: test more
-
-            // set label text to show found pixels
-            _pixelCountText.text = foundPixels + " / " + allPixels;
             
-            // show overlay on webcam preview
+            // check if threshold was passed
+            bool passed = (float) foundPixels.Capacity / allPixels > threshold;
+
+            // don't compute overlay if preview is not showing
+            if (PlayerPrefs.GetInt("previewIx") != 0)
+                return passed;
+
+            // set label text to show number of found pixels
+            string pass = "";
+            if (passed)
+                pass = " -> PASSED";
+            _pixelCountText.text = foundPixels.Count + " / " + allPixels + pass;
+            
+            // <SET OVERLAY BOX POSITION AND SIZE>
             var cBox = (RectTransform) _colorBox.transform;
             var cBoxParent = (RectTransform) cBox.parent;
             var cBoxParentRect = cBoxParent.rect;
@@ -138,38 +144,57 @@ namespace MediaPipe.BlazeFace {
             var centerFloat = new Vector2((center.x) / tex.width, center.y / tex.height);
             cBox.anchoredPosition = centerFloat * cBoxParentRect.size;
 
-            // Bounding box size
+            // box size
             var width = (float) (endX - startX) / tex.width;
             var height = (float) (endY - startY) / tex.height;
             var size = new Vector2(width, height) * cBoxParentRect.size;
             cBox.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
             cBox.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+            // <SET OVERLAY BOX POSITION AND SIZE>
 
-            // var epicTexture = new Texture2D((int)endX - startX, (int)endY - startY);
-            // int ix = 0;
-            // // epicTexture.SetPixel(0, 0, Color.blue);
-            // for (int x = 0; x < (int)endX - startX; x++)
-            // {
-            //     for (int y = 0; y < (int)endY - startY; y++)
-            //     {
-            //         epicTexture.SetPixel(x, y, Color.cyan);
-            //         ix++;
-            //     }
-            // }
-            // epicTexture.SetPixel(0, 0, Color.blue);
-            //
-            // epicTexture.Apply();
-            // _colorBox.GetComponent<RawImage>().material.mainTexture = epicTexture;
-
+            // <HIGHLIGHT PIXELS>
+            // create an empty texture
+            var tex2D = new Texture2D((int)endX - startX, (int)endY - startY);
+            
+            // set all texture pixels to transparent except the border
+            int borderSize = 2;
+            for (int x = borderSize; x < (int)(endX - startX) - borderSize; x++)
+            {
+                for (int y = borderSize; y < (int)endY - startY - borderSize; y++)
+                {
+                    tex2D.SetPixel(x, y, new Color(0, 0, 0, 0));
+                }
+            }
+            
+            // set found pixels to a given colour
+            Color col;
+            foreach (var pixel in foundPixels)
+            {
+                int x = pixel[0] - startX;
+                int y = pixel[1] - startY;
+                tex2D.SetPixel(x, y, Color.cyan);
+            }
+            
+            // apply and set the texture
+            tex2D.Apply();
+            _colorBox.GetComponent<RawImage>().texture = tex2D;
+            // <HIGHLIGHT PIXELS>
+            
+            return passed;
         }
         
-        private int GetHueFromPixel(Color pixel)
+        private bool PixelInTreshold(Color pixel)
         {
+            int threshold = 30;
             float h, s, v;
             Color.RGBToHSV(pixel, out h, out s, out v);
+            if (v < 0.2)
+                return false;
             // map from 0.0 - 1.0 to 0-360
             int hue = (int) (360 * h);
-            return hue;
+            if (Math.Abs(hue - colours["blue"]) < threshold)
+                return true;
+            return false;
         }
     }
     
