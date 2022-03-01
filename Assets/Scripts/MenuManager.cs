@@ -13,8 +13,12 @@ public class MenuManager : MonoBehaviour
     [SerializeField] TMP_Text currentModelText;
     [SerializeField] GameObject averageElements;
     [SerializeField] GameObject kalmanElements;
-    [SerializeField] TMP_Text thresholdText;
     [SerializeField] Slider thresholdSlider;
+    [SerializeField] TMP_Text thresholdText;
+    [SerializeField] Slider hueSlider;
+    [SerializeField] TMP_Text hueText;
+    [SerializeField] Slider hueThreshSlider;
+    [SerializeField] TMP_Text hueThreshText;
     [SerializeField] GameObject faceTracking;
     Slider _avgSlider;
     TMP_Text _avgText;
@@ -33,12 +37,6 @@ public class MenuManager : MonoBehaviour
         SetDelegates();
     }
 
-    private void ChangeThreshold(Slider sender)
-    {
-        thresholdText.text = Mathf.RoundToInt(sender.value * 100) + "%";
-        PlayerPrefs.SetFloat("threshold", sender.value);
-    }
-
     private void SetDefaultPrefs()
     {
         if (!PlayerPrefs.HasKey("smoothing"))
@@ -47,16 +45,20 @@ public class MenuManager : MonoBehaviour
             PlayerPrefs.SetString("cam", WebCamTexture.devices.First().name);
         if (!PlayerPrefs.HasKey("threshold"))
             PlayerPrefs.SetFloat("threshold", 0.5f);    // 0.0 - 1.0
+        if (!PlayerPrefs.HasKey("hue"))
+            PlayerPrefs.SetInt("hue", 240);    // 0 - 360
+        if (!PlayerPrefs.HasKey("hueThresh"))
+            PlayerPrefs.SetInt("hueThresh", 20);    // 1 - 100
         if (!PlayerPrefs.HasKey("modelPath"))
             PlayerPrefs.SetString("modelPath", "");
         if (!PlayerPrefs.HasKey("previewIx"))
             PlayerPrefs.SetInt("previewIx", 0); // 0, 1, 2
         if (!PlayerPrefs.HasKey("framesSmoothed"))
-            PlayerPrefs.SetInt("framesSmoothed", 30);   // 1-200
+            PlayerPrefs.SetInt("framesSmoothed", 8);   // 1-200
         if (!PlayerPrefs.HasKey("kalmanQ"))
-            PlayerPrefs.SetFloat("kalmanQ", 0.0001f);   // 1e-08 - 1e-02
+            PlayerPrefs.SetFloat("kalmanQ", 0.002f);   // 1e-08 - 1e-02
         if (!PlayerPrefs.HasKey("kalmanR"))
-            PlayerPrefs.SetFloat("kalmanR", 0.1f);  // 0.0001 - 0.5
+            PlayerPrefs.SetFloat("kalmanR", 0.04f);  // 0.0001 - 0.5
     }
     
     private void SetElementsToPlayerPrefs()
@@ -78,8 +80,9 @@ public class MenuManager : MonoBehaviour
         SetAvgSliderAndText(PlayerPrefs.GetInt("framesSmoothed"));
         _qSlider.value = PlayerPrefs.GetFloat("kalmanQ");
         _rSlider.value = PlayerPrefs.GetFloat("kalmanR");
-        thresholdText.text = Mathf.RoundToInt(PlayerPrefs.GetFloat("threshold") * 100) + "%";
         thresholdSlider.value = PlayerPrefs.GetFloat("threshold");
+        hueSlider.value = PlayerPrefs.GetInt("hue");
+        hueThreshSlider.value = PlayerPrefs.GetInt("hueThresh");
     }
     
     private void SetDelegates()
@@ -119,6 +122,41 @@ public class MenuManager : MonoBehaviour
         {
             ChangeThreshold(thresholdSlider);
         });
+        
+        ChangeHue(hueSlider);
+        hueSlider.onValueChanged.AddListener(delegate
+        {
+            ChangeHue(hueSlider);
+        });
+        
+        ChangeHueThresh(hueThreshSlider);
+        hueThreshSlider.onValueChanged.AddListener(delegate
+        {
+            ChangeHueThresh(hueThreshSlider);
+        });
+    }
+    
+    private void ChangeThreshold(Slider sender)
+    {
+        thresholdText.text = Mathf.RoundToInt(sender.value * 100) + "%";
+        PlayerPrefs.SetFloat("threshold", sender.value);
+    }
+
+    private void ChangeHue(Slider sender)
+    {
+        int hue = (int) sender.value;
+        hueText.text = hue.ToString();
+        var RGBcolor = Color.HSVToRGB((float) hue / 360, 1, 1);
+        hueSlider.gameObject.transform.Find("Fill Area").Find("Fill").GetComponent<Image>().color =
+            RGBcolor;
+        PlayerPrefs.SetInt("hue", hue);
+    }
+    
+    private void ChangeHueThresh(Slider sender)
+    {
+        int thresh = (int) sender.value;
+        hueThreshText.text = thresh.ToString();
+        PlayerPrefs.SetInt("hueThresh", thresh);
     }
 
     private void ChangeRslider(Slider slider)

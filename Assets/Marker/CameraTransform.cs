@@ -29,8 +29,6 @@ namespace MediaPipe.BlazeFace {
 
         void Start()
         {
-            if (SceneManager.GetActiveScene().name != "Main")
-                return;
             _camera = GameObject.Find("Main Camera").GetComponent<Camera>();
             _tracker = GetComponent<EyeTracker>();
             _webcam = GameObject.FindWithTag("Face tracking").GetComponent<WebcamInput>();
@@ -40,16 +38,18 @@ namespace MediaPipe.BlazeFace {
 
         void LateUpdate()
         {
-            if (SceneManager.GetActiveScene().name != "Main")
-                return;
             if (_webcam.WebCamTexture.didUpdateThisFrame)
+                return;
+            if (CheckGlassesOn())
                 Transform();
         }
         
         void Transform()
         {
-            if (!CheckGlassesOn())
+            // don't transform in menu
+            if (SceneManager.GetActiveScene().name != "Main")
                 return;
+
             // get new tracking position
             Vector2 leftEye = _tracker.LeftEye;
             Vector2 rightEye = _tracker.RightEye;
@@ -73,10 +73,8 @@ namespace MediaPipe.BlazeFace {
         private bool CheckGlassesOn()
         {
             // todo: hide box when eye not detected
-            // todo: show overlay in menu
-            
             WebCamTexture tex = _webcam.WebCamTexture;
-            
+
             // map coords from 0.0 - 1.0 to width and height of WebcamTexture
             var leftEye = new Vector2(
                 _tracker.LeftEye.x * tex.width,
@@ -109,12 +107,14 @@ namespace MediaPipe.BlazeFace {
             var pixels = tex.GetPixels(startX, startY, boxWidth, boxHeight);
             // go through every pixel and check if in colour threshold
             var foundPixels = new List<List<int>>();    // coords of found pixels
+            int targetHue = PlayerPrefs.GetInt("hue");
+            int hueThresh = PlayerPrefs.GetInt("hueThresh");
             for (int y = 0; y < boxHeight; y++)
             {
                 for (int x = 0; x < boxWidth; x++)
                 {
                     var pixel = pixels[x + y * boxWidth];
-                    if (PixelInTreshold(pixel,15))
+                    if (PixelInTreshold(pixel, hueThresh, targetHue))
                         foundPixels.Add(new List<int>(){x, y});
                 }
             }
@@ -123,8 +123,8 @@ namespace MediaPipe.BlazeFace {
             float threshold = 0.3f;
             bool passed = (float) foundPixels.Capacity / allPixels > threshold;
 
-            // don't compute overlay if preview is not showing
-            if (PlayerPrefs.GetInt("previewIx") != 0)
+            // don't compute overlay if preview is not showing or not in menu
+            if (PlayerPrefs.GetInt("previewIx") != 0 && SceneManager.GetActiveScene().name == "Main")
                 return passed;
 
             // set label text to show number of found pixels
@@ -175,15 +175,17 @@ namespace MediaPipe.BlazeFace {
             return passed;
         }
         
-        private bool PixelInTreshold(Color pixel, float threshold)
+        private bool PixelInTreshold(Color pixel, int thresh, int targetHue)
         {
             float h, s, v;
             Color.RGBToHSV(pixel, out h, out s, out v);
-            if (v < 0.2)
+            // brighter than 20% and higher saturation than 40%
+            if (v < 0.2 || s < 0.4)
                 return false;
             // map from 0.0 - 1.0 to 0-360
             int hue = (int) (360 * h);
-            if (Math.Abs(hue - 220) < threshold)
+            int hueDifference = Math.Min(Math.Abs(hue - targetHue), 360 - Math.Abs(hue - targetHue));
+            if (hueDifference < thresh)
                 return true;
             return false;
         }
