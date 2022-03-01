@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using TMPro;
 using UnityEngine;
@@ -18,10 +19,10 @@ namespace MediaPipe.BlazeFace {
         float _camFOV = 30;
 
         // waiting for coloured glasses around eyes
-        int _currFrame = 0;
         Dictionary<string, int> colours = new Dictionary<string, int>()
         {
-            {"red", 0}, {"yellow", 60}, {"green", 120}, {"cyan", 180}, {"blue", 240}, {"magenta", 300}
+            {"red", 0}, {"yellow", 60}, {"green", 120},
+            {"cyan", 180}, {"blue", 240}, {"magenta", 300}
         };
         GameObject _colorBox;
         TMP_Text _pixelCountText;
@@ -41,7 +42,6 @@ namespace MediaPipe.BlazeFace {
         {
             if (SceneManager.GetActiveScene().name != "Main")
                 return;
-            print("UPDATED");
             if (_webcam.WebCamTexture.didUpdateThisFrame)
                 Transform();
         }
@@ -74,10 +74,6 @@ namespace MediaPipe.BlazeFace {
         {
             // todo: hide box when eye not detected
             // todo: show overlay in menu
-            // run every 10th frame todo: performance seems to be fine running every frame
-            // _currFrame++;
-            // if (_currFrame % 10 != 0)
-            //     return;
             
             WebCamTexture tex = _webcam.WebCamTexture;
             
@@ -98,31 +94,33 @@ namespace MediaPipe.BlazeFace {
             int endX = (int) (rightEye.x + radius);
             if (endX > tex.width)
                 endX = tex.width;
-            int startY = (int) (center.y - (float)radius/2);
+            int startY = (int) (center.y - (float) radius/2);
             if (startY < 0)
                 startY = 0;
-            int endY = (int) (center.y + (float)radius/2);
+            int endY = (int) (center.y + (float) radius/2);
             if (endY > tex.height)
                 endY = tex.height;
-            
-            // percentage of found pixels in the area
-            float threshold = 0.3f;
-            int allPixels = (endX - startX) * (endY - startY);
+
+            int boxWidth = endX - startX;
+            int boxHeight = endY - startY;
+            int allPixels = boxWidth * boxHeight;
             
             // get pixels in range <(startX, startY), (endX, endY)>
+            var pixels = tex.GetPixels(startX, startY, boxWidth, boxHeight);
             // go through every pixel and check if in colour threshold
             var foundPixels = new List<List<int>>();    // coords of found pixels
-            for (int x = startX; x < endX; x++)
+            for (int y = 0; y < boxHeight; y++)
             {
-                for (int y = startY; y < endY; y++)
+                for (int x = 0; x < boxWidth; x++)
                 {
-                    var pixel = tex.GetPixel(x, y);
-                    if (PixelInTreshold(pixel))
+                    var pixel = pixels[x + y * boxWidth];
+                    if (PixelInTreshold(pixel,15))
                         foundPixels.Add(new List<int>(){x, y});
                 }
             }
-            
+
             // check if threshold was passed
+            float threshold = 0.3f;
             bool passed = (float) foundPixels.Capacity / allPixels > threshold;
 
             // don't compute overlay if preview is not showing
@@ -145,54 +143,47 @@ namespace MediaPipe.BlazeFace {
             cBox.anchoredPosition = centerFloat * cBoxParentRect.size;
 
             // box size
-            var width = (float) (endX - startX) / tex.width;
-            var height = (float) (endY - startY) / tex.height;
+            var width = (float) boxWidth / tex.width;
+            var height = (float) boxHeight / tex.height;
             var size = new Vector2(width, height) * cBoxParentRect.size;
             cBox.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
             cBox.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
             // <SET OVERLAY BOX POSITION AND SIZE>
 
-            // <HIGHLIGHT PIXELS>
+            // <HIGHLIGHT PIXELS> START
             // create an empty texture
-            var tex2D = new Texture2D((int)endX - startX, (int)endY - startY);
-            
-            // set all texture pixels to transparent except the border
-            int borderSize = 2;
-            for (int x = borderSize; x < (int)(endX - startX) - borderSize; x++)
-            {
-                for (int y = borderSize; y < (int)endY - startY - borderSize; y++)
-                {
-                    tex2D.SetPixel(x, y, new Color(0, 0, 0, 0));
-                }
-            }
+            var tex2D = new Texture2D(boxWidth, boxHeight);
+
+            // set all texture pixels to transparent
+            Color[] fillPixels = new Color[boxWidth * boxHeight];
+            tex2D.SetPixels(fillPixels);
             
             // set found pixels to a given colour
             Color col;
             foreach (var pixel in foundPixels)
             {
-                int x = pixel[0] - startX;
-                int y = pixel[1] - startY;
+                int x = pixel[0];
+                int y = pixel[1];
                 tex2D.SetPixel(x, y, Color.cyan);
             }
-            
+
             // apply and set the texture
             tex2D.Apply();
             _colorBox.GetComponent<RawImage>().texture = tex2D;
-            // <HIGHLIGHT PIXELS>
+            // <HIGHLIGHT PIXELS> END
             
             return passed;
         }
         
-        private bool PixelInTreshold(Color pixel)
+        private bool PixelInTreshold(Color pixel, float threshold)
         {
-            int threshold = 30;
             float h, s, v;
             Color.RGBToHSV(pixel, out h, out s, out v);
             if (v < 0.2)
                 return false;
             // map from 0.0 - 1.0 to 0-360
             int hue = (int) (360 * h);
-            if (Math.Abs(hue - colours["blue"]) < threshold)
+            if (Math.Abs(hue - 220) < threshold)
                 return true;
             return false;
         }
