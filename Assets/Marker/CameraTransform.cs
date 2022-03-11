@@ -85,17 +85,28 @@ namespace MediaPipe.BlazeFace {
             Vector2 center = (leftEye + rightEye) / 2;
             
             // look from (startX, startY) to (endX, endY)
-            int radius = (int) (rightEye.x - leftEye.x);
-            int startX = (int) (leftEye.x - radius);
+            int xRadius = (int) (rightEye.x - leftEye.x);
+            int yRadius = (int) Math.Abs(leftEye.y - rightEye.y) + xRadius / 3;
+            int startX = (int) (leftEye.x - xRadius);
             if (startX < 0)
                 startX = 0;
-            int endX = (int) (rightEye.x + radius);
+            int endX = (int) (rightEye.x + xRadius);
             if (endX > tex.width)
                 endX = tex.width;
-            int startY = (int) (center.y - (float) radius/2);
+            int startY = -1;
+            int endY = -1;
+            if (leftEye.y < rightEye.y)
+            {
+                startY = (int) (leftEye.y - yRadius);
+                endY = (int) (rightEye.y + yRadius);
+            }
+            else
+            {
+                startY = (int) (rightEye.y - yRadius);
+                endY = (int) (rightEye.y + yRadius);
+            }
             if (startY < 0)
                 startY = 0;
-            int endY = (int) (center.y + (float) radius/2);
             if (endY > tex.height)
                 endY = tex.height;
 
@@ -120,7 +131,7 @@ namespace MediaPipe.BlazeFace {
             }
 
             // check if threshold was passed
-            float threshold = 0.3f;
+            float threshold = 0.075f;
             bool passed = (float) foundPixels.Capacity / allPixels > threshold;
 
             // don't compute overlay if preview is not showing or not in menu
