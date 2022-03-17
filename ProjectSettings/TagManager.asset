@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Face tracking
   - ColorBox
+  - virtualWindow
+  - leftCam
+  - rightCam
   layers:
   - Default
   - TransparentFX
