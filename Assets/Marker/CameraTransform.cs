@@ -12,8 +12,11 @@ namespace MediaPipe.BlazeFace {
 
     public class CameraTransform : MonoBehaviour
     {
+        // stuff
         EyeTracker _tracker;
-        Camera _camera;
+        Camera _cam;
+        Camera _lCam;
+        Camera _rCam;
         Vector3 _camPos = new Vector3(0, 1, -10);
         WebcamInput _webcam;
         float _camFOV = 30;
@@ -29,7 +32,9 @@ namespace MediaPipe.BlazeFace {
 
         void Start()
         {
-            _camera = GameObject.Find("Main Camera").GetComponent<Camera>();
+            _cam = GameObject.Find("Main Camera").GetComponent<Camera>();
+            // _lCam = GameObject.FindWithTag("leftCam").GetComponent<Camera>();
+            // _rCam = GameObject.FindWithTag("rightCam").GetComponent<Camera>();
             _tracker = GetComponent<EyeTracker>();
             _webcam = GameObject.FindWithTag("Face tracking").GetComponent<WebcamInput>();
             _colorBox = GameObject.FindWithTag("ColorBox");
@@ -40,8 +45,11 @@ namespace MediaPipe.BlazeFace {
         {
             if (_webcam.WebCamTexture.didUpdateThisFrame)
                 return;
-            if (CheckGlassesOn())
-                Transform();
+            // if (CheckGlassesOn())
+            //     Transform();
+            float lEyeX = -(_tracker.LeftEye.x - 0.5f) * _cam.GetComponent<AsymFrustum>().width;
+            float lEyeY = -(_tracker.LeftEye.y - 0.5f) * _cam.GetComponent<AsymFrustum>().height;
+            _cam.transform.position = new Vector3(lEyeX, lEyeY, _cam.transform.position.z);
         }
         
         void Transform()
@@ -64,8 +72,8 @@ namespace MediaPipe.BlazeFace {
             var fov = _camFOV + Mathf.Abs(offset.z / 5) * 200;
 
             // update camera position
-            _camera.fieldOfView = fov;
-            var camTransform = _camera.transform;
+            _cam.fieldOfView = fov;
+            var camTransform = _cam.transform;
             camTransform.position = offset + _camPos;
             camTransform.localEulerAngles = new Vector3(0, 0, -angle);
         }
@@ -200,6 +208,7 @@ namespace MediaPipe.BlazeFace {
                 return true;
             return false;
         }
+        
     }
     
 
