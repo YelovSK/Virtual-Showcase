@@ -14,7 +14,7 @@ public class KalmanFilter<T>
 	public const float DEFAULT_Q = 0.000001f;
 	public const float DEFAULT_R = 0.01f;
 
-	public const float DEFAULT_P = 1;
+	public const float DEFAULT_P = 1f;
 
 	//-----------------------------------------------------------------------------------------
 	// Private Fields:

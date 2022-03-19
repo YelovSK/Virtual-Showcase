@@ -44,7 +44,7 @@ public sealed class Visualizer : MonoBehaviour
             _markers[i].gameObject.SetActive(false);
 
         // UI update
-        _previewUI.texture = input;
+        _previewUI.texture = _webcam.Texture;
     }
 
     #endregion
