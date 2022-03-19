@@ -28,8 +28,7 @@ public sealed class WebcamInput : MonoBehaviour
 
         var aspect1 = (float)_webcam.width / _webcam.height;
         var aspect2 = (float)_resolution.x / _resolution.y;
-        // var gap = aspect2 / aspect1;
-        var gap = 1;
+        var gap = aspect2 / aspect1;
 
         var vflip = _webcam.videoVerticallyMirrored;
         var scale = new Vector2(gap, vflip ? -1 : 1);

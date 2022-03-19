@@ -17,16 +17,9 @@ namespace MediaPipe.BlazeFace {
         Camera _cam;
         Camera _lCam;
         Camera _rCam;
-        Vector3 _camPos = new Vector3(0, 1, -10);
         WebcamInput _webcam;
-        float _camFOV = 30;
 
         // waiting for coloured glasses around eyes
-        Dictionary<string, int> colours = new Dictionary<string, int>()
-        {
-            {"red", 0}, {"yellow", 60}, {"green", 120},
-            {"cyan", 180}, {"blue", 240}, {"magenta", 300}
-        };
         GameObject _colorBox;
         TMP_Text _pixelCountText;
 
@@ -43,13 +36,12 @@ namespace MediaPipe.BlazeFace {
 
         void LateUpdate()
         {
-            if (_webcam.WebCamTexture.didUpdateThisFrame)
+            if (!_webcam.WebCamTexture.didUpdateThisFrame)
                 return;
             // if (CheckGlassesOn())
             //     Transform();
-            float lEyeX = -(_tracker.LeftEye.x - 0.5f) * _cam.GetComponent<AsymFrustum>().width;
-            float lEyeY = -(_tracker.LeftEye.y - 0.5f) * _cam.GetComponent<AsymFrustum>().height;
-            _cam.transform.position = new Vector3(lEyeX, lEyeY, _cam.transform.position.z);
+            Transform();
+            _cam.GetComponent<AsymFrustum>().UpdateProjectionMatrix();
         }
         
         void Transform()
@@ -57,30 +49,17 @@ namespace MediaPipe.BlazeFace {
             // don't transform in menu
             if (SceneManager.GetActiveScene().name != "Main")
                 return;
-
-            // get new tracking position
-            Vector2 leftEye = _tracker.LeftEye;
-            Vector2 rightEye = _tracker.RightEye;
-            
-            // literally random offset values
-            var angle = Vector2.Angle(rightEye - leftEye, Vector2.right);
-            if (leftEye.y > rightEye.y) angle *= -1;
-            Vector3 offset;
-            offset.x = (leftEye[0] - 0.5f + rightEye[0] - 0.5f) * -2.5f;
-            offset.y = (leftEye[1] - 0.5f + rightEye[1] - 0.5f) * 2.5f;
-            offset.z = Mathf.Abs(leftEye[0] - rightEye[0]) * 5;
-            var fov = _camFOV + Mathf.Abs(offset.z / 5) * 200;
-
-            // update camera position
-            _cam.fieldOfView = fov;
-            var camTransform = _cam.transform;
-            camTransform.position = offset + _camPos;
-            camTransform.localEulerAngles = new Vector3(0, 0, -angle);
+            Vector2 eyeCenter = (_tracker.LeftEye + _tracker.RightEye) / 2;
+            // X middle is 0.0f, left is -0.5f, right is 0.5f
+            float x = -(eyeCenter.x - 0.5f) * _cam.GetComponent<AsymFrustum>().width;
+            // Y middle is 0.5f, bottom is 0.0f, top is 1.0f
+            float y = eyeCenter.y * _cam.GetComponent<AsymFrustum>().height;
+            _cam.transform.position = new Vector3(x, y, _cam.transform.position.z);
         }
 
+        // todo: hide box when eye not detected
         private bool CheckGlassesOn()
         {
-            // todo: hide box when eye not detected
             WebCamTexture tex = _webcam.WebCamTexture;
 
             // map coords from 0.0 - 1.0 to width and height of WebcamTexture
@@ -93,50 +72,13 @@ namespace MediaPipe.BlazeFace {
             Vector2 center = (leftEye + rightEye) / 2;
             
             // look from (startX, startY) to (endX, endY)
-            int xRadius = (int) (rightEye.x - leftEye.x);
-            int yRadius = (int) Math.Abs(leftEye.y - rightEye.y) + xRadius / 3;
-            int startX = (int) (leftEye.x - xRadius);
-            if (startX < 0)
-                startX = 0;
-            int endX = (int) (rightEye.x + xRadius);
-            if (endX > tex.width)
-                endX = tex.width;
-            int startY = -1;
-            int endY = -1;
-            if (leftEye.y < rightEye.y)
-            {
-                startY = (int) (leftEye.y - yRadius);
-                endY = (int) (rightEye.y + yRadius);
-            }
-            else
-            {
-                startY = (int) (rightEye.y - yRadius);
-                endY = (int) (rightEye.y + yRadius);
-            }
-            if (startY < 0)
-                startY = 0;
-            if (endY > tex.height)
-                endY = tex.height;
-
+            CalculateColourBoxSize(tex, leftEye, rightEye, out var startX, out var endX, out var startY, out var endY);
             int boxWidth = endX - startX;
             int boxHeight = endY - startY;
             int allPixels = boxWidth * boxHeight;
-            
-            // get pixels in range <(startX, startY), (endX, endY)>
-            var pixels = tex.GetPixels(startX, startY, boxWidth, boxHeight);
-            // go through every pixel and check if in colour threshold
-            var foundPixels = new List<List<int>>();    // coords of found pixels
-            int targetHue = PlayerPrefs.GetInt("hue");
-            int hueThresh = PlayerPrefs.GetInt("hueThresh");
-            for (int y = 0; y < boxHeight; y++)
-            {
-                for (int x = 0; x < boxWidth; x++)
-                {
-                    var pixel = pixels[x + y * boxWidth];
-                    if (PixelInTreshold(pixel, hueThresh, targetHue))
-                        foundPixels.Add(new List<int>(){x, y});
-                }
-            }
+
+            // find pixels in threshold [(x, y), (x, y), ...]
+            var foundPixels = FindPixels(tex, startX, startY, boxWidth, boxHeight);
 
             // check if threshold was passed
             float threshold = 0.075f;
@@ -167,7 +109,7 @@ namespace MediaPipe.BlazeFace {
             var size = new Vector2(width, height) * cBoxParentRect.size;
             cBox.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
             cBox.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
-            // <SET OVERLAY BOX POSITION AND SIZE>
+            // </SET OVERLAY BOX POSITION AND SIZE>
 
             // <HIGHLIGHT PIXELS> START
             // create an empty texture
@@ -178,7 +120,6 @@ namespace MediaPipe.BlazeFace {
             tex2D.SetPixels(fillPixels);
             
             // set found pixels to a given colour
-            Color col;
             foreach (var pixel in foundPixels)
             {
                 int x = pixel[0];
@@ -189,16 +130,57 @@ namespace MediaPipe.BlazeFace {
             // apply and set the texture
             tex2D.Apply();
             _colorBox.GetComponent<RawImage>().texture = tex2D;
-            // <HIGHLIGHT PIXELS> END
+            // </HIGHLIGHT PIXELS> END
             
             return passed;
+        }
+
+        private void CalculateColourBoxSize(WebCamTexture tex, Vector2 leftEye, Vector2 rightEye, out int startX, out int endX, out int startY, out int endY)
+        {
+            int xRadius = (int) (rightEye.x - leftEye.x);
+            int yRadius = (int) Math.Abs(leftEye.y - rightEye.y) + xRadius / 3;
+            startX = (int) (leftEye.x - xRadius);
+            startX = Math.Max(0, (int) (leftEye.x - xRadius));
+            endX = (int) (rightEye.x + xRadius);
+            endX = Math.Min(tex.width, endX);
+            if (leftEye.y < rightEye.y)
+            {
+                startY = (int) (leftEye.y - yRadius);
+                endY = (int) (rightEye.y + yRadius);
+            }
+            else
+            {
+                startY = (int) (rightEye.y - yRadius);
+                endY = (int) (leftEye.y + yRadius);
+            }
+            startY = Math.Max(0, startY);
+            endY = Math.Min(tex.height, endY);
+        }
+
+        private List<List<int>> FindPixels(WebCamTexture tex, int startX, int startY, int boxWidth, int boxHeight)
+        {
+            // get pixels in range <(startX, startY), (endX, endY)>
+            var pixels = tex.GetPixels(startX, startY, boxWidth, boxHeight);
+            // go through every pixel and check if in colour threshold
+            var foundPixels = new List<List<int>>();    // coords of found pixels
+            int targetHue = PlayerPrefs.GetInt("hue");
+            int hueThresh = PlayerPrefs.GetInt("hueThresh");
+            for (int y = 0; y < boxHeight; y++)
+            {
+                for (int x = 0; x < boxWidth; x++)
+                {
+                    var pixel = pixels[x + y * boxWidth];
+                    if (PixelInTreshold(pixel, hueThresh, targetHue))
+                        foundPixels.Add(new List<int>(){x, y});
+                }
+            }
+            return foundPixels;
         }
         
         private bool PixelInTreshold(Color pixel, int thresh, int targetHue)
         {
-            float h, s, v;
-            Color.RGBToHSV(pixel, out h, out s, out v);
-            // brighter than 20% and higher saturation than 40%
+            Color.RGBToHSV(pixel, out var h, out var s, out var v);
+            // brighter than 20% and higher saturation than 40%, otherwise not in threshold
             if (v < 0.2 || s < 0.4)
                 return false;
             // map from 0.0 - 1.0 to 0-360

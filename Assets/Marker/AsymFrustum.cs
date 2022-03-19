@@ -26,34 +26,15 @@ public class AsymFrustum : MonoBehaviour
 	/// The maximum height the camera can have (up axis in local coordinates from  the virtualWindow) (in units. I suggest using meters)
     /// </summary>
     public float maxHeight = 2000.0f;
-    float windowWidth;
-    float windowHeight;
-
-
 
     public bool verbose = false;
-
-    /// <summary>
-    /// Called when this Component gets initialized
-    /// </summary>
-    void Start()
+    
+    public void UpdateProjectionMatrix()
     {
-    }
-
-    /// <summary>
-    /// Late Update. Hopefully by now the head position got updated by whatever you use as input here.
-    /// </summary>
-    void LateUpdate()
-    {
-        windowWidth = width;
-        windowHeight = height;
-
-        // gets the local position of this camera depending on the virtual screen
         Vector3 localPos = virtualWindow.transform.InverseTransformPoint(transform.position);
-
-        setAsymmetricFrustum(GetComponent<Camera>(), localPos, GetComponent<Camera>().nearClipPlane);
-
+        SetAsymmetricFrustum(GetComponent<Camera>(), localPos, GetComponent<Camera>().nearClipPlane);
     }
+    
     /// <summary>
     /// Sets the asymmetric Frustum for the given virtual Window (at pos 0,0,0 )
     /// and the camera passed
@@ -61,7 +42,7 @@ public class AsymFrustum : MonoBehaviour
     /// <param name="cam">Camera to get the asymmetric frustum for</param>
     /// <param name="pos">Position of the camera. Usually cam.transform.position</param>
     /// <param name="nearDist">Near clipping plane, usually cam.nearClipPlane</param>
-    public void setAsymmetricFrustum(Camera cam, Vector3 pos, float nearDist)
+    private void SetAsymmetricFrustum(Camera cam, Vector3 pos, float nearDist)
     {
 
         // Focal length = orthogonal distance to image plane
@@ -81,10 +62,10 @@ public class AsymFrustum : MonoBehaviour
         float ratio = focal / nearDist;
 
         // Compute size for focal
-        float imageLeft = (-windowWidth / 2.0f) - newpos.x;
-        float imageRight = (windowWidth / 2.0f) - newpos.x;
-        float imageTop = (windowHeight / 2.0f) - newpos.y;
-        float imageBottom = (-windowHeight / 2.0f) - newpos.y;
+        float imageLeft = (-width / 2.0f) - newpos.x;
+        float imageRight = (width / 2.0f) - newpos.x;
+        float imageTop = (height / 2.0f) - newpos.y;
+        float imageBottom = (-height / 2.0f) - newpos.y;
 
         // Intercept theorem
         float nearLeft = imageLeft / ratio;
@@ -134,30 +115,37 @@ public class AsymFrustum : MonoBehaviour
     /// </summary>
     public virtual void OnDrawGizmos()
     {
+        // repeated property access is inefficient
+        var virtWindowTransform = virtualWindow.transform;
+        var virtWindowTransformPos = virtWindowTransform.position;
+        var virtWindowTransformR = virtWindowTransform.right;
+        var virtWindowTransformForward = virtWindowTransform.forward;
+
         Gizmos.DrawLine(GetComponent<Camera>().transform.position, GetComponent<Camera>().transform.position + GetComponent<Camera>().transform.up * 10);
         Gizmos.color = Color.green;
-        Gizmos.DrawLine(virtualWindow.transform.position, virtualWindow.transform.position + virtualWindow.transform.up);
+        Gizmos.DrawLine(virtualWindow.transform.position, virtWindowTransformPos + virtualWindow.transform.up);
 
         Gizmos.color = Color.blue;
-        Gizmos.DrawLine(virtualWindow.transform.position - virtualWindow.transform.forward * 0.5f * windowHeight, virtualWindow.transform.position + virtualWindow.transform.forward * 0.5f * windowHeight);
+        Gizmos.DrawLine(virtWindowTransformPos - virtualWindow.transform.forward * 0.5f * width, virtWindowTransformPos + virtWindowTransformForward * 0.5f * height);
 
         Gizmos.color = Color.red;
-        Gizmos.DrawLine(virtualWindow.transform.position - virtualWindow.transform.right * 0.5f * windowWidth, virtualWindow.transform.position + virtualWindow.transform.right * 0.5f * windowWidth);
+        Gizmos.DrawLine(virtWindowTransformPos - virtualWindow.transform.right * 0.5f * width, virtWindowTransformPos + virtWindowTransformR * 0.5f * width);
         Gizmos.color = Color.cyan;
-        Vector3 leftBottom = virtualWindow.transform.position - virtualWindow.transform.right * 0.5f * windowWidth - virtualWindow.transform.forward * 0.5f * windowHeight;
-        Vector3 leftTop = virtualWindow.transform.position - virtualWindow.transform.right * 0.5f * windowWidth + virtualWindow.transform.forward * 0.5f * windowHeight;
-        Vector3 rightBottom = virtualWindow.transform.position + virtualWindow.transform.right * 0.5f * windowWidth - virtualWindow.transform.forward * 0.5f * windowHeight;
-        Vector3 rightTop = virtualWindow.transform.position + virtualWindow.transform.right * 0.5f * windowWidth + virtualWindow.transform.forward * 0.5f * windowHeight;
+        Vector3 leftBottom = virtWindowTransformPos - virtWindowTransformR * 0.5f * width - virtWindowTransformForward * 0.5f * height;
+        Vector3 leftTop = virtWindowTransformPos - virtWindowTransformR * 0.5f * width + virtWindowTransformForward * 0.5f * height;
+        Vector3 rightBottom = virtWindowTransformPos + virtWindowTransformR * 0.5f * width - virtWindowTransformForward * 0.5f * height;
+        Vector3 rightTop = virtWindowTransformPos + virtWindowTransformR * 0.5f * width + virtWindowTransformForward * 0.5f * height;
 
         Gizmos.DrawLine(leftBottom, leftTop);
         Gizmos.DrawLine(leftTop, rightTop);
         Gizmos.DrawLine(rightTop, rightBottom);
         Gizmos.DrawLine(rightBottom, leftBottom);
         Gizmos.color = Color.grey;
-        Gizmos.DrawLine(transform.position, leftTop);
-        Gizmos.DrawLine(transform.position, rightTop);
-        Gizmos.DrawLine(transform.position, rightBottom);
-        Gizmos.DrawLine(transform.position, leftBottom);
+        var pos = transform.position;
+        Gizmos.DrawLine(pos, leftTop);
+        Gizmos.DrawLine(pos, rightTop);
+        Gizmos.DrawLine(pos, rightBottom);
+        Gizmos.DrawLine(pos, leftBottom);
 
     }
 }
