@@ -343,6 +343,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f4a524f747a0354c9e1a8a07776bdf8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leftCam: {fileID: 1232827532}
+  rightCam: {fileID: 1587285548}
+  monoCam: {fileID: 394463181}
   camPreview: {fileID: 1048845893}
   canvasGroup: {fileID: 819570173}
 --- !u!1 &49700946
@@ -2212,9 +2215,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 253675642}
+  - component: {fileID: 253675643}
   m_Layer: 0
   m_Name: HeadNode
-  m_TagString: Untagged
+  m_TagString: head
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2230,12 +2234,28 @@ Transform:
   m_LocalPosition: {x: -0, y: 50, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
+  - {fileID: 394463182}
   - {fileID: 1587285549}
   - {fileID: 1232827533}
-  - {fileID: 394463182}
   m_Father: {fileID: 1447875116}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &253675643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 253675641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74d36d1e10994bc4d84c7f35edea618e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  width: 53
+  height: 30
+  maxHeight: 2000
+  verbose: 0
 --- !u!1 &269824156
 GameObject:
   m_ObjectHideFlags: 0
@@ -2797,10 +2817,8 @@ GameObject:
   - component: {fileID: 394463187}
   - component: {fileID: 394463186}
   - component: {fileID: 394463185}
-  - component: {fileID: 394463183}
-  - component: {fileID: 394463184}
   m_Layer: 6
-  m_Name: Main Camera
+  m_Name: CameraMono
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2814,63 +2832,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 394463181}
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: -0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 253675642}
-  m_RootOrder: 2
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
---- !u!114 &394463183
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 394463181}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 74d36d1e10994bc4d84c7f35edea618e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  virtualWindow: {fileID: 1447875115}
-  width: 53
-  height: 30
-  maxHeight: 250
-  verbose: 0
---- !u!114 &394463184
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 394463181}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9876cfb3adbd1164ea775505b5aebf1c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  S3DEnabled: 1
-  swapLR: 0
-  userIPD: 66
-  virtualIPD: 66
-  matchUserIPD: 1
-  PPI: 96
-  pixelPitch: 0.265
-  hFOV: 80
-  GuiVisible: 0
-  GuiKey: 9
-  S3DKey: 268
-  increaseFovKey: 269
-  decreaseFovKey: 270
-  method: 0
-  interleavedType: 0
-  parentCam: 1
-  anaglyphLeftColor: {r: 1, g: 0, b: 0, a: 1}
-  anaglyphRightColor: {r: 0, g: 1, b: 1, a: 1}
-  cameraPrefab: {fileID: 0}
-  RTFormat: 9
-  setMatrixDirectly: 1
-  S3DMaterial: {fileID: 0}
 --- !u!114 &394463185
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2984,7 +2951,7 @@ Camera:
   field of view: 60
   orthographic: 0
   orthographic size: 5
-  m_Depth: -1
+  m_Depth: 1
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -2992,7 +2959,7 @@ Camera:
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
-  m_HDR: 1
+  m_HDR: 0
   m_AllowMSAA: 0
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
@@ -7491,16 +7458,14 @@ GameObject:
   m_Component:
   - component: {fileID: 1232827533}
   - component: {fileID: 1232827537}
-  - component: {fileID: 1232827536}
   - component: {fileID: 1232827535}
-  - component: {fileID: 1232827534}
   m_Layer: 0
   m_Name: CameraL
   m_TagString: leftCam
   m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1232827533
 Transform:
   m_ObjectHideFlags: 0
@@ -7509,39 +7474,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1232827532}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -3, y: -0, z: -0}
+  m_LocalPosition: {x: -2.5, y: -0, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 253675642}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1232827534
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1232827532}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 74d36d1e10994bc4d84c7f35edea618e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  virtualWindow: {fileID: 1447875115}
-  width: 53
-  height: 30
-  maxHeight: 2000
-  verbose: 0
 --- !u!81 &1232827535
 AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1232827532}
-  m_Enabled: 1
---- !u!124 &1232827536
-Behaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -7571,8 +7511,8 @@ Camera:
     y: 0
     width: 0.5
     height: 1
-  near clip plane: 0.01
-  far clip plane: 100
+  near clip plane: 0.5
+  far clip plane: 1000
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -7585,7 +7525,7 @@ Camera:
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 0
-  m_AllowMSAA: 1
+  m_AllowMSAA: 0
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
   m_OcclusionCulling: 1
@@ -9175,16 +9115,14 @@ GameObject:
   m_Component:
   - component: {fileID: 1587285549}
   - component: {fileID: 1587285553}
-  - component: {fileID: 1587285552}
   - component: {fileID: 1587285551}
-  - component: {fileID: 1587285550}
   m_Layer: 0
   m_Name: CameraR
   m_TagString: rightCam
   m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1587285549
 Transform:
   m_ObjectHideFlags: 0
@@ -9193,29 +9131,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1587285548}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 3, y: 0, z: 0}
+  m_LocalPosition: {x: 2.5, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 253675642}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1587285550
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1587285548}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 74d36d1e10994bc4d84c7f35edea618e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  virtualWindow: {fileID: 1447875115}
-  width: 53
-  height: 30
-  maxHeight: 2000
-  verbose: 0
 --- !u!81 &1587285551
 AudioListener:
   m_ObjectHideFlags: 0
@@ -9224,14 +9145,6 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1587285548}
   m_Enabled: 0
---- !u!124 &1587285552
-Behaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1587285548}
-  m_Enabled: 1
 --- !u!20 &1587285553
 Camera:
   m_ObjectHideFlags: 0
@@ -9255,8 +9168,8 @@ Camera:
     y: 0
     width: 0.5
     height: 1
-  near clip plane: 0.01
-  far clip plane: 100
+  near clip plane: 0.5
+  far clip plane: 1000
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -9269,7 +9182,7 @@ Camera:
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 0
-  m_AllowMSAA: 1
+  m_AllowMSAA: 0
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
   m_OcclusionCulling: 1

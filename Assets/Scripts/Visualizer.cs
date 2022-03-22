@@ -21,8 +21,9 @@ public sealed class Visualizer : MonoBehaviour
 
     #region Private members
 
+    const int FACES_COUNT = 1;  // number of faces to detect
     FaceDetector _detector;
-    Marker[] _markers = new Marker[1]; // default 16
+    Marker[] _markers = new Marker[FACES_COUNT];
 
     void RunDetector(Texture input)
     {
@@ -53,7 +54,8 @@ public sealed class Visualizer : MonoBehaviour
 
     void Start()
     {
-        if (!_webcam.IsCameraRunning())   // broken webcam, image set to "NO WEBCAM SHOWING"
+        // broken webcam, image set to "NO WEBCAM SHOWING"
+        if (!_webcam.IsCameraRunning())
         {
             _previewUI.texture = _defaultCamTexture;
             return;

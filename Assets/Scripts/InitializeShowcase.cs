@@ -6,6 +6,9 @@ using Dummiesman;
 
 public class InitializeShowcase : MonoBehaviour
 {
+    [SerializeField] private GameObject leftCam;
+    [SerializeField] private GameObject rightCam;
+    [SerializeField] private GameObject monoCam;
     [SerializeField] GameObject camPreview;
     [SerializeField] CanvasGroup canvasGroup;
     GameObject _loadedObject;
@@ -30,6 +33,10 @@ public class InitializeShowcase : MonoBehaviour
             print("Loaded new model");
         }
         DontDestroyOnLoad(_loadedObject);
+        if (PlayerPrefs.GetInt("stereo") == 0)
+            ActivateMono();
+        else
+            ActivateStereo();
     }
 
     void SetCamPreview()
@@ -52,6 +59,20 @@ public class InitializeShowcase : MonoBehaviour
         }
     }
 
+    private void ActivateMono()
+    {
+        monoCam.SetActive(true);
+        leftCam.SetActive(false);
+        rightCam.SetActive(false);
+    }
+
+    private void ActivateStereo()
+    {
+        monoCam.SetActive(false);
+        leftCam.SetActive(true);
+        rightCam.SetActive(true);
+    }
+
     void Update()
     {
         if (Input.GetKeyDown("f12"))
@@ -66,6 +87,20 @@ public class InitializeShowcase : MonoBehaviour
             _loadedObject.transform.localScale = new Vector3(1f, 1f, 1f);
             _loadedObject.transform.localPosition = new Vector3(0f, 0f, -7f);
             _loadedObject.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
+        }
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            var current = PlayerPrefs.GetInt("stereo");
+            if (current == 0)
+            {
+                PlayerPrefs.SetInt("stereo", 1);
+                ActivateStereo();
+            }
+            else
+            {
+                PlayerPrefs.SetInt("stereo", 0);
+                ActivateMono();
+            }
         }
         var mouseX = Input.GetAxis("Mouse X");
         var mouseY = Input.GetAxis("Mouse Y");

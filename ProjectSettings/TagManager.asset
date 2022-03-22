@@ -9,6 +9,7 @@ TagManager:
   - virtualWindow
   - leftCam
   - rightCam
+  - head
   layers:
   - Default
   - TransparentFX
