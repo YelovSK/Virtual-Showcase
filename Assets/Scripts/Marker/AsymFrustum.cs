@@ -7,12 +7,12 @@ using UnityEngine;
 using System.Collections;
 using System;
 
-[RequireComponent(typeof(Camera))]
 [ExecuteInEditMode]
 public class AsymFrustum : MonoBehaviour
 {
 
-    public GameObject virtualWindow;
+    GameObject _virtualWindow;
+    Camera[] _cameras;
 
     /// <summary>
     /// Screen/window to virtual world width (in units. I suggest using meters)
@@ -28,11 +28,22 @@ public class AsymFrustum : MonoBehaviour
     public float maxHeight = 2000.0f;
 
     public bool verbose = false;
-    
+
+    private void Start()
+    {
+        _virtualWindow = transform.parent.gameObject;
+        _cameras = GetComponentsInChildren<Camera>();
+    }
+
     public void UpdateProjectionMatrix()
     {
-        Vector3 localPos = virtualWindow.transform.InverseTransformPoint(transform.position);
-        SetAsymmetricFrustum(GetComponent<Camera>(), localPos, GetComponent<Camera>().nearClipPlane);
+        foreach (var cam in _cameras)
+        {
+            if (!cam.isActiveAndEnabled)
+                continue;
+            Vector3 localPos = _virtualWindow.transform.InverseTransformPoint(cam.transform.position);
+            SetAsymmetricFrustum(cam, localPos, cam.nearClipPlane);
+        }
     }
     
     /// <summary>
@@ -116,36 +127,39 @@ public class AsymFrustum : MonoBehaviour
     public virtual void OnDrawGizmos()
     {
         // repeated property access is inefficient
-        var virtWindowTransform = virtualWindow.transform;
+        var virtWindowTransform = _virtualWindow.transform;
         var virtWindowTransformPos = virtWindowTransform.position;
         var virtWindowTransformR = virtWindowTransform.right;
         var virtWindowTransformForward = virtWindowTransform.forward;
+        foreach (var cam in _cameras)
+        {
+            if (!cam.isActiveAndEnabled)
+                continue;
+            Gizmos.DrawLine(cam.transform.position, cam.transform.position + cam.transform.up * 10);
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(_virtualWindow.transform.position, virtWindowTransformPos + _virtualWindow.transform.up);
 
-        Gizmos.DrawLine(GetComponent<Camera>().transform.position, GetComponent<Camera>().transform.position + GetComponent<Camera>().transform.up * 10);
-        Gizmos.color = Color.green;
-        Gizmos.DrawLine(virtualWindow.transform.position, virtWindowTransformPos + virtualWindow.transform.up);
+            Gizmos.color = Color.blue;
+            Gizmos.DrawLine(virtWindowTransformPos - _virtualWindow.transform.forward * 0.5f * height, virtWindowTransformPos + virtWindowTransformForward * 0.5f * height);
 
-        Gizmos.color = Color.blue;
-        Gizmos.DrawLine(virtWindowTransformPos - virtualWindow.transform.forward * 0.5f * width, virtWindowTransformPos + virtWindowTransformForward * 0.5f * height);
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(virtWindowTransformPos - _virtualWindow.transform.right * 0.5f * width, virtWindowTransformPos + virtWindowTransformR * 0.5f * width);
+            Gizmos.color = Color.cyan;
+            Vector3 leftBottom = virtWindowTransformPos - virtWindowTransformR * 0.5f * width - virtWindowTransformForward * 0.5f * height;
+            Vector3 leftTop = virtWindowTransformPos - virtWindowTransformR * 0.5f * width + virtWindowTransformForward * 0.5f * height;
+            Vector3 rightBottom = virtWindowTransformPos + virtWindowTransformR * 0.5f * width - virtWindowTransformForward * 0.5f * height;
+            Vector3 rightTop = virtWindowTransformPos + virtWindowTransformR * 0.5f * width + virtWindowTransformForward * 0.5f * height;
 
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(virtWindowTransformPos - virtualWindow.transform.right * 0.5f * width, virtWindowTransformPos + virtWindowTransformR * 0.5f * width);
-        Gizmos.color = Color.cyan;
-        Vector3 leftBottom = virtWindowTransformPos - virtWindowTransformR * 0.5f * width - virtWindowTransformForward * 0.5f * height;
-        Vector3 leftTop = virtWindowTransformPos - virtWindowTransformR * 0.5f * width + virtWindowTransformForward * 0.5f * height;
-        Vector3 rightBottom = virtWindowTransformPos + virtWindowTransformR * 0.5f * width - virtWindowTransformForward * 0.5f * height;
-        Vector3 rightTop = virtWindowTransformPos + virtWindowTransformR * 0.5f * width + virtWindowTransformForward * 0.5f * height;
-
-        Gizmos.DrawLine(leftBottom, leftTop);
-        Gizmos.DrawLine(leftTop, rightTop);
-        Gizmos.DrawLine(rightTop, rightBottom);
-        Gizmos.DrawLine(rightBottom, leftBottom);
-        Gizmos.color = Color.grey;
-        var pos = transform.position;
-        Gizmos.DrawLine(pos, leftTop);
-        Gizmos.DrawLine(pos, rightTop);
-        Gizmos.DrawLine(pos, rightBottom);
-        Gizmos.DrawLine(pos, leftBottom);
-
+            Gizmos.DrawLine(leftBottom, leftTop);
+            Gizmos.DrawLine(leftTop, rightTop);
+            Gizmos.DrawLine(rightTop, rightBottom);
+            Gizmos.DrawLine(rightBottom, leftBottom);
+            Gizmos.color = Color.grey;
+            var pos = cam.transform.position;
+            Gizmos.DrawLine(pos, leftTop);
+            Gizmos.DrawLine(pos, rightTop);
+            Gizmos.DrawLine(pos, rightBottom);
+            Gizmos.DrawLine(pos, leftBottom);
+        }
     }
 }

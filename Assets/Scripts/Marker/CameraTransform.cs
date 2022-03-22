@@ -14,10 +14,8 @@ namespace MediaPipe.BlazeFace {
     {
         // stuff
         EyeTracker _tracker;
-        Camera _cam;
-        Camera _lCam;
-        Camera _rCam;
         WebcamInput _webcam;
+        GameObject _head;
 
         // waiting for coloured glasses around eyes
         GameObject _colorBox;
@@ -26,9 +24,7 @@ namespace MediaPipe.BlazeFace {
 
         void Start()
         {
-            _cam = GameObject.Find("Main Camera").GetComponent<Camera>();
-            // _lCam = GameObject.FindWithTag("leftCam").GetComponent<Camera>();
-            // _rCam = GameObject.FindWithTag("rightCam").GetComponent<Camera>();
+            _head = GameObject.FindWithTag("head");
             _tracker = GetComponent<EyeTracker>();
             _webcam = GameObject.FindWithTag("Face tracking").GetComponent<WebcamInput>();
             _colorBox = GameObject.FindWithTag("ColorBox");
@@ -37,24 +33,24 @@ namespace MediaPipe.BlazeFace {
 
         void LateUpdate()
         {
-            if (!_webcam.WebCamTexture.didUpdateThisFrame)
+            if (!_webcam.CameraUpdated())
                 return;
             bool glassesOn = CheckGlassesOn();
             if (SceneManager.GetActiveScene().name != "Main")
                 return;
-            if (glassesOn)
+            // if (glassesOn)
                 Transform();
-            _cam.GetComponent<AsymFrustum>().UpdateProjectionMatrix();
+            _head.GetComponent<AsymFrustum>().UpdateProjectionMatrix();
         }
         
         void Transform()
         {
             Vector2 eyeCenter = (_tracker.LeftEye + _tracker.RightEye) / 2;
             // X middle is 0.0f, left is -0.5f, right is 0.5f
-            float x = -(eyeCenter.x - 0.5f) * _cam.GetComponent<AsymFrustum>().width;
+            float x = -(eyeCenter.x - 0.5f) * _head.GetComponent<AsymFrustum>().width;
             // Y middle is 0.5f, bottom is 0.0f, top is 1.0f
-            float y = eyeCenter.y * _cam.GetComponent<AsymFrustum>().height;
-            _cam.transform.position = new Vector3(x, y, _cam.transform.position.z);
+            float y = eyeCenter.y * _head.GetComponent<AsymFrustum>().height;
+            _head.transform.position = new Vector3(x, y, _head.transform.position.z);
         }
 
         // todo: hide box when eye not detected

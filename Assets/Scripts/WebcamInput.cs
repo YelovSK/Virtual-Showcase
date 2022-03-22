@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using System.Threading.Tasks;
 
 public sealed class WebcamInput : MonoBehaviour
 {
@@ -13,21 +14,22 @@ public sealed class WebcamInput : MonoBehaviour
 
     public bool CameraUpdated() => _webcam.didUpdateThisFrame;
 
-    void Awake()
+    async void Awake()
     {
         _webcam = new WebCamTexture(PlayerPrefs.GetString("cam"));
         _webcam.Play();
+        // takes a bit for the webcam to initialize
+        while (_webcam.width == 16 || _webcam.height == 16)
+            await Task.Yield();
+        _buffer = new RenderTexture(_webcam.width, _webcam.height, 0);
     }
 
     void Update()
     {
-        // takes a bit for the webcam to initialize, width is very small at first
-        if (_buffer == null && _webcam.width > 100)
-            _buffer = new RenderTexture(_webcam.width, _webcam.height, 0);
-        if (_webcam == null || !_webcam.didUpdateThisFrame)
+        if (!_webcam.didUpdateThisFrame)
             return;
-        var aspect1 = (float)_webcam.width / _webcam.height;
-        var aspect2 = (float)_aspectRatio.x / _aspectRatio.y;
+        var aspect1 = (float) _webcam.width / _webcam.height;
+        var aspect2 = (float) _aspectRatio.x / _aspectRatio.y;
         var gap = aspect2 / aspect1;
         
         var vflip = _webcam.videoVerticallyMirrored;

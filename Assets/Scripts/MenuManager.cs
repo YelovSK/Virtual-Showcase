@@ -59,6 +59,8 @@ public class MenuManager : MonoBehaviour
             PlayerPrefs.SetFloat("kalmanQ", 0.002f);   // 1e-08 - 1e-02
         if (!PlayerPrefs.HasKey("kalmanR"))
             PlayerPrefs.SetFloat("kalmanR", 0.04f);  // 0.0001 - 0.5
+        if (!PlayerPrefs.HasKey("stereo"))
+            PlayerPrefs.SetInt("stereo", 0);
     }
     
     private void SetElementsToPlayerPrefs()
