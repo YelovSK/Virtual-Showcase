@@ -20,6 +20,7 @@ public class MenuManager : MonoBehaviour
     [SerializeField] Slider hueThreshSlider;
     [SerializeField] TMP_Text hueThreshText;
     [SerializeField] GameObject faceTracking;
+    [SerializeField] Toggle glassesCheck;
     Slider _avgSlider;
     TMP_Text _avgText;
     Slider _qSlider;
@@ -30,37 +31,9 @@ public class MenuManager : MonoBehaviour
 
     void Start()
     {
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
-        SetDefaultPrefs();
+        StaticVars.SetDefaultPlayerPrefs();
         SetElementsToPlayerPrefs();
         SetDelegates();
-    }
-
-    private void SetDefaultPrefs()
-    {
-        if (!PlayerPrefs.HasKey("smoothing"))
-            PlayerPrefs.SetString("smoothing", "Kalman");   // Kalman, Average, Off
-        if (!PlayerPrefs.HasKey("cam"))
-            PlayerPrefs.SetString("cam", WebCamTexture.devices.First().name);
-        if (!PlayerPrefs.HasKey("threshold"))
-            PlayerPrefs.SetFloat("threshold", 0.5f);    // 0.0 - 1.0
-        if (!PlayerPrefs.HasKey("hue"))
-            PlayerPrefs.SetInt("hue", 240);    // 0 - 360
-        if (!PlayerPrefs.HasKey("hueThresh"))
-            PlayerPrefs.SetInt("hueThresh", 20);    // 1 - 100
-        if (!PlayerPrefs.HasKey("modelPath"))
-            PlayerPrefs.SetString("modelPath", "");
-        if (!PlayerPrefs.HasKey("previewIx"))
-            PlayerPrefs.SetInt("previewIx", 0); // 0, 1, 2
-        if (!PlayerPrefs.HasKey("framesSmoothed"))
-            PlayerPrefs.SetInt("framesSmoothed", 8);   // 1-200
-        if (!PlayerPrefs.HasKey("kalmanQ"))
-            PlayerPrefs.SetFloat("kalmanQ", 0.002f);   // 1e-08 - 1e-02
-        if (!PlayerPrefs.HasKey("kalmanR"))
-            PlayerPrefs.SetFloat("kalmanR", 0.04f);  // 0.0001 - 0.5
-        if (!PlayerPrefs.HasKey("stereo"))
-            PlayerPrefs.SetInt("stereo", 0);
     }
     
     private void SetElementsToPlayerPrefs()
@@ -85,6 +58,7 @@ public class MenuManager : MonoBehaviour
         thresholdSlider.value = PlayerPrefs.GetFloat("threshold");
         hueSlider.value = PlayerPrefs.GetInt("hue");
         hueThreshSlider.value = PlayerPrefs.GetInt("hueThresh");
+        glassesCheck.isOn = PlayerPrefs.GetInt("glassesCheck") == 1;
     }
     
     private void SetDelegates()
@@ -136,6 +110,12 @@ public class MenuManager : MonoBehaviour
         {
             ChangeHueThresh(hueThreshSlider);
         });
+
+        ChangeGlassesCheck(glassesCheck);
+        glassesCheck.onValueChanged.AddListener(delegate
+        {
+            ChangeGlassesCheck(glassesCheck);
+        });
     }
     
     private void ChangeThreshold(Slider sender)
@@ -159,6 +139,14 @@ public class MenuManager : MonoBehaviour
         int thresh = (int) sender.value;
         hueThreshText.text = thresh.ToString();
         PlayerPrefs.SetInt("hueThresh", thresh);
+    }
+    
+    private void ChangeGlassesCheck(Toggle sender)
+    {
+        if (sender.isOn)
+            PlayerPrefs.SetInt("glassesCheck", 1);
+        else
+            PlayerPrefs.SetInt("glassesCheck", 0);
     }
 
     private void ChangeRslider(Slider slider)
@@ -223,7 +211,7 @@ public class MenuManager : MonoBehaviour
         Destroy(StaticVars.loadedObject);
         StaticVars.loadedObject = null;
         PlayerPrefs.DeleteAll();
-        SetDefaultPrefs();
+        StaticVars.SetDefaultPlayerPrefs();
         SetElementsToPlayerPrefs();
     }
 

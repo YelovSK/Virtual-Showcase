@@ -14,9 +14,36 @@ public class InitializeShowcase : MonoBehaviour
     GameObject _loadedObject;
     void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        StaticVars.SetDefaultPlayerPrefs();
         SetCamPreview();
+        LoadObject();
+        SetStereo();
+    }
+
+    void SetStereo()
+    {
+        if (PlayerPrefs.GetInt("stereo") == 0)
+            ActivateMono();
+        else
+            ActivateStereo();
+    }
+    
+    private void ActivateMono()
+    {
+        monoCam.SetActive(true);
+        leftCam.SetActive(false);
+        rightCam.SetActive(false);
+    }
+
+    private void ActivateStereo()
+    {
+        monoCam.SetActive(false);
+        leftCam.SetActive(true);
+        rightCam.SetActive(true);
+    }
+
+    void LoadObject()
+    {
         if (PlayerPrefs.GetString("modelPath") == "")
             return;
         if (StaticVars.loadedObject != null)
@@ -33,10 +60,6 @@ public class InitializeShowcase : MonoBehaviour
             print("Loaded new model");
         }
         DontDestroyOnLoad(_loadedObject);
-        if (PlayerPrefs.GetInt("stereo") == 0)
-            ActivateMono();
-        else
-            ActivateStereo();
     }
 
     void SetCamPreview()
@@ -59,29 +82,19 @@ public class InitializeShowcase : MonoBehaviour
         }
     }
 
-    private void ActivateMono()
-    {
-        monoCam.SetActive(true);
-        leftCam.SetActive(false);
-        rightCam.SetActive(false);
-    }
-
-    private void ActivateStereo()
-    {
-        monoCam.SetActive(false);
-        leftCam.SetActive(true);
-        rightCam.SetActive(true);
-    }
-
     void Update()
+    {
+        CheckKeyInput();
+        CheckMouseInput();
+    }
+
+    void CheckKeyInput()
     {
         if (Input.GetKeyDown("f12"))
         {
             PlayerPrefs.SetInt("previewIx", PlayerPrefs.GetInt("previewIx")+1);
             SetCamPreview();
         }
-        if (Cursor.visible || _loadedObject == null)    // means 3D settings are showing in UI
-            return;
         if (Input.GetKeyDown(KeyCode.R))
         {
             _loadedObject.transform.localScale = new Vector3(1f, 1f, 1f);
@@ -102,6 +115,10 @@ public class InitializeShowcase : MonoBehaviour
                 ActivateMono();
             }
         }
+    }
+
+    void CheckMouseInput()
+    {
         var mouseX = Input.GetAxis("Mouse X");
         var mouseY = Input.GetAxis("Mouse Y");
         if (Input.GetMouseButton(0) && Input.GetMouseButton(1))

@@ -1,4 +1,5 @@
-﻿/// <summary>
+﻿// source: https://github.com/Emerix/AsymFrustum
+/// <summary>
 /// Asym frustum.
 /// based on http://paulbourke.net/stereographics/stereorender/
 /// and http://answers.unity3d.com/questions/165443/asymmetric-view-frusta-selective-region-rendering.html
@@ -32,7 +33,7 @@ public class AsymFrustum : MonoBehaviour
     private void Start()
     {
         _virtualWindow = transform.parent.gameObject;
-        _cameras = GetComponentsInChildren<Camera>();
+        _cameras = GetComponentsInChildren<Camera>(includeInactive:true);
     }
 
     public void UpdateProjectionMatrix()
