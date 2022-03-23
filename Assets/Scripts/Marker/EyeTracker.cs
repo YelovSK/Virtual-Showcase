@@ -21,6 +21,7 @@ namespace MediaPipe.BlazeFace
         public FaceDetector.Detection Detection => _marker.detection;
         public Vector2 LeftEye => _leftEye;
         public Vector2 RightEye => _rightEye;
+        public Vector2 EyeCenter => (_leftEye + _rightEye) / 2;
 
 
         void Start()

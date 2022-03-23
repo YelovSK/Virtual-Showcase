@@ -1,8 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Xml;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -35,25 +32,51 @@ namespace MediaPipe.BlazeFace {
         {
             if (!_webcam.CameraUpdated())
                 return;
-            bool glassesOn = CheckGlassesOn();
+            bool glassesOn;
+            // if glasses check is off, don't display overlay and set to true to transform anyway
+            if (PlayerPrefs.GetInt("glassesCheck") == 0)
+            {
+                if (_colOverlayTexture != null)
+                    Destroy(_colOverlayTexture);
+                _pixelCountText.text = "";
+                glassesOn = true;
+            }
+            else
+                glassesOn = CheckGlassesOn();
             if (SceneManager.GetActiveScene().name != "Main")
                 return;
-            // if (glassesOn)
+            if (glassesOn)
                 Transform();
             _head.GetComponent<AsymFrustum>().UpdateProjectionMatrix();
         }
-        
+
         void Transform()
         {
-            Vector2 eyeCenter = (_tracker.LeftEye + _tracker.RightEye) / 2;
+            // map coords based on the calibration
+            float centerX = Map(_tracker.EyeCenter.x, PlayerPrefs.GetFloat("LeftCalibration"), PlayerPrefs.GetFloat("RightCalibration"), 1.0f, 0.0f);
+            float centerY = Map(_tracker.EyeCenter.y, PlayerPrefs.GetFloat("BottomCalibration"), PlayerPrefs.GetFloat("TopCalibration"), 0.0f, 1.0f);
             // X middle is 0.0f, left is -0.5f, right is 0.5f
-            float x = -(eyeCenter.x - 0.5f) * _head.GetComponent<AsymFrustum>().width;
+            float x = -(centerX - 0.5f) * _head.GetComponent<AsymFrustum>().width;
             // Y middle is 0.5f, bottom is 0.0f, top is 1.0f
-            float y = eyeCenter.y * _head.GetComponent<AsymFrustum>().height;
+            float y = centerY * _head.GetComponent<AsymFrustum>().height;
+            // update the position of the head
             _head.transform.position = new Vector3(x, y, _head.transform.position.z);
         }
 
-        // todo: hide box when eye not detected
+        /// <summary>
+        /// Maps a value from a range to another range.
+        /// </summary>
+        /// <param name="n">Value to map</param>
+        /// <param name="start1">Start of the original range</param>
+        /// <param name="stop1">End of the original range</param>
+        /// <param name="start2">Start of the target range</param>
+        /// <param name="stop2">End of the target range</param>
+        /// <returns>Mapped value</returns>
+        public static float Map(float n, float start1, float stop1, float start2, float stop2)
+        {
+            return ((n-start1) / (stop1-start1)) * (stop2-start2) + start2;
+        }
+
         private bool CheckGlassesOn()
         {
             // convert RenderTexture from WebcamInput to Texture2D
@@ -204,8 +227,5 @@ namespace MediaPipe.BlazeFace {
                 return true;
             return false;
         }
-        
     }
-    
-
 }
