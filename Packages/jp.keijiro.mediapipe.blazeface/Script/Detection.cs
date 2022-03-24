@@ -33,6 +33,9 @@ partial class FaceDetector
         // sizeof(Detection)
         public const int Size = 20 * sizeof(float);
     };
+
 }
+
+
 
 } // namespace MediaPipe.BlazeFace

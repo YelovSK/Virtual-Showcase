@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: -8667460914361412726}
   - component: {fileID: -6297765777360057686}
   - component: {fileID: 3699856667202305132}
-  - component: {fileID: -5621273501981999958}
   m_Layer: 5
   m_Name: KeyPointsMarker
   m_TagString: Untagged
@@ -125,22 +124,6 @@ MonoBehaviour:
   _keyPoints:
   - {fileID: 3903621281607213184}
   - {fileID: 7989179531762848512}
-  - {fileID: 1124015707128186044}
-  - {fileID: 4984652499031163179}
-  - {fileID: 4525548819717925587}
-  - {fileID: 5940339340279182177}
---- !u!114 &-5621273501981999958
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2452067935137504425}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72d5ec8cff1149c4db37c032d0b7e125, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &4787918212017560850
 GameObject:
   m_ObjectHideFlags: 0

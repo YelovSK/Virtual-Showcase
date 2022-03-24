@@ -27,8 +27,6 @@ public sealed class KeyPointsUpdater : MonoBehaviour
         void LateUpdate()
         {
             FaceDetector.Detection detection = _tracker.Detection;
-            Vector2 leftEye = _tracker.LeftEye;
-            Vector2 rightEye = _tracker.RightEye;
 
             // Bounding box center
             var rect = _parent.rect;
@@ -41,8 +39,8 @@ public sealed class KeyPointsUpdater : MonoBehaviour
             // print(detection.center + " | " + detection.extent);
 
             // Key points
-            SetKeyPoint(_keyPoints[0], leftEye);
-            SetKeyPoint(_keyPoints[1], rightEye);
+            SetKeyPoint(_keyPoints[0], _tracker.LeftEye);
+            SetKeyPoint(_keyPoints[1], _tracker.RightEye);
             // SetKeyPoint(_keyPoints[2], detection.nose);
             // SetKeyPoint(_keyPoints[3], detection.mouth);
             // SetKeyPoint(_keyPoints[4], detection.leftEar);

@@ -1,84 +1,48 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-namespace MediaPipe.BlazeFace {
+namespace MediaPipe.BlazeFace
+{
 
-    public class CameraTransform : MonoBehaviour
+    public class ColourCheck : MonoBehaviour
     {
-        // stuff
+        [SerializeField] GameObject colorBox;
+        [SerializeField] TMP_Text pixelCountText;
+        public bool GlassesOn { get; private set; }
         EyeTracker _tracker;
         WebcamInput _webcam;
-        GameObject _head;
-
-        // waiting for coloured glasses around eyes
-        GameObject _colorBox;
-        TMP_Text _pixelCountText;
         Texture2D _colOverlayTexture;
 
-        void Start()
+        async void Start()
         {
-            _head = GameObject.FindWithTag("head");
-            _tracker = GetComponent<EyeTracker>();
-            _webcam = GameObject.FindWithTag("Face tracking").GetComponent<WebcamInput>();
-            _colorBox = GameObject.FindWithTag("ColorBox");
-            _pixelCountText = _colorBox.GetComponentInChildren<TMP_Text>();
+            while (!GetComponent<Visualizer>().Initialized)
+                await Task.Yield();
+            _tracker = GetComponent<Visualizer>().EyeTracker;
+            _webcam = GetComponent<WebcamInput>();
         }
 
-        void LateUpdate()
+        private void LateUpdate()
         {
-            if (!_webcam.CameraUpdated())
-                return;
-            bool glassesOn;
+            if (_webcam.CameraUpdated())
+                GlassesOn = CheckGlassesOn();
+        }
+
+        public bool CheckGlassesOn()
+        {
             // if glasses check is off, don't display overlay and set to true to transform anyway
             if (PlayerPrefs.GetInt("glassesCheck") == 0)
             {
                 if (_colOverlayTexture != null)
                     Destroy(_colOverlayTexture);
-                _pixelCountText.text = "";
-                glassesOn = true;
+                pixelCountText.text = "";
+                return true;
             }
-            else
-                glassesOn = CheckGlassesOn();
-            if (SceneManager.GetActiveScene().name != "Main")
-                return;
-            if (glassesOn)
-                Transform();
-            _head.GetComponent<AsymFrustum>().UpdateProjectionMatrix();
-        }
-
-        void Transform()
-        {
-            // map coords based on the calibration
-            float centerX = Map(_tracker.EyeCenter.x, PlayerPrefs.GetFloat("LeftCalibration"), PlayerPrefs.GetFloat("RightCalibration"), 1.0f, 0.0f);
-            float centerY = Map(_tracker.EyeCenter.y, PlayerPrefs.GetFloat("BottomCalibration"), PlayerPrefs.GetFloat("TopCalibration"), 0.0f, 1.0f);
-            // X middle is 0.0f, left is -0.5f, right is 0.5f
-            float x = -(centerX - 0.5f) * _head.GetComponent<AsymFrustum>().width;
-            // Y middle is 0.5f, bottom is 0.0f, top is 1.0f
-            float y = centerY * _head.GetComponent<AsymFrustum>().height;
-            // update the position of the head
-            _head.transform.position = new Vector3(x, y, _head.transform.position.z);
-        }
-
-        /// <summary>
-        /// Maps a value from a range to another range.
-        /// </summary>
-        /// <param name="n">Value to map</param>
-        /// <param name="start1">Start of the original range</param>
-        /// <param name="stop1">End of the original range</param>
-        /// <param name="start2">Start of the target range</param>
-        /// <param name="stop2">End of the target range</param>
-        /// <returns>Mapped value</returns>
-        public static float Map(float n, float start1, float stop1, float start2, float stop2)
-        {
-            return ((n-start1) / (stop1-start1)) * (stop2-start2) + start2;
-        }
-
-        private bool CheckGlassesOn()
-        {
             // convert RenderTexture from WebcamInput to Texture2D
             // to be able to read pixels
             // not using WebCamTexture because it has different aspect ratio
@@ -92,7 +56,7 @@ namespace MediaPipe.BlazeFace {
                 _tracker.RightEye.x * tex.width,
                 _tracker.RightEye.y * tex.height);
             Vector2 center = (leftEye + rightEye) / 2;
-            
+
             // look from (startX, startY) to (endX, endY)
             CalculateColourBoxSize(tex, leftEye, rightEye, out var startX, out var endX, out var startY, out var endY);
             int boxWidth = endX - startX;
@@ -100,12 +64,11 @@ namespace MediaPipe.BlazeFace {
             int allPixels = boxWidth * boxHeight;
 
             // find pixels in threshold [(x, y), (x, y), ...]
-            var foundPixels = FindPixels(tex, startX, startY, boxWidth, boxHeight);
+            var (foundPixels, foundPixelsCount) = FindPixels(tex, startX, startY, boxWidth, boxHeight);
 
             // check if threshold was passed
             float threshold = 0.05f;
-            bool passed = (float) foundPixels.Capacity / allPixels > threshold;
-
+            bool passed = (float) foundPixelsCount / allPixels > threshold;
             // don't compute overlay if preview is not showing or not in menu
             if (PlayerPrefs.GetInt("previewIx") != 0 && SceneManager.GetActiveScene().name == "Main")
             {
@@ -115,13 +78,13 @@ namespace MediaPipe.BlazeFace {
 
             // set label text to show number of found pixels
             if (passed)
-                _pixelCountText.color = Color.green;
+                pixelCountText.color = Color.green;
             else
-                _pixelCountText.color = Color.red;
-            _pixelCountText.text = foundPixels.Count + " / " + allPixels;
-            
+                pixelCountText.color = Color.red;
+            pixelCountText.text = foundPixelsCount + " / " + allPixels;
+
             // <SET OVERLAY BOX POSITION AND SIZE>
-            var cBox = (RectTransform) _colorBox.transform;
+            var cBox = (RectTransform) colorBox.transform;
             var cBoxParent = (RectTransform) cBox.parent;
             var cBoxParentRect = cBoxParent.rect;
 
@@ -143,27 +106,28 @@ namespace MediaPipe.BlazeFace {
                 Destroy(_colOverlayTexture);
             _colOverlayTexture = new Texture2D(boxWidth, boxHeight);
 
-            // set all texture pixels to transparent
-            Color[] fillPixels = new Color[boxWidth * boxHeight];
-            _colOverlayTexture.SetPixels(fillPixels);
-            
             // set found pixels to a given colour
-            foreach (var pixel in foundPixels)
+            Color[] fillPixels = new Color[boxWidth * boxHeight];
+            var col = Color.cyan;
+            for (int y = 0; y < boxHeight; y++)
             {
-                int x = pixel[0];
-                int y = pixel[1];
-                _colOverlayTexture.SetPixel(x, y, Color.cyan);
+                for (int x = 0; x < boxWidth; x++)
+                {
+                    if (foundPixels[x, y])
+                        fillPixels[x + y * boxWidth] = col;
+                }
             }
+            _colOverlayTexture.SetPixels(fillPixels);
 
             // apply and set the texture
             _colOverlayTexture.Apply();
-            _colorBox.GetComponent<RawImage>().texture = _colOverlayTexture;
+            colorBox.GetComponent<RawImage>().texture = _colOverlayTexture;
             // </HIGHLIGHT PIXELS> END
 
             Destroy(tex);
             return passed;
         }
-        
+
         private Texture2D RenderTextureToTexture2D(RenderTexture rTex)
         {
             Texture2D dest = new Texture2D(rTex.width, rTex.height, TextureFormat.RGBA32, false);
@@ -172,7 +136,8 @@ namespace MediaPipe.BlazeFace {
             return dest;
         }
 
-        private void CalculateColourBoxSize(Texture2D tex, Vector2 leftEye, Vector2 rightEye, out int startX, out int endX, out int startY, out int endY)
+        private void CalculateColourBoxSize(Texture2D tex, Vector2 leftEye, Vector2 rightEye, out int startX,
+            out int endX, out int startY, out int endY)
         {
             int xRadius = (int) (rightEye.x - leftEye.x);
             int yRadius = (int) Math.Abs(leftEye.y - rightEye.y) + xRadius / 3;
@@ -190,30 +155,44 @@ namespace MediaPipe.BlazeFace {
                 startY = (int) (rightEye.y - yRadius);
                 endY = (int) (leftEye.y + yRadius);
             }
+
             startY = Math.Max(0, startY);
             endY = Math.Min(tex.height, endY);
         }
 
-        private List<List<int>> FindPixels(Texture2D tex, int startX, int startY, int boxWidth, int boxHeight)
+        /// <summary>
+        /// Goes through pixels in a box and finds those that are in colour threshold
+        /// </summary>
+        /// <param name="tex">Texture to go through</param>
+        /// <param name="startX"></param>
+        /// <param name="startY"></param>
+        /// <param name="boxWidth"></param>
+        /// <param name="boxHeight"></param>
+        /// <returns>Returns a tuple: 2D array of bools, number of found pixels</returns>
+        private Tuple<bool[,], int> FindPixels(Texture2D tex, int startX, int startY, int boxWidth, int boxHeight)
         {
             // get pixels in range <(startX, startY), (endX, endY)>
             var pixels = tex.GetPixels(startX, startY, boxWidth, boxHeight);
             // go through every pixel and check if in colour threshold
-            var foundPixels = new List<List<int>>();    // coords of found pixels
             int targetHue = PlayerPrefs.GetInt("hue");
             int hueThresh = PlayerPrefs.GetInt("hueThresh");
+            // 2D array of pixels, true if in threshold, false if not
+            var foundPixelsArr = new bool[boxWidth, boxHeight];
+            var pixelsInThresholdCount = 0;
             for (int y = 0; y < boxHeight; y++)
             {
                 for (int x = 0; x < boxWidth; x++)
                 {
                     var pixel = pixels[x + y * boxWidth];
-                    if (PixelInTreshold(pixel, hueThresh, targetHue))
-                        foundPixels.Add(new List<int>(){x, y});
+                    bool inThreshold = PixelInTreshold(pixel, hueThresh, targetHue);
+                    foundPixelsArr[x, y] = inThreshold;
+                    if (inThreshold)
+                        pixelsInThresholdCount++;
                 }
             }
-            return foundPixels;
+            return Tuple.Create(foundPixelsArr, pixelsInThresholdCount);
         }
-        
+
         private bool PixelInTreshold(Color pixel, int thresh, int targetHue)
         {
             Color.RGBToHSV(pixel, out var h, out var s, out var v);
@@ -222,7 +201,10 @@ namespace MediaPipe.BlazeFace {
                 return false;
             // map from 0.0 - 1.0 to 0-360
             int hue = (int) (360 * h);
-            int hueDifference = Math.Min(Math.Abs(hue - targetHue), 360 - Math.Abs(hue - targetHue));
+            // Math.Abs() is apparently slow
+            int diff = hue - targetHue;
+            diff = diff > 0 ? diff : -diff;
+            int hueDifference = Math.Min(diff, 360 - diff);
             if (hueDifference < thresh)
                 return true;
             return false;
