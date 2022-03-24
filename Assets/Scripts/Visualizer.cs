@@ -50,6 +50,7 @@ public sealed class Visualizer : MonoBehaviour
     #endregion
 
     #region MonoBehaviour implementation
+    
     void Start()
     {
         _webcam = GetComponent<WebcamInput>();
