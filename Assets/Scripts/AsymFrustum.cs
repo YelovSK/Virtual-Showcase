@@ -19,8 +19,9 @@ public class AsymFrustum : MonoBehaviour
     /// Screen/window to virtual world width (in units. I suggest using meters)
     /// </summary>
     public float width;
+
     /// <summary>
-	/// Screen/window to virtual world height (in units. I suggest using meters)
+    /// Screen/window to virtual world height (in units. I suggest using meters)
     /// </summary>
     public float height;
     /// <summary>

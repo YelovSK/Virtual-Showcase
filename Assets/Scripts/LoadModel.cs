@@ -37,6 +37,9 @@ public class LoadModel : MonoBehaviour
             ResetTransform();
             print("Loaded new model");
         }
+        // default is middle of the screen, put half of height below
+        var offset = GameObject.Find("HeadNode").GetComponent<AsymFrustum>().height / 2;
+        _loadedObject.transform.Translate(new Vector3(0, -offset, 0));
         DontDestroyOnLoad(this);
     }
 

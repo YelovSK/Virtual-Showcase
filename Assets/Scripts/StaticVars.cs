@@ -39,5 +39,10 @@ public class StaticVars : MonoBehaviour
             PlayerPrefs.SetFloat("RightCalibration", 1.0f);
         if (!PlayerPrefs.HasKey("glassesCheck"))    // 0 / 1
             PlayerPrefs.SetInt("glassesCheck", 1);
+        if (!PlayerPrefs.HasKey("screenDiagonalInches"))
+            PlayerPrefs.SetInt("screenDiagonalInches", 24);
+        if (!PlayerPrefs.HasKey("distanceFromScreenCm"))
+            PlayerPrefs.SetInt("distanceFromScreenCm", 50);
+
     }
 }
