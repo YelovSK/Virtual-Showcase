@@ -36,10 +36,9 @@ namespace MediaPipe.BlazeFace {
             // map coords based on the calibration
             float centerX = Map(_tracker.EyeCenter.x, PlayerPrefs.GetFloat("LeftCalibration"), PlayerPrefs.GetFloat("RightCalibration"), 1.0f, 0.0f);
             float centerY = Map(_tracker.EyeCenter.y, PlayerPrefs.GetFloat("BottomCalibration"), PlayerPrefs.GetFloat("TopCalibration"), 0.0f, 1.0f);
-            // X middle is 0.0f, left is -0.5f, right is 0.5f
+            // middle is 0.0f, left is -0.5f, right is 0.5f
             float x = -(centerX - 0.5f) * head.GetComponent<AsymFrustum>().width;
-            // Y middle is 0.5f, bottom is 0.0f, top is 1.0f
-            float y = centerY * head.GetComponent<AsymFrustum>().height;
+            float y = (centerY - 0.5f) * head.GetComponent<AsymFrustum>().height;
             // update the position of the head
             head.transform.position = new Vector3(x, y, head.transform.position.z);
         }
