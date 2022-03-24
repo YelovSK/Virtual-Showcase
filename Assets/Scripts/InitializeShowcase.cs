@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,17 +7,15 @@ using Dummiesman;
 
 public class InitializeShowcase : MonoBehaviour
 {
-    [SerializeField] private GameObject leftCam;
-    [SerializeField] private GameObject rightCam;
-    [SerializeField] private GameObject monoCam;
+    [SerializeField] GameObject leftCam;
+    [SerializeField] GameObject rightCam;
+    [SerializeField] GameObject monoCam;
     [SerializeField] GameObject camPreview;
     [SerializeField] CanvasGroup canvasGroup;
-    GameObject _loadedObject;
     void Start()
     {
         StaticVars.SetDefaultPlayerPrefs();
         SetCamPreview();
-        LoadObject();
         SetStereo();
     }
 
@@ -42,26 +41,6 @@ public class InitializeShowcase : MonoBehaviour
         rightCam.SetActive(true);
     }
 
-    void LoadObject()
-    {
-        if (PlayerPrefs.GetString("modelPath") == "")
-            return;
-        if (StaticVars.loadedObject != null)
-        {
-            _loadedObject = StaticVars.loadedObject;
-            print("Loaded model from static var");
-        }
-        else
-        {
-            _loadedObject = new OBJLoader().Load(PlayerPrefs.GetString("modelPath"));
-            _loadedObject.transform.Translate(0, 0, -7);
-            _loadedObject.transform.Rotate(0, 180, 0);
-            StaticVars.loadedObject = _loadedObject;
-            print("Loaded new model");
-        }
-        DontDestroyOnLoad(_loadedObject);
-    }
-
     void SetCamPreview()
     {
         if (PlayerPrefs.GetInt("previewIx") == 3)
@@ -85,7 +64,6 @@ public class InitializeShowcase : MonoBehaviour
     void Update()
     {
         CheckKeyInput();
-        CheckMouseInput();
     }
 
     void CheckKeyInput()
@@ -94,12 +72,6 @@ public class InitializeShowcase : MonoBehaviour
         {
             PlayerPrefs.SetInt("previewIx", PlayerPrefs.GetInt("previewIx")+1);
             SetCamPreview();
-        }
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            _loadedObject.transform.localScale = new Vector3(1f, 1f, 1f);
-            _loadedObject.transform.localPosition = new Vector3(0f, 0f, -7f);
-            _loadedObject.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
         }
         if (Input.GetKeyDown(KeyCode.Tab))
         {
@@ -114,32 +86,6 @@ public class InitializeShowcase : MonoBehaviour
                 PlayerPrefs.SetInt("stereo", 0);
                 ActivateMono();
             }
-        }
-    }
-
-    void CheckMouseInput()
-    {
-        var mouseX = Input.GetAxis("Mouse X");
-        var mouseY = Input.GetAxis("Mouse Y");
-        if (Input.GetMouseButton(0) && Input.GetMouseButton(1))
-        {
-            _loadedObject.transform.Translate(0, mouseY/20, 0);
-        }
-        else if (Input.GetMouseButton(0))
-        {
-            _loadedObject.transform.Rotate(0, -mouseX, 0);
-        }
-        else if (Input.GetMouseButton(1))
-        {
-            _loadedObject.transform.Translate(mouseX/20, 0, mouseY/20, Space.World);
-        }
-        if (Input.GetAxis("Mouse ScrollWheel") > 0f)
-        {
-            _loadedObject.transform.localScale *= 1.1f;
-        }
-        if (Input.GetAxis("Mouse ScrollWheel") < 0f)
-        {
-            _loadedObject.transform.localScale *= 0.9f;
         }
     }
 }

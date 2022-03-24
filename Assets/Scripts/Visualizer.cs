@@ -1,7 +1,5 @@
-using System.Linq;
-using System.Threading;
+using System;
 using MediaPipe.BlazeFace;
-using Unity.Barracuda;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,18 +7,19 @@ public sealed class Visualizer : MonoBehaviour
 {
     #region Editable attributes
 
-    [SerializeField] WebcamInput _webcam;
-    [Space]
     [SerializeField] RawImage _previewUI;
-    [Space]
     [SerializeField] ResourceSet _resources;
     [SerializeField] Marker _markerPrefab;
     [SerializeField] Texture2D _defaultCamTexture;
+    public EyeTracker EyeTracker { get; private set; }
+    public WebcamInput WebcamInput => _webcam;
+    public bool Initialized { get; private set; }
 
     #endregion
 
     #region Private members
 
+    WebcamInput _webcam;
     const int FACES_COUNT = 1;  // number of faces to detect
     FaceDetector _detector;
     Marker[] _markers = new Marker[FACES_COUNT];
@@ -51,9 +50,9 @@ public sealed class Visualizer : MonoBehaviour
     #endregion
 
     #region MonoBehaviour implementation
-
     void Start()
     {
+        _webcam = GetComponent<WebcamInput>();
         // broken webcam, image set to "NO WEBCAM SHOWING"
         if (!_webcam.IsCameraRunning())
         {
@@ -66,6 +65,8 @@ public sealed class Visualizer : MonoBehaviour
         // Marker population
         for (var i = 0; i < _markers.Length; i++)
             _markers[i] = Instantiate(_markerPrefab, _previewUI.transform);
+        EyeTracker = _markers[0].EyeTracker;
+        Initialized = true;
     }
 
     void OnDestroy()
