@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,10 +18,8 @@ namespace MediaPipe.BlazeFace
         WebcamInput _webcam;
         Texture2D _colOverlayTexture;
 
-        async void Start()
+        void Start()
         {
-            while (!GetComponent<Visualizer>().Initialized)
-                await Task.Yield();
             _tracker = GetComponent<Visualizer>().EyeTracker;
             _webcam = GetComponent<WebcamInput>();
         }
@@ -33,7 +30,7 @@ namespace MediaPipe.BlazeFace
                 GlassesOn = CheckGlassesOn();
         }
 
-        public bool CheckGlassesOn()
+        private bool CheckGlassesOn()
         {
             // if glasses check is off, don't display overlay and set to true to transform anyway
             if (PlayerPrefs.GetInt("glassesCheck") == 0)
@@ -201,13 +198,9 @@ namespace MediaPipe.BlazeFace
                 return false;
             // map from 0.0 - 1.0 to 0-360
             int hue = (int) (360 * h);
-            // Math.Abs() is apparently slow
-            int diff = hue - targetHue;
-            diff = diff > 0 ? diff : -diff;
+            int diff = Math.Abs(hue - targetHue);
             int hueDifference = Math.Min(diff, 360 - diff);
-            if (hueDifference < thresh)
-                return true;
-            return false;
+            return hueDifference < thresh;
         }
     }
 }

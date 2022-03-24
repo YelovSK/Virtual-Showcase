@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace MediaPipe.BlazeFace {
@@ -16,10 +15,8 @@ namespace MediaPipe.BlazeFace {
 
         // waiting for coloured glasses around eyes
 
-        async void Start()
+        void Start()
         {
-            while (!GetComponent<Visualizer>().Initialized)
-                await Task.Yield();
             _tracker = GetComponent<Visualizer>().EyeTracker;
             _webcam = GetComponent<WebcamInput>();
             _colourCheck = GetComponent<ColourCheck>();
