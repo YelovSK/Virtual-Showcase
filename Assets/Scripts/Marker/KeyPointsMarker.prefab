@@ -124,6 +124,7 @@ MonoBehaviour:
   _keyPoints:
   - {fileID: 3903621281607213184}
   - {fileID: 7989179531762848512}
+  - {fileID: 1124015707128186044}
 --- !u!1 &4787918212017560850
 GameObject:
   m_ObjectHideFlags: 0

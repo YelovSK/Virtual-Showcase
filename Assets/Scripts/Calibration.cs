@@ -19,11 +19,11 @@ public class Calibration : MonoBehaviour
     // scene to change the size based on the display size
     [SerializeField] GameObject Scene;
     // sliders for settings the distance from the display
-    [SerializeField] TMP_Text DistanceText;
+    [SerializeField] GameObject Sliders;
+    
     [SerializeField] Slider DistanceSlider;
     [SerializeField] TMP_Text DistanceValue;
     // sliders for settings the size of the display
-    [SerializeField] TMP_Text SizeText;
     [SerializeField] Slider SizeSlider;
     [SerializeField] TMP_Text SizeValue;
     
@@ -62,9 +62,6 @@ public class Calibration : MonoBehaviour
     private void ChangeDistanceValue(Slider sender)
     {
         DistanceValue.text = sender.value + "cm";
-        PlayerPrefs.SetInt("distanceFromScreenCm", (int) sender.value);
-        // position of the head is offset by sender.value from the display
-        Head.transform.localPosition = new Vector3(0, (int) sender.value, 0);
     }
 
 
@@ -119,41 +116,84 @@ public class Calibration : MonoBehaviour
                 break;
             // set left edge, highlight right edge
             case 2:
-                PlayerPrefs.SetFloat("LeftCalibration", GetEyeCenter().x);
+                PlayerPrefs.SetFloat("LeftCalibration", EyeTracker.EyeCenter.x);
                 SetGuideText(edgeText: "right");
                 HighlightEdge();
                 break;
             // set right edge, highlight bottom edge
             case 3:
-                PlayerPrefs.SetFloat("RightCalibration", GetEyeCenter().x);
+                PlayerPrefs.SetFloat("RightCalibration", EyeTracker.EyeCenter.x);
                 SetGuideText(edgeText: "bottom");
                 HighlightEdge();
                 break;
             // set bottom edge, highlight top edge
             case 4:
-                PlayerPrefs.SetFloat("BottomCalibration", GetEyeCenter().y);
+                PlayerPrefs.SetFloat("BottomCalibration", EyeTracker.EyeCenter.y);
                 SetGuideText(edgeText: "top");
                 HighlightEdge();
                 break;
-            // set top edge, hide UI
+            // set top edge, show sliders
             case 5:
-                PlayerPrefs.SetFloat("TopCalibration", GetEyeCenter().y);
+                PlayerPrefs.SetFloat("TopCalibration", EyeTracker.EyeCenter.y);
+                GuideText.text = "Set the sliders and keep your head pointed at the display from the given distance, then press 'Enter'";
+                HighlightEdge();
+                Sliders.SetActive(true);
+                break;
+            // set focal length and hide UI
+            case 6:
+                SetFocalLength();
                 TurnOffPreview();
                 _state = 0;
                 break;
         }
     }
 
-    /// <summary>
-    /// Change the 5th word to edgeText.
-    /// </summary>
-    /// <param name="edgeText"></param>
+    public static float GetEyesDistance()
+    {
+        // difference of leftEye and rightEye x,y coords
+        var leftEye = EyeTracker.LeftEye;
+        var rightEye = EyeTracker.RightEye;
+        var eyesDifference = leftEye - rightEye;
+        // distance of eyes diagonal (thanks pythagoras)
+        var eyesDistance = Math.Sqrt(Math.Pow(eyesDifference.x, 2) + Math.Pow(eyesDifference.y, 2));
+        // todo calculate distance properly when head rotated
+        // var mouthX = FindObjectOfType<EyeTracker>().Detection.mouth.x;
+        // var eyesMiddleX = (leftEye.x + rightEye.x) / 2;
+        // eyesDistance *= 1 + Math.Abs(mouthX - eyesMiddleX)*15;
+        return (float) eyesDistance;
+    }
+
+    public static float GetFocalLength(float distanceFromScreen)
+    {
+        // eyes distance on camera
+        var eyesDistance = GetEyesDistance();
+        // real life distance of eyes in cm
+        const int realEyesDistance = 6;
+        // calculate focal length
+        var focal = (eyesDistance * distanceFromScreen) / realEyesDistance;
+        return focal;
+    }
+
+    private void SetFocalLength()
+    {
+        PlayerPrefs.SetInt("distanceFromScreenCm", (int) DistanceSlider.value);
+        // position of the head is offset by sender.value from the display
+        Head.transform.localPosition = new Vector3(0, (int) DistanceSlider.value, 0);
+        PlayerPrefs.SetFloat("focalLength", GetFocalLength(DistanceSlider.value));
+    }
+
+    public static float GetRealHeadDistance()
+    {
+        var focal = PlayerPrefs.GetFloat("focalLength");
+        const int realEyesDistance = 6;
+        var realDistance = (realEyesDistance * focal) / GetEyesDistance();
+        return realDistance;
+    }
+
     void SetGuideText(string edgeText)
     {
-        int wordIndex = 5;
-        var words = GuideText.text.Split();
-        words[wordIndex] = edgeText;
-        GuideText.text = string.Join(" ", words);
+        var text = "Align your eyes with the " + edgeText + " edge of the display and press 'Enter'";
+        GuideText.text = text;
     }
 
     void TurnOnPreview()
@@ -175,9 +215,8 @@ public class Calibration : MonoBehaviour
         CameraPreviewTransform.position = _origCameraPreviewPosition;
         CameraPreviewTransform.localScale = _origCameraPreviewScale;
         CalibrationUI.SetActive(false);
+        Sliders.SetActive(false);
     }
-
-    Vector2 GetEyeCenter() => FindObjectOfType<EyeTracker>().EyeCenter;
 
     void HighlightEdge() => MonitorImage.sprite = MonitorSprites[_state - 1];
 
@@ -191,7 +230,7 @@ public class Calibration : MonoBehaviour
         double aspectRatio = (double) 16 / 9;
         double height = diagonalInches / Math.Sqrt((aspectRatio * aspectRatio) + 1);
         double width = aspectRatio * height;
-        float cmsInInch = 2.54f;
+        const float cmsInInch = 2.54f;
         return Tuple.Create((int) (width * cmsInInch), (int) (height * cmsInInch));
     }
 }

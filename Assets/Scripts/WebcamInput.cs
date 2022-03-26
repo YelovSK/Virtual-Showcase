@@ -12,7 +12,7 @@ public sealed class WebcamInput : MonoBehaviour
     
     public bool IsCameraRunning() => _webcam != null && _webcam.isPlaying;
 
-    public bool CameraUpdated() => _webcam.didUpdateThisFrame;
+    public bool CameraUpdated() => _webcam != null && _webcam.didUpdateThisFrame;
 
     async void Awake()
     {

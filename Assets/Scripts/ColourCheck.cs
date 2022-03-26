@@ -26,7 +26,7 @@ namespace MediaPipe.BlazeFace
 
         private void LateUpdate()
         {
-            if (_webcam.CameraUpdated())
+            if (EyeTracker.DetectedThisFrame)
                 GlassesOn = CheckGlassesOn();
         }
 
@@ -47,11 +47,11 @@ namespace MediaPipe.BlazeFace
 
             // map coords from 0.0 - 1.0 to width and height of WebcamTexture
             var leftEye = new Vector2(
-                _tracker.LeftEye.x * tex.width,
-                _tracker.LeftEye.y * tex.height);
+                EyeTracker.LeftEye.x * tex.width,
+                EyeTracker.LeftEye.y * tex.height);
             var rightEye = new Vector2(
-                _tracker.RightEye.x * tex.width,
-                _tracker.RightEye.y * tex.height);
+                EyeTracker.RightEye.x * tex.width,
+                EyeTracker.RightEye.y * tex.height);
             Vector2 center = (leftEye + rightEye) / 2;
 
             // look from (startX, startY) to (endX, endY)
