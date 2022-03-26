@@ -43,6 +43,7 @@ public class StaticVars : MonoBehaviour
             PlayerPrefs.SetInt("screenDiagonalInches", 24);
         if (!PlayerPrefs.HasKey("distanceFromScreenCm"))
             PlayerPrefs.SetInt("distanceFromScreenCm", 50);
-
+        if (!PlayerPrefs.HasKey("focalLength"))
+            PlayerPrefs.SetFloat("focalLength", Calibration.GetFocalLength(PlayerPrefs.GetInt("distanceFromScreenCm")));
     }
 }

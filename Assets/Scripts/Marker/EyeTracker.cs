@@ -6,10 +6,10 @@ namespace MediaPipe.BlazeFace
 {
     public sealed class EyeTracker : MonoBehaviour
     {
-        Marker _marker;
+        static Marker _marker;
         // Current eye position
-        Vector2 _leftEye;
-        Vector2 _rightEye;
+        static Vector2 _leftEye;
+        static Vector2 _rightEye;
         // Average
         List<Vector2> _leftEyeHistory;
         List<Vector2> _rightEyeHistory;
@@ -17,11 +17,12 @@ namespace MediaPipe.BlazeFace
         KalmanFilter<Vector2> _leftMeasurement;
         KalmanFilter<Vector2> _rightMeasurement;
 
-        WebcamInput _webcam;
-        public FaceDetector.Detection Detection => _marker.detection;
-        public Vector2 LeftEye => _leftEye;
-        public Vector2 RightEye => _rightEye;
-        public Vector2 EyeCenter => (_leftEye + _rightEye) / 2;
+        static WebcamInput _webcam;
+        public static FaceDetector.Detection Detection => _marker.detection;
+        public static Vector2 LeftEye => _leftEye;
+        public static Vector2 RightEye => _rightEye;
+        public static Vector2 EyeCenter => (_leftEye + _rightEye) / 2;
+        public static bool DetectedThisFrame => _webcam.CameraUpdated() && Detection.score != 0;
 
 
         void Start()
@@ -38,7 +39,7 @@ namespace MediaPipe.BlazeFace
 
         void LateUpdate()
         {
-            if (!_webcam.CameraUpdated())
+            if (!DetectedThisFrame)
                 return;
             var detection = _marker.detection;
             _leftEye = detection.leftEye;

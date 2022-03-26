@@ -14,6 +14,8 @@ public class LoadModel : MonoBehaviour
 
     void Update()
     {
+        if (_loadedObject == null)
+            return;
         CheckMouseInput();
         if (Input.GetKeyDown(KeyCode.R))
             ResetTransform();
