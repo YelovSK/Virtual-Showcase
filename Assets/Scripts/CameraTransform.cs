@@ -10,12 +10,10 @@ namespace MediaPipe.BlazeFace {
         [SerializeField] GameObject head;
         [SerializeField] Text distance;
 
-        WebcamInput _webcam;
         ColourCheck _colourCheck;
 
         void Start()
         {
-            _webcam = GetComponent<WebcamInput>();
             _colourCheck = GetComponent<ColourCheck>();
         }
 
