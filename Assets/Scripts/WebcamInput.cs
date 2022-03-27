@@ -10,9 +10,9 @@ public sealed class WebcamInput : MonoBehaviour
     public RenderTexture Texture => _buffer;
     public WebCamTexture WebCamTexture => _webcam;
     
-    public bool IsCameraRunning() => _webcam != null && _webcam.isPlaying;
+    public bool IsCameraRunning() => Texture != null && _webcam.isPlaying;
 
-    public bool CameraUpdated() => _webcam != null && _webcam.didUpdateThisFrame;
+    public bool CameraUpdated() => Texture != null && _webcam.didUpdateThisFrame;
 
     async void Awake()
     {
