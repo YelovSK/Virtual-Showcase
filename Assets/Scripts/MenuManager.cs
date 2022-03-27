@@ -31,13 +31,14 @@ public class MenuManager : MonoBehaviour
 
     void Start()
     {
-        StaticVars.SetDefaultPlayerPrefs();
+        StaticVars.CheckPlayerPrefs();
         SetElementsToPlayerPrefs();
         SetDelegates();
     }
-    
+
     private void SetElementsToPlayerPrefs()
     {
+        // find components in children
         _avgSlider = averageElements.GetComponentInChildren<Slider>(true);
         _avgText = averageElements.GetComponentInChildren<TMP_Text>(true);
         var kalmanSliders = kalmanElements.GetComponentsInChildren<Slider>(true);
@@ -46,6 +47,7 @@ public class MenuManager : MonoBehaviour
         var kalmanValues = kalmanElements.GetComponentsInChildren<TMP_Text>(true);
         _qValue = kalmanValues[0];
         _rValue = kalmanValues[1];
+        // set to current player prefs
         if (System.IO.File.Exists(PlayerPrefs.GetString("modelPath")))
             currentModelText.text = "Current model: " + PlayerPrefs.GetString("modelPath").Split('\\').Last();
         else
@@ -60,7 +62,7 @@ public class MenuManager : MonoBehaviour
         hueThreshSlider.value = PlayerPrefs.GetInt("hueThresh");
         glassesCheck.isOn = PlayerPrefs.GetInt("glassesCheck") == 1;
     }
-    
+
     private void SetDelegates()
     {
         ChangeCamPreview(webcamDropdown);
@@ -68,43 +70,43 @@ public class MenuManager : MonoBehaviour
         {
             ChangeCamPreview(webcamDropdown);
         });
-        
+
         ChangeSmoothing(smoothingDropdown);
         smoothingDropdown.onValueChanged.AddListener(delegate
         {
             ChangeSmoothing(smoothingDropdown);
         });
-        
+
         ChangeAvgFrames(_avgSlider);
         _avgSlider.onValueChanged.AddListener(delegate
         {
             ChangeAvgFrames(_avgSlider);
         });
-        
+
         ChangeQslider(_qSlider);
         _qSlider.onValueChanged.AddListener(delegate
         {
             ChangeQslider(_qSlider);
         });
-        
+
         ChangeRslider(_rSlider);
         _rSlider.onValueChanged.AddListener(delegate
         {
             ChangeRslider(_rSlider);
         });
-        
+
         ChangeThreshold(thresholdSlider);
         thresholdSlider.onValueChanged.AddListener(delegate
         {
             ChangeThreshold(thresholdSlider);
         });
-        
+
         ChangeHue(hueSlider);
         hueSlider.onValueChanged.AddListener(delegate
         {
             ChangeHue(hueSlider);
         });
-        
+
         ChangeHueThresh(hueThreshSlider);
         hueThreshSlider.onValueChanged.AddListener(delegate
         {
@@ -117,7 +119,7 @@ public class MenuManager : MonoBehaviour
             ChangeGlassesCheck(glassesCheck);
         });
     }
-    
+
     private void ChangeThreshold(Slider sender)
     {
         thresholdText.text = Mathf.RoundToInt(sender.value * 100) + "%";
@@ -126,28 +128,22 @@ public class MenuManager : MonoBehaviour
 
     private void ChangeHue(Slider sender)
     {
-        int hue = (int) sender.value;
+        int hue = (int)sender.value;
         hueText.text = hue.ToString();
-        var RGBcolor = Color.HSVToRGB((float) hue / 360, 1, 1);
-        hueSlider.gameObject.transform.Find("Fill Area").Find("Fill").GetComponent<Image>().color =
-            RGBcolor;
+        var RGBcolor = Color.HSVToRGB((float)hue / 360, 1, 1);
+        // fill hueSlider with given colour
+        hueSlider.GetComponentInChildren<Image>().color = RGBcolor;
         PlayerPrefs.SetInt("hue", hue);
     }
-    
+
     private void ChangeHueThresh(Slider sender)
     {
-        int thresh = (int) sender.value;
+        int thresh = (int)sender.value;
         hueThreshText.text = thresh.ToString();
         PlayerPrefs.SetInt("hueThresh", thresh);
     }
-    
-    private void ChangeGlassesCheck(Toggle sender)
-    {
-        if (sender.isOn)
-            PlayerPrefs.SetInt("glassesCheck", 1);
-        else
-            PlayerPrefs.SetInt("glassesCheck", 0);
-    }
+
+    private void ChangeGlassesCheck(Toggle sender) => PlayerPrefs.SetInt("glassesCheck", sender.isOn ? 1 : 0);
 
     private void ChangeRslider(Slider slider)
     {
@@ -159,7 +155,6 @@ public class MenuManager : MonoBehaviour
     {
         PlayerPrefs.SetFloat("kalmanQ", slider.value);
         _qValue.text = slider.value.ToString();
-
     }
 
     private void SetAvgSliderAndText(int framesSmoothed)
@@ -170,17 +165,21 @@ public class MenuManager : MonoBehaviour
 
     public void SetCamName(string camName)
     {
+        // add WebCam devices to dropdown options
         if (webcamDropdown.options.Count == 0)
-            webcamDropdown.options = WebCamTexture.devices.ToList()
-                .Select(cam => new TMP_Dropdown.OptionData() {text = cam.name})
-                .ToList();
-        webcamDropdown.value = webcamDropdown.options.FindIndex(option => option.text == camName);
+        {
+            var options = new List<TMP_Dropdown.OptionData>();
+            foreach (var device in WebCamTexture.devices)
+                options.Add(new TMP_Dropdown.OptionData(device.name));
+            webcamDropdown.AddOptions(options);
+        }
+        webcamDropdown.value = webcamDropdown.options.FindIndex(x => x.text == camName);
     }
 
     public void SetSmoothingOption(string smoothingOption)
     {
         if (smoothingDropdown.options.Count == 0)
-            smoothingDropdown.AddOptions(new List<string>{"Kalman", "Average", "Off"});
+            smoothingDropdown.AddOptions(new List<string> { "Kalman", "Average", "Off" });
         smoothingDropdown.value = smoothingDropdown.options.FindIndex(option => option.text == smoothingOption);
     }
 
@@ -199,19 +198,18 @@ public class MenuManager : MonoBehaviour
         averageElements.SetActive(PlayerPrefs.GetString("smoothing") == "Average");
         kalmanElements.SetActive(PlayerPrefs.GetString("smoothing") == "Kalman");
     }
-    
+
     private void ChangeAvgFrames(Slider slider)
     {
         PlayerPrefs.SetInt("framesSmoothed", Convert.ToInt16(slider.value));
         _avgText.text = slider.value + " frames";
     }
-    
+
     public void ResetSettings()
     {
         Destroy(StaticVars.loadedObject);
         StaticVars.loadedObject = null;
-        PlayerPrefs.DeleteAll();
-        StaticVars.SetDefaultPlayerPrefs();
+        StaticVars.ResetPlayerPrefs();
         SetElementsToPlayerPrefs();
     }
 
