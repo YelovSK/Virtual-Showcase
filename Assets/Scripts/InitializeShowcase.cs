@@ -14,7 +14,7 @@ public class InitializeShowcase : MonoBehaviour
     [SerializeField] CanvasGroup canvasGroup;
     void Start()
     {
-        StaticVars.SetDefaultPlayerPrefs();
+        StaticVars.CheckPlayerPrefs();
         SetCamPreview();
         SetStereo();
     }
@@ -26,7 +26,7 @@ public class InitializeShowcase : MonoBehaviour
         else
             ActivateStereo();
     }
-    
+
     private void ActivateMono()
     {
         monoCam.SetActive(true);
@@ -70,7 +70,7 @@ public class InitializeShowcase : MonoBehaviour
     {
         if (Input.GetKeyDown("f12"))
         {
-            PlayerPrefs.SetInt("previewIx", PlayerPrefs.GetInt("previewIx")+1);
+            PlayerPrefs.SetInt("previewIx", PlayerPrefs.GetInt("previewIx") + 1);
             SetCamPreview();
         }
         if (Input.GetKeyDown(KeyCode.Tab))
