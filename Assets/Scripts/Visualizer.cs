@@ -15,6 +15,8 @@ public sealed class Visualizer : MonoBehaviour
     public WebcamInput WebcamInput => _webcam;
     public bool Initialized { get; private set; }
 
+    public static bool DetectedFace = false;
+
     #endregion
 
     #region Private members
@@ -32,13 +34,15 @@ public sealed class Visualizer : MonoBehaviour
         // Marker update
         var i = 0;
 
+        Marker marker = null;
         foreach (var detection in _detector.Detections)
         {
             if (i == _markers.Length) break;
-            var marker = _markers[i++];
+            marker = _markers[i++];
             marker.detection = detection;
             marker.gameObject.SetActive(true);
         }
+        DetectedFace = marker != null;
 
         for (; i < _markers.Length; i++)
             _markers[i].gameObject.SetActive(false);
@@ -50,7 +54,7 @@ public sealed class Visualizer : MonoBehaviour
     #endregion
 
     #region MonoBehaviour implementation
-    
+
     void Start()
     {
         _webcam = GetComponent<WebcamInput>();
@@ -80,7 +84,7 @@ public sealed class Visualizer : MonoBehaviour
 
     void LateUpdate()
     {
-        if (_webcam != null && _webcam.IsCameraRunning() && _webcam.CameraUpdated())
+        if (_webcam.CameraUpdated())
             RunDetector(_webcam.Texture);
     }
 
