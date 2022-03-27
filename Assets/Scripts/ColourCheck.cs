@@ -127,9 +127,16 @@ namespace MediaPipe.BlazeFace
 
         private Texture2D RenderTextureToTexture2D(RenderTexture rTex)
         {
+            // set active texture
+            var activeBefore = RenderTexture.active;
+            RenderTexture.active = rTex;
+            // create new texture2D
             Texture2D dest = new Texture2D(rTex.width, rTex.height, TextureFormat.RGBA32, false);
+            // copy texture and read pixels
             Graphics.CopyTexture(rTex, dest);
             dest.ReadPixels(new Rect(0, 0, rTex.width, rTex.height), 0, 0);
+            // set back the original active texture
+            RenderTexture.active = activeBefore;
             return dest;
         }
 
@@ -198,6 +205,7 @@ namespace MediaPipe.BlazeFace
                 return false;
             // map from 0.0 - 1.0 to 0-360
             int hue = (int) (360 * h);
+            // get difference in 360 degrees
             int diff = Math.Abs(hue - targetHue);
             int hueDifference = Math.Min(diff, 360 - diff);
             return hueDifference < thresh;
