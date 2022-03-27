@@ -17,17 +17,17 @@ namespace MediaPipe.BlazeFace
         KalmanFilter<Vector2> _leftMeasurement;
         KalmanFilter<Vector2> _rightMeasurement;
 
-        static WebcamInput _webcam;
+        static WebcamInput _webcamInput;
         public static FaceDetector.Detection Detection => _marker.detection;
         public static Vector2 LeftEye => _leftEye;
         public static Vector2 RightEye => _rightEye;
         public static Vector2 EyeCenter => (_leftEye + _rightEye) / 2;
-        public static bool DetectedThisFrame => _webcam.CameraUpdated() && Detection.score != 0;
+        public static bool DetectedThisFrame => _webcamInput != null && _webcamInput.CameraUpdated() && Visualizer.DetectedFace;
 
 
         void Start()
         {
-            _webcam = GameObject.FindWithTag("Face tracking").GetComponent<WebcamInput>();
+            _webcamInput = GameObject.FindWithTag("Face tracking").GetComponent<WebcamInput>();
             _marker = GetComponent<Marker>();
             _leftEyeHistory = new List<Vector2>();
             _rightEyeHistory = new List<Vector2>();
