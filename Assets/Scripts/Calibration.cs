@@ -184,6 +184,7 @@ public class Calibration : MonoBehaviour
 
     public static float GetRealHeadDistance()
     {
+        // https://www.youtube.com/watch?v=jsoe1M2AjFk
         var focal = PlayerPrefs.GetFloat("focalLength");
         const int realEyesDistance = 6;
         var realDistance = (realEyesDistance * focal) / GetEyesDistance();
