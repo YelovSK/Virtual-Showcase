@@ -252,10 +252,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ffa12ca5a7f22047817498981206b49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _previewUI: {fileID: 2067494194}
-  _resources: {fileID: 11400000, guid: 5594fd2934aca864980b90fe058f4161, type: 2}
-  _markerPrefab: {fileID: -8667460914361412726, guid: 47a0fcd207399f14b8f37638653245e1, type: 3}
-  _defaultCamTexture: {fileID: 2800000, guid: 206ba24cdf772b24e979bf09f3ec3461, type: 3}
+  previewUI: {fileID: 2067494194}
+  resources: {fileID: 11400000, guid: 5594fd2934aca864980b90fe058f4161, type: 2}
+  markerPrefab: {fileID: -8667460914361412726, guid: b6480b09e4f313b49987b6e2c21a69fe, type: 3}
+  defaultCamTexture: {fileID: 2800000, guid: 206ba24cdf772b24e979bf09f3ec3461, type: 3}
 --- !u!114 &33135769
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -268,7 +268,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d46f6d48364029e4097a90fc41ae48f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _aspectRatio: {x: 1, y: 1}
+  aspectRatio: {x: 1, y: 1}
 --- !u!4 &33135770
 Transform:
   m_ObjectHideFlags: 0
@@ -2602,7 +2602,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &316525228
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5869,23 +5869,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c8815851292b2747a33f39c49c92575, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CalibrationUI: {fileID: 1324251593}
-  MonitorImage: {fileID: 1012928004}
-  MonitorSprites:
+  calibrationUI: {fileID: 1324251593}
+  monitorImage: {fileID: 1012928004}
+  monitorSprites:
   - {fileID: 21300000, guid: d718022b0fdc7874c9789d4357768b90, type: 3}
   - {fileID: 21300000, guid: b5c53e2258cb8cd4c8d620fe95c2663e, type: 3}
   - {fileID: 21300000, guid: 07c1171842e0ad64ca1893e38c6405a0, type: 3}
   - {fileID: 21300000, guid: 2f82c5091f833f440973a5a3776b4a4e, type: 3}
   - {fileID: 21300000, guid: 05f65993723a1524198b46b63c34ee30, type: 3}
-  CameraPreviewTransform: {fileID: 2067494193}
-  GuideText: {fileID: 507087070}
-  Head: {fileID: 253675641}
-  Scene: {fileID: 416341391}
-  Sliders: {fileID: 212451382}
-  DistanceSlider: {fileID: 609913266}
-  DistanceValue: {fileID: 1323350896}
-  SizeSlider: {fileID: 589909423}
-  SizeValue: {fileID: 1496279415}
+  cameraPreviewTransform: {fileID: 2067494193}
+  guideText: {fileID: 507087070}
+  head: {fileID: 253675641}
+  scene: {fileID: 416341391}
+  sliders: {fileID: 212451382}
+  distanceSlider: {fileID: 609913266}
+  distanceValue: {fileID: 1323350896}
+  sizeSlider: {fileID: 589909423}
+  sizeValue: {fileID: 1496279415}
 --- !u!225 &819570173
 CanvasGroup:
   m_ObjectHideFlags: 0
