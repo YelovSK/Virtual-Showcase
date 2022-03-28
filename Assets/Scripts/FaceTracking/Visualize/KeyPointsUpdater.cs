@@ -41,7 +41,7 @@ namespace VirtualVitrine.FaceTracking.Visualize
             // Key points
             SetKeyPoint(keyPoints[0], EyeTracker.LeftEye);
             SetKeyPoint(keyPoints[1], EyeTracker.RightEye);
-            SetKeyPoint(keyPoints[2], detection.mouth);
+            // SetKeyPoint(keyPoints[2], detection.mouth);
             // SetKeyPoint(_keyPoints[3], detection.nose);
             // SetKeyPoint(_keyPoints[4], detection.leftEar);
             // SetKeyPoint(_keyPoints[5], detection.rightEar);

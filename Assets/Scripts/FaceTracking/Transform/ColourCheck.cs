@@ -33,18 +33,18 @@ namespace VirtualVitrine.FaceTracking.Transform
         {
             if (EyeTracker.DetectedThisFrame)
                 GlassesOn = CheckGlassesOn();
+            else if (EyeTracker.CameraUpdated)
+                HideUI();
         }
         #endregion
 
         #region Private Methods
-                private bool CheckGlassesOn()
+        private bool CheckGlassesOn()
         {
             // if glasses check is off, don't display overlay and set to true to transform anyway
             if (PlayerPrefs.GetInt("glassesCheck") == 0)
             {
-                if (_colOverlayTexture != null)
-                    Destroy(_colOverlayTexture);
-                pixelCountText.text = "";
+                HideUI();
                 return true;
             }
 
@@ -209,6 +209,13 @@ namespace VirtualVitrine.FaceTracking.Transform
             var diff = Math.Abs(hue - targetHue);
             var hueDifference = Math.Min(diff, 360 - diff);
             return hueDifference < thresh;
+        }
+
+        private void HideUI()
+        {
+            if (_colOverlayTexture != null)
+                Destroy(_colOverlayTexture);
+            pixelCountText.text = "";
         }
         #endregion
     }

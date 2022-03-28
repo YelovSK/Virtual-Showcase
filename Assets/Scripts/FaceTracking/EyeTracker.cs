@@ -27,13 +27,11 @@ namespace VirtualVitrine.FaceTracking
         #region Public Fields
         public static FaceDetector.Detection Detection => _marker.Detection;
         public static Vector2 LeftEye { get; private set; }
-
         public static Vector2 RightEye { get; private set; }
-
         public static Vector2 EyeCenter => (LeftEye + RightEye) / 2;
+        public static bool CameraUpdated => _webcamInput != null && _webcamInput.CameraUpdated();
+        public static bool DetectedThisFrame => CameraUpdated && Visualizer.DetectedFace;
 
-        public static bool DetectedThisFrame =>
-            _webcamInput != null && _webcamInput.CameraUpdated() && Visualizer.DetectedFace;
         #endregion
 
         #region Unity Methods
