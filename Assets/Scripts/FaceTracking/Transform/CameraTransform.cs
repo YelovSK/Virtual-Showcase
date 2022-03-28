@@ -50,25 +50,18 @@ namespace VirtualVitrine.FaceTracking.Transform
         #region Private Methods
         private void Transform()
         {
-            // head distance ratio of CurrentDistance / CalibratedDistance
-            var offset = Calibration.GetRealHeadDistance() / PlayerPrefs.GetInt("distanceFromScreenCm");
-            // at calibrated distance, mapping to low: 0.0 - high: 1.0
-            // if distance changes, mapping changes due to the camera seeing the face at different coordinates
-            var diff = offset - 1.0f;
-            var low = 0.0f - diff / 2;
-            var high = 1.0f + diff / 2;
             // map coords based on the calibration
             var centerX = Map(EyeTracker.EyeCenter.x, PlayerPrefs.GetFloat("LeftCalibration"),
-                PlayerPrefs.GetFloat("RightCalibration"), low, high);
+                PlayerPrefs.GetFloat("RightCalibration"), 0.0f, 1.0f);
             var centerY = Map(EyeTracker.EyeCenter.y, PlayerPrefs.GetFloat("BottomCalibration"),
-                PlayerPrefs.GetFloat("TopCalibration"), low, high);
+                PlayerPrefs.GetFloat("TopCalibration"), 0.0f, 1.0f);
             // middle is 0.0f, left is -0.5f, right is 0.5f
             var x = (centerX - 0.5f) * head.GetComponent<AsymFrustum>().width;
             var y = (centerY - 0.5f) * head.GetComponent<AsymFrustum>().height;
             // update text in UI
             distance.text = (int) Calibration.GetRealHeadDistance() + "cm";
             // update the position of the head
-            head.transform.position = new Vector3(x, y, -Calibration.GetRealHeadDistance());
+            head.transform.position = new Vector3(x, y, head.transform.position.z);
         }
         #endregion
     }
