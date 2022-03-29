@@ -31,16 +31,16 @@ namespace VirtualVitrine.Core
         {
             if (PlayerPrefs.GetString("modelPath") == "")
                 return;
-            if (StaticVars.loadedObject != null)
+            if (GlobalManager.loadedObject != null)
             {
-                _loadedObject = StaticVars.loadedObject;
+                _loadedObject = GlobalManager.loadedObject;
                 _loadedObject.transform.parent = transform;
                 print("Loaded model from static var");
             }
             else
             {
                 _loadedObject = new OBJLoader().Load(PlayerPrefs.GetString("modelPath"));
-                StaticVars.loadedObject = _loadedObject;
+                GlobalManager.loadedObject = _loadedObject;
                 _loadedObject.transform.parent = transform;
                 ResetTransform();
                 print("Loaded new model");

@@ -33,7 +33,7 @@ namespace VirtualVitrine.FaceTracking.Transform
 
         private GameObject _virtualWindow;
 
-        private void Start()
+        private void Awake()
         {
             _virtualWindow = transform.parent.gameObject;
             _cameras = GetComponentsInChildren<Camera>(true);

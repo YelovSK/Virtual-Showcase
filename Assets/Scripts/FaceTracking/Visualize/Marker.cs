@@ -1,7 +1,7 @@
 using MediaPipe.BlazeFace;
 using UnityEngine;
 
-namespace VirtualVitrine.FaceTracking.Visualize
+namespace VirtualVitrine.FaceTracking
 {
     public sealed class Marker : MonoBehaviour
     {

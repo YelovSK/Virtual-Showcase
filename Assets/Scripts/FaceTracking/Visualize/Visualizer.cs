@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-namespace VirtualVitrine.FaceTracking.Visualize
+namespace VirtualVitrine.FaceTracking
 {
     public sealed class Visualizer : MonoBehaviour
     {
@@ -15,24 +15,26 @@ namespace VirtualVitrine.FaceTracking.Visualize
         #endregion
         
         #region Public Fields
-        public static bool DetectedFace;
-        public EyeTracker EyeTracker { get; private set; }
-        public WebcamInput WebcamInput { get; private set; }
-        public bool Initialized { get; private set; }
+        public static bool IsFaceFound;
         #endregion
         
         #region Private Fields
-        private const int FacesCount = 1; // number of faces to detect
+        private WebcamInput _webcamInput;
         private FaceDetector _detector;
+        private const int FacesCount = 1;
         private readonly Marker[] _markers = new Marker[FacesCount];
         #endregion
         
         #region Unity Methods
+        private void Awake()
+        {
+            _webcamInput = GetComponent<WebcamInput>();
+        }
+
         private void Start()
         {
-            WebcamInput = GetComponent<WebcamInput>();
             // broken webcam, image set to "NO WEBCAM SHOWING"
-            if (!WebcamInput.IsCameraRunning())
+            if (!_webcamInput.IsCameraRunning)
             {
                 previewUI.texture = defaultCamTexture;
                 return;
@@ -44,8 +46,6 @@ namespace VirtualVitrine.FaceTracking.Visualize
             // Marker population
             for (var i = 0; i < _markers.Length; i++)
                 _markers[i] = Instantiate(markerPrefab, previewUI.transform);
-            EyeTracker = _markers[0].EyeTracker;
-            Initialized = true;
         }
 
         private void OnDestroy()
@@ -58,8 +58,8 @@ namespace VirtualVitrine.FaceTracking.Visualize
 
         private void LateUpdate()
         {
-            if (WebcamInput.CameraUpdated())
-                RunDetector(WebcamInput.Texture);
+            if (_webcamInput.CameraUpdated)
+                RunDetector(_webcamInput.Texture);
         }
         #endregion
         
@@ -81,13 +81,13 @@ namespace VirtualVitrine.FaceTracking.Visualize
                 marker.gameObject.SetActive(true);
             }
 
-            DetectedFace = marker != null;
+            IsFaceFound = marker != null;
 
             for (; i < _markers.Length; i++)
                 _markers[i].gameObject.SetActive(false);
 
             // UI update
-            previewUI.texture = WebcamInput.Texture;
+            previewUI.texture = _webcamInput.Texture;
         }
         
         #endregion

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using VirtualVitrine.UI.Main;
@@ -32,15 +33,24 @@ namespace VirtualVitrine.FaceTracking.Transform
         #endregion
         
         #region Unity Methods
-        private void Start()
+        private void Awake()
         {
             _colourCheck = GetComponent<ColourCheck>();
+        }
+
+        private void Start()
+        {
+            head.GetComponent<AsymFrustum>().UpdateProjectionMatrix();
         }
 
         private void LateUpdate()
         {
             if (!EyeTracker.DetectedThisFrame)
+            {
+                if (EyeTracker.CameraUpdated)
+                    distance.text = "";
                 return;
+            }
             if (_colourCheck.GlassesOn)
                 Transform();
             head.GetComponent<AsymFrustum>().UpdateProjectionMatrix();

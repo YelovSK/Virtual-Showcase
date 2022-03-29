@@ -11,28 +11,27 @@ namespace VirtualVitrine.UI.Main
     public class Calibration : MonoBehaviour
     {
         #region Serialized Fields
-        // UI elements
+        [Header("UI Elements")]
         [FormerlySerializedAs("CalibrationUI")] [SerializeField] private GameObject calibrationUI;
         [FormerlySerializedAs("MonitorImage")] [SerializeField] private Image monitorImage;
         [FormerlySerializedAs("MonitorSprites")] [SerializeField] private Sprite[] monitorSprites;
         [FormerlySerializedAs("CameraPreviewTransform")] [SerializeField] private Transform cameraPreviewTransform;
-
         [FormerlySerializedAs("GuideText")] [SerializeField] private TMP_Text guideText;
 
         // head for changing the distance from the display
+        [Space]
         [FormerlySerializedAs("Head")] [SerializeField] private GameObject head;
 
-        // scene to change the size based on the display size
+        // scene for changing the size based on the display size
+        [Space]
         [FormerlySerializedAs("Scene")] [SerializeField] private GameObject scene;
 
-        // sliders for settings the distance from the display
+        [Header("Display distance sliders")]
         [FormerlySerializedAs("Sliders")] [SerializeField] private GameObject sliders;
-
         [FormerlySerializedAs("DistanceSlider")] [SerializeField] private Slider distanceSlider;
-
         [FormerlySerializedAs("DistanceValue")] [SerializeField] private TMP_Text distanceValue;
 
-        // sliders for settings the size of the display
+        [Header("Display size sliders")]
         [FormerlySerializedAs("SizeSlider")] [SerializeField] private Slider sizeSlider;
         [FormerlySerializedAs("SizeValue")] [SerializeField] private TMP_Text sizeValue;
         #endregion

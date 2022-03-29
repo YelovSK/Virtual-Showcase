@@ -1,23 +1,36 @@
+using System;
 using UnityEngine;
+using VirtualVitrine.UI.Menu;
 
 namespace VirtualVitrine.Core
 {
     public class InitializeShowcase : MonoBehaviour
     {
         #region Serialized Fields
+        [Header("Cameras")]
         [SerializeField] private GameObject leftCam;
         [SerializeField] private GameObject rightCam;
         [SerializeField] private GameObject monoCam;
+        
+        [Header("Canvas")]
         [SerializeField] private GameObject camPreview;
         [SerializeField] private CanvasGroup canvasGroup;
+        
+        [Header("Face tracking object")]
+        [SerializeField] private GameObject faceTracking;
         #endregion
 
         #region Unity Methods
-        private void Start()
+        private void Awake()
         {
-            StaticVars.CheckPlayerPrefs();
+            GlobalManager.CheckPlayerPrefs();
             SetCamPreview();
             SetStereo();
+        }
+
+        private void Start()
+        {
+            faceTracking.SetActive(true);
         }
 
         private void Update()
@@ -53,17 +66,17 @@ namespace VirtualVitrine.Core
         {
             if (PlayerPrefs.GetInt("previewIx") == 3)
                 PlayerPrefs.SetInt("previewIx", 0);
-            switch (PlayerPrefs.GetInt("previewIx"))
+            switch ((GlobalManager.PreviewType) PlayerPrefs.GetInt("previewIx"))
             {
-                case 0: // Preview on
+                case GlobalManager.PreviewType.On:
                     camPreview.SetActive(true);
                     canvasGroup.alpha = 1;
                     break;
-                case 1: // Preview off
+                case GlobalManager.PreviewType.Off:
                     camPreview.SetActive(true);
                     canvasGroup.alpha = 0;
                     break;
-                case 2: // Preview off and disabled tracking
+                case GlobalManager.PreviewType.DisabledTracking:
                     camPreview.SetActive(false);
                     break;
             }
@@ -79,8 +92,7 @@ namespace VirtualVitrine.Core
 
             if (Input.GetKeyDown(KeyCode.Tab))
             {
-                var current = PlayerPrefs.GetInt("stereo");
-                if (current == 0)
+                if (PlayerPrefs.GetInt("stereo") == 0)
                 {
                     PlayerPrefs.SetInt("stereo", 1);
                     ActivateStereo();
