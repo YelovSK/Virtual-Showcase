@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace VirtualVitrine.FaceTracking.Visualize
+namespace VirtualVitrine.FaceTracking
 {
     public sealed class KeyPointsUpdater : MonoBehaviour
     {
@@ -17,7 +17,7 @@ namespace VirtualVitrine.FaceTracking.Visualize
         #endregion
 
         #region Unity Methods
-        private void Start()
+        private void Awake()
         {
             _xform = GetComponent<RectTransform>();
             _parent = (RectTransform) _xform.parent;

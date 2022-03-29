@@ -1,8 +1,9 @@
+using System;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace VirtualVitrine.FaceTracking.Visualize
+namespace VirtualVitrine.FaceTracking
 {
     public sealed class WebcamInput : MonoBehaviour
     {
@@ -12,22 +13,11 @@ namespace VirtualVitrine.FaceTracking.Visualize
         
         #region Public Fields
         public RenderTexture Texture { get; private set; }
-
         public WebCamTexture WebCamTexture { get; private set; }
+        public bool IsCameraRunning => Texture != null && WebCamTexture.isPlaying;
+        public bool CameraUpdated => Texture != null && WebCamTexture.didUpdateThisFrame;
         #endregion
-        
-        #region Public Methods
-        public bool IsCameraRunning()
-        {
-            return Texture != null && WebCamTexture.isPlaying;
-        }
 
-        public bool CameraUpdated()
-        {
-            return Texture != null && WebCamTexture.didUpdateThisFrame;
-        }
-        #endregion
-        
         #region Unity Methods
         private async void Awake()
         {

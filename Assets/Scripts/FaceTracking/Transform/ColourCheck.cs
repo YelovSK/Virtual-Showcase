@@ -3,7 +3,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using VirtualVitrine.FaceTracking.Visualize;
 
 namespace VirtualVitrine.FaceTracking.Transform
 {
@@ -24,7 +23,7 @@ namespace VirtualVitrine.FaceTracking.Transform
         #endregion
 
         #region Unity Methods
-        private void Start()
+        private void Awake()
         {
             _webcam = GetComponent<WebcamInput>();
         }
@@ -85,7 +84,7 @@ namespace VirtualVitrine.FaceTracking.Transform
             pixelCountText.color = passed ? Color.green : Color.red;
             pixelCountText.text = foundPixelsCount + " / " + allPixels;
 
-            // <SET OVERLAY BOX POSITION AND SIZE>
+            #region Set Overlay Box Position and Size
             var cBox = (RectTransform) colorBox.transform;
             var cBoxParent = (RectTransform) cBox.parent;
             var cBoxParentRect = cBoxParent.rect;
@@ -100,9 +99,9 @@ namespace VirtualVitrine.FaceTracking.Transform
             var size = new Vector2(width, height) * cBoxParentRect.size;
             cBox.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
             cBox.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
-            // </SET OVERLAY BOX POSITION AND SIZE>
-
-            // <HIGHLIGHT PIXELS> START
+            #endregion
+            
+            #region Highlight Pixels
             // create an empty texture
             if (_colOverlayTexture != null)
                 Destroy(_colOverlayTexture);
@@ -120,7 +119,7 @@ namespace VirtualVitrine.FaceTracking.Transform
             // apply and set the texture
             _colOverlayTexture.Apply();
             colorBox.GetComponent<RawImage>().texture = _colOverlayTexture;
-            // </HIGHLIGHT PIXELS> END
+            #endregion
 
             Destroy(tex);
             return passed;
