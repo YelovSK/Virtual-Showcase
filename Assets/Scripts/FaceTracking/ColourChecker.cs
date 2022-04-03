@@ -1,44 +1,24 @@
 using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using VirtualVitrine.Core;
 
-namespace VirtualVitrine.FaceTracking.Transform
+namespace VirtualVitrine.FaceTracking
 {
-    public class ColourCheck : MonoBehaviour
+    public class ColourChecker : MonoBehaviour
     {
         #region Serialized Fields
-        [SerializeField] private GameObject colorBox;
-        [SerializeField] private TMP_Text pixelCountText;
+        [SerializeField] private RawImage colorBox;
         #endregion
         
         #region Private Fields
         private Texture2D _colOverlayTexture;
-        private WebcamInput _webcam;
-        #endregion
-        
-        #region Public Fields
-        public bool GlassesOn { get; private set; }
+        private TMP_Text _pixelCountText;
         #endregion
 
-        #region Unity Methods
-        private void Awake()
-        {
-            _webcam = GetComponent<WebcamInput>();
-        }
-
-        private void LateUpdate()
-        {
-            if (EyeTracker.DetectedThisFrame)
-                GlassesOn = CheckGlassesOn();
-            else if (EyeTracker.CameraUpdated)
-                HideUI();
-        }
-        #endregion
-
-        #region Private Methods
-        private bool CheckGlassesOn()
+        #region Public Methods
+        public bool CheckGlassesOn(RenderTexture texture)
         {
             // if glasses check is off, don't display overlay and set to true to transform anyway
             if (PlayerPrefs.GetInt("glassesCheck") == 0)
@@ -46,19 +26,20 @@ namespace VirtualVitrine.FaceTracking.Transform
                 HideUI();
                 return true;
             }
+            colorBox.gameObject.SetActive(true);
 
             // convert RenderTexture from WebcamInput to Texture2D
             // to be able to read pixels
             // not using WebCamTexture because it has different aspect ratio
-            var tex = RenderTextureToTexture2D(_webcam.Texture);
+            var tex = RenderTextureToTexture2D(texture);
 
             // map coords from 0.0 - 1.0 to width and height of WebcamTexture
             var leftEye = new Vector2(
-                EyeTracker.LeftEye.x * tex.width,
-                EyeTracker.LeftEye.y * tex.height);
+                EyeSmoother.LeftEyeSmoothed.x * tex.width,
+                EyeSmoother.LeftEyeSmoothed.y * tex.height);
             var rightEye = new Vector2(
-                EyeTracker.RightEye.x * tex.width,
-                EyeTracker.RightEye.y * tex.height);
+                EyeSmoother.RightEyeSmoothed.x * tex.width,
+                EyeSmoother.RightEyeSmoothed.y * tex.height);
             var center = (leftEye + rightEye) / 2;
 
             // look from (startX, startY) to (endX, endY)
@@ -74,15 +55,15 @@ namespace VirtualVitrine.FaceTracking.Transform
             const float threshold = 0.05f;
             var passed = (float) foundPixelsCount / allPixels > threshold;
             // don't compute overlay if preview is not showing or not in menu
-            if (PlayerPrefs.GetInt("previewIx") != 0 && SceneManager.GetActiveScene().name == "Main")
+            if (PlayerPrefs.GetInt("previewIx") != 0 && GlobalManager.InMainScene)
             {
                 Destroy(tex);
                 return passed;
             }
 
             // set label text to show number of found pixels
-            pixelCountText.color = passed ? Color.green : Color.red;
-            pixelCountText.text = foundPixelsCount + " / " + allPixels;
+            _pixelCountText.color = passed ? Color.green : Color.red;
+            _pixelCountText.text = foundPixelsCount + " / " + allPixels;
 
             #region Set Overlay Box Position and Size
             var cBox = (RectTransform) colorBox.transform;
@@ -118,13 +99,29 @@ namespace VirtualVitrine.FaceTracking.Transform
 
             // apply and set the texture
             _colOverlayTexture.Apply();
-            colorBox.GetComponent<RawImage>().texture = _colOverlayTexture;
+            colorBox.texture = _colOverlayTexture;
             #endregion
 
             Destroy(tex);
             return passed;
         }
+        
+        public void HideUI()
+        {
+            colorBox.gameObject.SetActive(false);
+            if (_colOverlayTexture != null)
+                Destroy(_colOverlayTexture);
+        }
+        #endregion
 
+        #region Unity Methods
+        private void Awake()
+        {
+            _pixelCountText = colorBox.GetComponentInChildren<TMP_Text>();
+        }
+        #endregion
+        
+        #region Private Methods
         private static Texture2D RenderTextureToTexture2D(RenderTexture rTex)
         {
             // set active texture
@@ -173,7 +170,7 @@ namespace VirtualVitrine.FaceTracking.Transform
         /// <param name="boxWidth"></param>
         /// <param name="boxHeight"></param>
         /// <returns>Returns a tuple: 2D array of bools, number of found pixels</returns>
-        private Tuple<bool[,], int> FindPixels(Texture2D tex, int startX, int startY, int boxWidth, int boxHeight)
+        private static Tuple<bool[,], int> FindPixels(Texture2D tex, int startX, int startY, int boxWidth, int boxHeight)
         {
             // get pixels in range <(startX, startY), (endX, endY)>
             var pixels = tex.GetPixels(startX, startY, boxWidth, boxHeight);
@@ -208,13 +205,6 @@ namespace VirtualVitrine.FaceTracking.Transform
             var diff = Math.Abs(hue - targetHue);
             var hueDifference = Math.Min(diff, 360 - diff);
             return hueDifference < thresh;
-        }
-
-        private void HideUI()
-        {
-            if (_colOverlayTexture != null)
-                Destroy(_colOverlayTexture);
-            pixelCountText.text = "";
         }
         #endregion
     }

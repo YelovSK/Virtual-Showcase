@@ -3,7 +3,7 @@
 
 // Maximum number of detections. This value must be matched with MaxDetection
 // in FaceDetector.cs.
-#define MAX_DETECTION 64
+#define MAX_DETECTION 10
 
 // Detection structure: The layout of this structure must be matched with the
 // one defined in Detection.cs

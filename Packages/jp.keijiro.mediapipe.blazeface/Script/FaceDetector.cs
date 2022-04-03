@@ -42,7 +42,7 @@ public sealed partial class FaceDetector : System.IDisposable
 
     // Maximum number of detections. This value must be matched with
     // MAX_DETECTION in Common.hlsl.
-    const int MaxDetection = 64;
+    const int MaxDetection = 10;
 
     #endregion
 

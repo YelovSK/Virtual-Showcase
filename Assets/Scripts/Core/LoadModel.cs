@@ -18,7 +18,7 @@ namespace VirtualVitrine.Core
 
         private void Update()
         {
-            if (_loadedObject == null)
+            if (_loadedObject is null)
                 return;
             CheckMouseInput();
             if (Input.GetKeyDown(KeyCode.R))

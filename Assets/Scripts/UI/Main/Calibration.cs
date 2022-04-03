@@ -55,21 +55,6 @@ namespace VirtualVitrine.UI.Main
             var realDistance = realEyesDistance * focal / GetEyesDistance();
             return realDistance;
         }
-        
-        public static float GetEyesDistance()
-        {
-            // difference of leftEye and rightEye x,y coords
-            var leftEye = EyeTracker.LeftEye;
-            var rightEye = EyeTracker.RightEye;
-            var eyesDifference = leftEye - rightEye;
-            // distance of eyes diagonal (thanks pythagoras)
-            var eyesDistance = Math.Sqrt(Math.Pow(eyesDifference.x, 2) + Math.Pow(eyesDifference.y, 2));
-            // todo calculate distance properly when head rotated
-            // var mouthX = FindObjectOfType<EyeTracker>().Detection.mouth.x;
-            // var eyesMiddleX = (leftEye.x + rightEye.x) / 2;
-            // eyesDistance *= 1 + Math.Abs(mouthX - eyesMiddleX)*15;
-            return (float) eyesDistance;
-        }
 
         public static float GetFocalLength(float distanceFromScreen)
         {
@@ -81,20 +66,6 @@ namespace VirtualVitrine.UI.Main
             var focal = eyesDistance * distanceFromScreen / realEyesDistance;
             return focal;
         }
-        
-        /// <summary>
-        ///     Returns width and height of display in centimeters from diagonal inches.
-        /// </summary>
-        /// <param name="diagonalInches"></param>
-        /// <returns></returns>
-        public static Tuple<int, int> DiagonalToWidthAndHeight(int diagonalInches)
-        {
-            const double aspectRatio = (double) 16 / 9;
-            var height = diagonalInches / Math.Sqrt(aspectRatio * aspectRatio + 1);
-            var width = aspectRatio * height;
-            const float cmsInInch = 2.54f;
-            return Tuple.Create((int) (width * cmsInInch), (int) (height * cmsInInch));
-        }
         #endregion
         
         #region Unity Methods
@@ -102,6 +73,7 @@ namespace VirtualVitrine.UI.Main
         {
             // make UI invisible/disabled
             calibrationUI.SetActive(false);
+
             // save the transform of camera preview, to reset it back after calibration
             _origCameraPreviewPosition = cameraPreviewTransform.position;
             _origCameraPreviewScale = cameraPreviewTransform.localScale;
@@ -146,11 +118,23 @@ namespace VirtualVitrine.UI.Main
         #endregion
         
         #region Private Methods
-                private void ChangeDistanceValue(Slider sender)
+        /// <summary>
+        ///     Returns width and height of display in centimeters from diagonal inches.
+        /// </summary>
+        /// <param name="diagonalInches"></param>
+        /// <returns></returns>
+        private static Tuple<int, int> DiagonalToWidthAndHeight(int diagonalInches)
         {
-            distanceValue.text = sender.value + "cm";
+            const float cmsInInch = 2.54f;
+            const double aspectRatio = (double) 16 / 9;
+            var height = diagonalInches / Math.Sqrt(aspectRatio * aspectRatio + 1);
+            var width = aspectRatio * height;
+            return Tuple.Create((int) (width * cmsInInch), (int) (height * cmsInInch));
         }
+        
+        private static float GetEyesDistance() => (EyeSmoother.LeftEyeSmoothed - EyeSmoother.RightEyeSmoothed).magnitude;
 
+        private void ChangeDistanceValue(Slider sender) => distanceValue.text = sender.value + "cm";
 
         private void ChangeSizeValue(Slider sender)
         {
@@ -178,25 +162,25 @@ namespace VirtualVitrine.UI.Main
                     break;
                 // set left edge, highlight right edge
                 case 2:
-                    PlayerPrefs.SetFloat("LeftCalibration", EyeTracker.EyeCenter.x);
+                    PlayerPrefs.SetFloat("LeftCalibration", EyeSmoother.EyeCenter.x);
                     SetGuideText("right");
                     HighlightEdge();
                     break;
                 // set right edge, highlight bottom edge
                 case 3:
-                    PlayerPrefs.SetFloat("RightCalibration", EyeTracker.EyeCenter.x);
+                    PlayerPrefs.SetFloat("RightCalibration", EyeSmoother.EyeCenter.x);
                     SetGuideText("bottom");
                     HighlightEdge();
                     break;
                 // set bottom edge, highlight top edge
                 case 4:
-                    PlayerPrefs.SetFloat("BottomCalibration", EyeTracker.EyeCenter.y);
+                    PlayerPrefs.SetFloat("BottomCalibration", EyeSmoother.EyeCenter.y);
                     SetGuideText("top");
                     HighlightEdge();
                     break;
                 // set top edge, show sliders
                 case 5:
-                    PlayerPrefs.SetFloat("TopCalibration", EyeTracker.EyeCenter.y);
+                    PlayerPrefs.SetFloat("TopCalibration", EyeSmoother.EyeCenter.y);
                     guideText.text =
                         "Set the sliders and keep your head pointed at the display from the given distance, then press 'Enter'";
                     HighlightEdge();
@@ -211,8 +195,6 @@ namespace VirtualVitrine.UI.Main
             }
         }
 
-
-
         private void SetFocalLength()
         {
             PlayerPrefs.SetInt("distanceFromScreenCm", (int) distanceSlider.value);
@@ -220,8 +202,6 @@ namespace VirtualVitrine.UI.Main
             head.transform.localPosition = new Vector3(0, (int) distanceSlider.value, 0);
             PlayerPrefs.SetFloat("focalLength", GetFocalLength(distanceSlider.value));
         }
-
-
 
         private void SetGuideText(string edgeText)
         {
@@ -251,10 +231,7 @@ namespace VirtualVitrine.UI.Main
             sliders.SetActive(false);
         }
 
-        private void HighlightEdge()
-        {
-            monitorImage.sprite = monitorSprites[_state - 1];
-        }
+        private void HighlightEdge() => monitorImage.sprite = monitorSprites[_state - 1];
         #endregion
     }
 }

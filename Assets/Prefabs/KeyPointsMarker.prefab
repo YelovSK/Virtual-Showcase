@@ -146,7 +146,6 @@ GameObject:
   - component: {fileID: 4810065378715405919}
   - component: {fileID: 3284493208067032943}
   - component: {fileID: -8667460914361412726}
-  - component: {fileID: -6297765777360057686}
   - component: {fileID: 3699856667202305132}
   m_Layer: 5
   m_Name: KeyPointsMarker
@@ -229,18 +228,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3c2c59eff681a904dbc2e8785c410275, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &-6297765777360057686
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2452067935137504425}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8c2ecc40021ea1f4785a619c62fc732a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &3699856667202305132
