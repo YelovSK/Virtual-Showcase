@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using TMPro;
@@ -17,8 +16,14 @@ namespace VirtualVitrine.UI.Menu
         
         [Header("Smoothing elements")]
         [SerializeField] private TMP_Dropdown smoothingDropdown;
-        [SerializeField] private GameObject averageElements;
-        [SerializeField] private GameObject kalmanElements;
+        // average
+        [SerializeField] private Slider averageSlider;
+        [SerializeField] private TMP_Text averageValue;
+        // kalman
+        [SerializeField] private Slider qSlider;
+        [SerializeField] private Slider rSlider;
+        [SerializeField] private TMP_Text qValue;
+        [SerializeField] private TMP_Text rValue;
         
         [Header("Tracking threshold")]
         [SerializeField] private Slider thresholdSlider;
@@ -30,7 +35,7 @@ namespace VirtualVitrine.UI.Menu
         [SerializeField] private Slider hueThreshSlider;
         [SerializeField] private TMP_Text hueThreshText;
         
-        [Header("Smoothing elements")]
+        [Header("Glasses")]
         [SerializeField] private Toggle glassesCheck;
         
         [Header("Face tracking object")]
@@ -38,19 +43,14 @@ namespace VirtualVitrine.UI.Menu
         #endregion
         
         #region Private Fields
-        private Slider _avgSlider;
-        private TMP_Text _avgText;
         private GameObject _faceTrackingInstance;
-        private Slider _qSlider;
-        private TMP_Text _qValue;
-        private Slider _rSlider;
-        private TMP_Text _rValue;
         #endregion
         
         #region Public Methods
         public void ResetSettings()
         {
-            Destroy(GlobalManager.loadedObject);
+            if (GlobalManager.loadedObject != null)
+                Destroy(GlobalManager.loadedObject);
             GlobalManager.loadedObject = null;
             GlobalManager.ResetPlayerPrefs();
             SetElementsToPlayerPrefs();
@@ -75,17 +75,6 @@ namespace VirtualVitrine.UI.Menu
         #region Private Methods
         private void SetElementsToPlayerPrefs()
         {
-            // find components in children
-            _avgSlider = averageElements.GetComponentInChildren<Slider>(true);
-            _avgText = averageElements.GetComponentInChildren<TMP_Text>(true);
-            var kalmanSliders = kalmanElements.GetComponentsInChildren<Slider>(true);
-            _qSlider = kalmanSliders[0];
-            _rSlider = kalmanSliders[1];
-            var kalmanValues = kalmanElements.GetComponentsInChildren<TMP_Text>(true);
-            _qValue = kalmanValues[0];
-            _rValue = kalmanValues[1];
-
-            // set to current player prefs
             if (File.Exists(PlayerPrefs.GetString("modelPath")))
                 currentModelText.text = "Current model: " + PlayerPrefs.GetString("modelPath").Split('\\').Last();
             else
@@ -93,12 +82,37 @@ namespace VirtualVitrine.UI.Menu
             SetCamName(PlayerPrefs.GetString("cam"));
             SetSmoothingOption(PlayerPrefs.GetString("smoothing"));
             SetAvgSliderAndText(PlayerPrefs.GetInt("framesSmoothed"));
-            _qSlider.value = PlayerPrefs.GetFloat("kalmanQ");
-            _rSlider.value = PlayerPrefs.GetFloat("kalmanR");
+            qSlider.value = PlayerPrefs.GetFloat("kalmanQ");
+            rSlider.value = PlayerPrefs.GetFloat("kalmanR");
             thresholdSlider.value = PlayerPrefs.GetFloat("threshold");
             hueSlider.value = PlayerPrefs.GetInt("hue");
             hueThreshSlider.value = PlayerPrefs.GetInt("hueThresh");
             glassesCheck.isOn = PlayerPrefs.GetInt("glassesCheck") == 1;
+        }
+        
+        private void SetAvgSliderAndText(int framesSmoothed)
+        {
+            averageSlider.value = framesSmoothed;
+            averageValue.text = framesSmoothed + " frames";
+        }
+        
+        private void SetCamName(string camName)
+        {
+            // add WebCam devices to dropdown options
+            if (webcamDropdown.options.Count == 0)
+            {
+                var options = WebCamTexture.devices.Select(device => new TMP_Dropdown.OptionData(device.name)).ToList();
+                webcamDropdown.AddOptions(options);
+            }
+
+            webcamDropdown.value = webcamDropdown.options.FindIndex(x => x.text == camName);
+        }
+
+        private void SetSmoothingOption(string smoothingOption)
+        {
+            if (smoothingDropdown.options.Count == 0)
+                smoothingDropdown.AddOptions(Enum.GetNames(typeof(GlobalManager.SmoothType)).ToList());
+            smoothingDropdown.value = smoothingDropdown.options.FindIndex(option => option.text == smoothingOption);
         }
 
         private void SetDelegates()
@@ -109,14 +123,14 @@ namespace VirtualVitrine.UI.Menu
             ChangeSmoothing(smoothingDropdown);
             smoothingDropdown.onValueChanged.AddListener(delegate { ChangeSmoothing(smoothingDropdown); });
 
-            ChangeAvgFrames(_avgSlider);
-            _avgSlider.onValueChanged.AddListener(delegate { ChangeAvgFrames(_avgSlider); });
+            ChangeAvgFrames(averageSlider);
+            averageSlider.onValueChanged.AddListener(delegate { ChangeAvgFrames(averageSlider); });
 
-            ChangeQslider(_qSlider);
-            _qSlider.onValueChanged.AddListener(delegate { ChangeQslider(_qSlider); });
+            ChangeQslider(qSlider);
+            qSlider.onValueChanged.AddListener(delegate { ChangeQslider(qSlider); });
 
-            ChangeRslider(_rSlider);
-            _rSlider.onValueChanged.AddListener(delegate { ChangeRslider(_rSlider); });
+            ChangeRslider(rSlider);
+            rSlider.onValueChanged.AddListener(delegate { ChangeRslider(rSlider); });
 
             ChangeThreshold(thresholdSlider);
             thresholdSlider.onValueChanged.AddListener(delegate { ChangeThreshold(thresholdSlider); });
@@ -162,19 +176,13 @@ namespace VirtualVitrine.UI.Menu
         private void ChangeRslider(Slider slider)
         {
             PlayerPrefs.SetFloat("kalmanR", slider.value);
-            _rValue.text = slider.value.ToString("0.0");
+            rValue.text = slider.value.ToString("0.0000");
         }
 
         private void ChangeQslider(Slider slider)
         {
             PlayerPrefs.SetFloat("kalmanQ", slider.value);
-            _qValue.text = slider.value.ToString("0.0");
-        }
-
-        private void SetAvgSliderAndText(int framesSmoothed)
-        {
-            _avgSlider.value = framesSmoothed;
-            _avgText.text = framesSmoothed + " frames";
+            qValue.text = slider.value.ToString("0.00000");
         }
 
         private void ChangeCamPreview(TMP_Dropdown sender)
@@ -189,33 +197,16 @@ namespace VirtualVitrine.UI.Menu
         private void ChangeSmoothing(TMP_Dropdown sender)
         {
             PlayerPrefs.SetString("smoothing", smoothingDropdown.options[sender.value].text);
-            averageElements.SetActive(PlayerPrefs.GetString("smoothing") == GlobalManager.SmoothType.Average.ToString());
-            kalmanElements.SetActive(PlayerPrefs.GetString("smoothing") == GlobalManager.SmoothType.Kalman.ToString());
+            var averageActive = PlayerPrefs.GetString("smoothing") == GlobalManager.SmoothType.Average.ToString();
+            averageSlider.transform.parent.gameObject.SetActive(averageActive);
+            var kalmanActive = PlayerPrefs.GetString("smoothing") == GlobalManager.SmoothType.Kalman.ToString();
+            qSlider.transform.parent.gameObject.SetActive(kalmanActive);
         }
 
         private void ChangeAvgFrames(Slider slider)
         {
             PlayerPrefs.SetInt("framesSmoothed", Convert.ToInt16(slider.value));
-            _avgText.text = slider.value + " frames";
-        }
-        
-        private void SetCamName(string camName)
-        {
-            // add WebCam devices to dropdown options
-            if (webcamDropdown.options.Count == 0)
-            {
-                var options = WebCamTexture.devices.Select(device => new TMP_Dropdown.OptionData(device.name)).ToList();
-                webcamDropdown.AddOptions(options);
-            }
-
-            webcamDropdown.value = webcamDropdown.options.FindIndex(x => x.text == camName);
-        }
-
-        private void SetSmoothingOption(string smoothingOption)
-        {
-            if (smoothingDropdown.options.Count == 0)
-                smoothingDropdown.AddOptions(Enum.GetNames(typeof(GlobalManager.SmoothType)).ToList());
-            smoothingDropdown.value = smoothingDropdown.options.FindIndex(option => option.text == smoothingOption);
+            averageValue.text = slider.value + " frames";
         }
         #endregion
     }

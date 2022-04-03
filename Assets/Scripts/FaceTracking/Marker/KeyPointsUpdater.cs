@@ -1,8 +1,9 @@
+using MediaPipe.BlazeFace;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace VirtualVitrine.FaceTracking
+namespace VirtualVitrine.FaceTracking.Marker
 {
     public sealed class KeyPointsUpdater : MonoBehaviour
     {
@@ -15,19 +16,10 @@ namespace VirtualVitrine.FaceTracking
         private RectTransform _parent;
         private RectTransform _xform;
         #endregion
-
-        #region Unity Methods
-        private void Awake()
+        
+        #region Public Methods
+        public void UpdateKeyPoints(FaceDetector.Detection detection)
         {
-            _xform = GetComponent<RectTransform>();
-            _parent = (RectTransform) _xform.parent;
-            _label = GetComponentInChildren<TMP_Text>();
-        }
-
-        private void LateUpdate()
-        {
-            var detection = EyeTracker.Detection;
-
             // Bounding box center
             var rect = _parent.rect;
             _xform.anchoredPosition = detection.center * rect.size;
@@ -39,8 +31,8 @@ namespace VirtualVitrine.FaceTracking
             // print(detection.center + " | " + detection.extent);
 
             // Key points
-            SetKeyPoint(keyPoints[0], EyeTracker.LeftEye);
-            SetKeyPoint(keyPoints[1], EyeTracker.RightEye);
+            SetKeyPoint(keyPoints[0], EyeSmoother.LeftEyeSmoothed);
+            SetKeyPoint(keyPoints[1], EyeSmoother.RightEyeSmoothed);
             // SetKeyPoint(keyPoints[2], detection.mouth);
             // SetKeyPoint(_keyPoints[3], detection.nose);
             // SetKeyPoint(_keyPoints[4], detection.leftEar);
@@ -48,6 +40,15 @@ namespace VirtualVitrine.FaceTracking
 
             // Label
             _label.text = $"{(int) (detection.score * 100)}%";
+        }
+        #endregion
+
+        #region Unity Methods
+        private void Awake()
+        {
+            _xform = GetComponent<RectTransform>();
+            _parent = (RectTransform) _xform.parent;
+            _label = GetComponentInChildren<TMP_Text>();
         }
         #endregion
         

@@ -1,6 +1,4 @@
-using System;
 using UnityEngine;
-using VirtualVitrine.UI.Menu;
 
 namespace VirtualVitrine.Core
 {

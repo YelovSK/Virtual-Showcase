@@ -1,6 +1,6 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using VirtualVitrine.UI.Main;
 
 namespace VirtualVitrine.Core
@@ -9,6 +9,8 @@ namespace VirtualVitrine.Core
     {
         #region Public Fields
         public static GameObject loadedObject = null;
+        public static bool InMainScene => SceneManager.GetActiveScene().name == "Main";
+        public static bool InMenuScene => SceneManager.GetActiveScene().name == "Menu";
         public enum PreviewType
         {
             On = 0,
