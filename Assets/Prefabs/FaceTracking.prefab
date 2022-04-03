@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d46f6d48364029e4097a90fc41ae48f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  aspectRatio: {x: 1, y: 1}
+  resolutionWidth: 640
 --- !u!114 &7398908018952484068
 MonoBehaviour:
   m_ObjectHideFlags: 0
