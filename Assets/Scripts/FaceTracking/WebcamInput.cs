@@ -1,13 +1,13 @@
+using System;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace VirtualVitrine.FaceTracking
 {
     public sealed class WebcamInput : MonoBehaviour
     {
         #region Serialized Fields
-        [FormerlySerializedAs("_aspectRatio")] [SerializeField] private Vector2Int aspectRatio = new Vector2Int(1, 1);
+        [SerializeField] private int resolutionWidth;
         #endregion
         
         #region Public Fields
@@ -20,13 +20,15 @@ namespace VirtualVitrine.FaceTracking
         #region Unity Methods
         private async void Awake()
         {
-            WebCamTexture = new WebCamTexture(PlayerPrefs.GetString("cam"));
+            WebCamTexture = new WebCamTexture(PlayerPrefs.GetString("cam"), resolutionWidth, resolutionWidth);
             WebCamTexture.Play();
 
             // takes a bit for the webcam to initialize
             while (WebCamTexture.width == 16 || WebCamTexture.height == 16)
                 await Task.Yield();
-            RenderTexture = new RenderTexture(WebCamTexture.width, WebCamTexture.height, 0);
+
+            var smallerDimension = Math.Min(WebCamTexture.width, WebCamTexture.height);
+            RenderTexture = new RenderTexture(smallerDimension, smallerDimension, 0);
         }
 
         /// <summary>
@@ -36,14 +38,14 @@ namespace VirtualVitrine.FaceTracking
         {
             if (!WebCamTexture.didUpdateThisFrame)
                 return;
-            var aspect1 = (float) WebCamTexture.width / WebCamTexture.height;
-            var aspect2 = (float) aspectRatio.x / aspectRatio.y;
-            var gap = aspect2 / aspect1;
-
+            
+            var aspect = (float) WebCamTexture.width / WebCamTexture.height;
+            var gap = 1 / aspect;
             var vflip = WebCamTexture.videoVerticallyMirrored;
             var scale = new Vector2(gap, vflip ? -1 : 1);
             var offset = new Vector2((1 - gap) / 2, vflip ? 1 : 0);
-            // put buffer (default 1:1 aspect ratio) into webcam
+            
+            // put 1:1 WebCamTexture into RenderTexture
             Graphics.Blit(WebCamTexture, RenderTexture, scale, offset);
         }
 

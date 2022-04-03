@@ -86,8 +86,8 @@ namespace VirtualVitrine.FaceTracking
             _keyPointsUpdater.UpdateKeyPoints(Detection);
             
             // check colour around eyes
-            bool glassesOn = _colourChecker.CheckGlassesOn(_webcamInput.RenderTexture);
-            
+            bool glassesOn = _colourChecker.CheckGlassesOn(_webcamInput.WebCamTexture);
+
             // update head distance in UI
             _distanceText.text = (int) Calibration.GetRealHeadDistance() + "cm";
             

@@ -18,7 +18,12 @@ namespace VirtualVitrine.FaceTracking
         #endregion
 
         #region Public Methods
-        public bool CheckGlassesOn(RenderTexture texture)
+        /// <summary>
+        /// Checks pixels in the color box and updates the text to show the number of pixels
+        /// </summary>
+        /// <param name="tex">Source texture</param>
+        /// <returns>True if threshold passed</returns>
+        public bool CheckGlassesOn(WebCamTexture tex)
         {
             // if glasses check is off, don't display overlay and set to true to transform anyway
             if (PlayerPrefs.GetInt("glassesCheck") == 0)
@@ -27,29 +32,30 @@ namespace VirtualVitrine.FaceTracking
                 return true;
             }
             colorBox.gameObject.SetActive(true);
-
-            // convert RenderTexture from WebcamInput to Texture2D
-            // to be able to read pixels
-            // not using WebCamTexture because it has different aspect ratio
-            var tex = RenderTextureToTexture2D(texture);
+            // resolution of the 1:1 texture
+            var resolution = Math.Min(tex.width, tex.height);
 
             // map coords from 0.0 - 1.0 to width and height of WebcamTexture
             var leftEye = new Vector2(
-                EyeSmoother.LeftEyeSmoothed.x * tex.width,
-                EyeSmoother.LeftEyeSmoothed.y * tex.height);
+                EyeSmoother.LeftEyeSmoothed.x * resolution,
+                EyeSmoother.LeftEyeSmoothed.y * resolution);
             var rightEye = new Vector2(
-                EyeSmoother.RightEyeSmoothed.x * tex.width,
-                EyeSmoother.RightEyeSmoothed.y * tex.height);
+                EyeSmoother.RightEyeSmoothed.x * resolution,
+                EyeSmoother.RightEyeSmoothed.y * resolution);
             var center = (leftEye + rightEye) / 2;
 
             // look from (startX, startY) to (endX, endY)
-            CalculateColourBoxSize(tex, leftEye, rightEye, out var startX, out var endX, out var startY, out var endY);
+            CalculateColourBoxSize(resolution, leftEye, rightEye, out var startX, out var endX, out var startY, out var endY);
             var boxWidth = endX - startX;
             var boxHeight = endY - startY;
             var allPixels = boxWidth * boxHeight;
 
+            // tex has original aspect ratio, but the texture in UI is square
+            // so we have to offset the starting position to get pixels of the inner square
+            // e.g. if tex is 1280x720, then the inner square is 720x720 and starting X=(1280-720) / 2
+            int offset = Math.Abs(tex.width - tex.height) / 2;
             // find pixels in threshold [(x, y), (x, y), ...]
-            var (foundPixels, foundPixelsCount) = FindPixels(tex, startX, startY, boxWidth, boxHeight);
+            var (foundPixels, foundPixelsCount) = FindPixels(tex, offset, startX, startY, boxWidth, boxHeight);
 
             // check if threshold was passed
             const float threshold = 0.05f;
@@ -57,7 +63,7 @@ namespace VirtualVitrine.FaceTracking
             // don't compute overlay if preview is not showing or not in menu
             if (PlayerPrefs.GetInt("previewIx") != 0 && GlobalManager.InMainScene)
             {
-                Destroy(tex);
+                // Destroy(tex);
                 return passed;
             }
 
@@ -71,12 +77,12 @@ namespace VirtualVitrine.FaceTracking
             var cBoxParentRect = cBoxParent.rect;
 
             // center mapped to 0.0-1.0
-            var centerFloat = new Vector2(center.x / tex.width, center.y / tex.height);
+            var centerFloat = new Vector2(center.x / resolution, center.y / resolution);
             cBox.anchoredPosition = centerFloat * cBoxParentRect.size;
 
             // box size
-            var width = (float) boxWidth / tex.width;
-            var height = (float) boxHeight / tex.height;
+            var width = (float) boxWidth / resolution;
+            var height = (float) boxHeight / resolution;
             var size = new Vector2(width, height) * cBoxParentRect.size;
             cBox.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
             cBox.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
@@ -89,20 +95,21 @@ namespace VirtualVitrine.FaceTracking
             _colOverlayTexture = new Texture2D(boxWidth, boxHeight);
 
             // set found pixels to a given colour
-            var fillPixels = new Color[boxWidth * boxHeight];
-            var col = Color.cyan;
+            var fillPixels = new Color32[boxWidth * boxHeight];
+            // var col = new Color32(255, 255, 255, 255);
+            var col = Color.white;
             for (var y = 0; y < boxHeight; y++)
             for (var x = 0; x < boxWidth; x++)
                 if (foundPixels[x, y])
                     fillPixels[x + y * boxWidth] = col;
-            _colOverlayTexture.SetPixels(fillPixels);
+            _colOverlayTexture.SetPixels32(fillPixels);
 
             // apply and set the texture
             _colOverlayTexture.Apply();
             colorBox.texture = _colOverlayTexture;
             #endregion
 
-            Destroy(tex);
+            // Destroy(tex);
             return passed;
         }
         
@@ -122,43 +129,24 @@ namespace VirtualVitrine.FaceTracking
         #endregion
         
         #region Private Methods
-        private static Texture2D RenderTextureToTexture2D(RenderTexture rTex)
-        {
-            // set active texture
-            var activeBefore = RenderTexture.active;
-            RenderTexture.active = rTex;
-            // create new texture2D
-            var dest = new Texture2D(rTex.width, rTex.height, TextureFormat.RGBA32, false);
-            // copy texture and read pixels
-            Graphics.CopyTexture(rTex, dest);
-            dest.ReadPixels(new Rect(0, 0, rTex.width, rTex.height), 0, 0);
-            // set back the original active texture
-            RenderTexture.active = activeBefore;
-            return dest;
-        }
-
-        private static void CalculateColourBoxSize(Texture tex, Vector2 leftEye, Vector2 rightEye, out int startX,
+        private static void CalculateColourBoxSize(int resolution, Vector2 leftEye, Vector2 rightEye, out int startX,
             out int endX, out int startY, out int endY)
         {
-            var xRadius = (int) (rightEye.x - leftEye.x);
+            // size of the box
+            var xRadius = (int) rightEye.x - leftEye.x;
             var yRadius = (int) Math.Abs(leftEye.y - rightEye.y) + xRadius / 3;
+            
+            // start and end points of the box
             startX = (int) (leftEye.x - xRadius);
-            startX = Math.Max(0, (int) (leftEye.x - xRadius));
             endX = (int) (rightEye.x + xRadius);
-            endX = Math.Min(tex.width, endX);
-            if (leftEye.y < rightEye.y)
-            {
-                startY = (int) (leftEye.y - yRadius);
-                endY = (int) (rightEye.y + yRadius);
-            }
-            else
-            {
-                startY = (int) (rightEye.y - yRadius);
-                endY = (int) (leftEye.y + yRadius);
-            }
+            startY = (int) (Math.Min(leftEye.y, rightEye.y) - yRadius);
+            endY = (int) (Math.Max(leftEye.y, rightEye.y) + yRadius);
 
+            // if out of bounds, set to min/max
+            startX = Math.Max(0, startX);
+            endX = Math.Min(resolution, endX);
             startY = Math.Max(0, startY);
-            endY = Math.Min(tex.height, endY);
+            endY = Math.Min(resolution, endY);
         }
 
         /// <summary>
@@ -170,16 +158,19 @@ namespace VirtualVitrine.FaceTracking
         /// <param name="boxWidth"></param>
         /// <param name="boxHeight"></param>
         /// <returns>Returns a tuple: 2D array of bools, number of found pixels</returns>
-        private static Tuple<bool[,], int> FindPixels(Texture2D tex, int startX, int startY, int boxWidth, int boxHeight)
+        private static Tuple<bool[,], int> FindPixels(WebCamTexture tex, int offset, int startX, int startY, int boxWidth, int boxHeight)
         {
             // get pixels in range <(startX, startY), (endX, endY)>
-            var pixels = tex.GetPixels(startX, startY, boxWidth, boxHeight);
-            // go through every pixel and check if in colour threshold
-            var targetHue = PlayerPrefs.GetInt("hue");
-            var hueThresh = PlayerPrefs.GetInt("hueThresh");
+            var pixels = tex.GetPixels(startX+offset, startY, boxWidth, boxHeight);
+            
             // 2D array of pixels, true if in threshold, false if not
             var foundPixelsArr = new bool[boxWidth, boxHeight];
             var pixelsInThresholdCount = 0;
+            
+            var targetHue = PlayerPrefs.GetInt("hue");
+            var hueThresh = PlayerPrefs.GetInt("hueThresh");
+            
+            // go through every pixel
             for (var y = 0; y < boxHeight; y++)
             for (var x = 0; x < boxWidth; x++)
             {
@@ -195,17 +186,22 @@ namespace VirtualVitrine.FaceTracking
 
         private static bool PixelInThreshold(Color pixel, int thresh, int targetHue)
         {
+            // get hsv values
             Color.RGBToHSV(pixel, out var h, out var s, out var v);
+            
             // brighter than 20% and higher saturation than 30%, otherwise not in threshold
             if (v < 0.2 || s < 0.3)
                 return false;
+            
             // map from 0.0 - 1.0 to 0-360
             var hue = (int) (360 * h);
+            
             // get difference in 360 degrees
-            var diff = Math.Abs(hue - targetHue);
+            var diff = hue > targetHue ? hue - targetHue : targetHue - hue;
             var hueDifference = Math.Min(diff, 360 - diff);
             return hueDifference < thresh;
         }
         #endregion
     }
+    
 }
