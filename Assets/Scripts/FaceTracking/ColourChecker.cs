@@ -1,10 +1,12 @@
 using System;
+using System.Linq;
 using TMPro;
 using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.UI;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 
 namespace VirtualVitrine.FaceTracking
 {
@@ -18,7 +20,7 @@ namespace VirtualVitrine.FaceTracking
         private Texture2D _colOverlayTexture;
         private TMP_Text _pixelCountText;
         #endregion
-        
+
         #region Public Methods
         /// <summary>
         /// Checks pixels in the color box and updates the text to show the number of pixels
@@ -149,27 +151,30 @@ namespace VirtualVitrine.FaceTracking
             var textureColours = tex.GetPixels(startX+offset, startY, boxWidth, boxHeight);
             var textureColoursNative = new NativeArray<Color>(textureColours.Length, Allocator.TempJob);
             textureColoursNative.CopyFrom(textureColours);
-
+            
+            // there's no built-in native counter, this utility is by Marnielle Lloyd Estrada
+            var foundPixelsCounter = new NativeCounter(Allocator.TempJob);
+            
             // create a job that goes through all pixels in the box
             var job = new ColourCheckJob
             {
                 textureColours = textureColoursNative,
                 foundPixelsArr = new NativeArray<Color32>(textureColours.Length, Allocator.TempJob),
-                foundPixelsCount = new NativeArray<int>(1, Allocator.TempJob),
+                counter = foundPixelsCounter,
                 hueThresh = PlayerPrefs.GetInt("hueThresh"),
                 targetHue = PlayerPrefs.GetInt("hue")
             };
             var jobHandle = job.Schedule(textureColours.Length, 250);
             jobHandle.Complete();
-            
+
             // get outputs from job
-            int foundPixelsCount = job.foundPixelsCount[0];
+            int foundPixelsCount = foundPixelsCounter.Count;
             Color32[] foundPixelsArr = job.foundPixelsArr.ToArray();
             
             // dispose of NativeArrays
             job.textureColours.Dispose();
-            job.foundPixelsCount.Dispose();
             job.foundPixelsArr.Dispose();
+            foundPixelsCounter.Dispose();
 
             return Tuple.Create(foundPixelsArr, foundPixelsCount);
         }
@@ -179,21 +184,23 @@ namespace VirtualVitrine.FaceTracking
     [BurstCompile]
     public struct ColourCheckJob : IJobParallelFor
     {
-        public NativeArray<Color> textureColours;
-        public NativeArray<Color32> foundPixelsArr;
-        [NativeDisableParallelForRestriction] public NativeArray<int> foundPixelsCount;
-        public int hueThresh;
-        public int targetHue;
+        [ReadOnly] public NativeArray<Color> textureColours;
+        [WriteOnly] public NativeArray<Color32> foundPixelsArr;
+        public NativeCounter.ParallelWriter counter;
+        [ReadOnly] public int hueThresh;
+        [ReadOnly] public int targetHue;
         private static readonly Color32 Colour = Color.white;
+
         public void Execute(int index)
         {
             var pixel = textureColours[index];
             if (PixelInThreshold(pixel, hueThresh, targetHue))
             {
                 foundPixelsArr[index] = Colour;
-                foundPixelsCount[0]++;
+                counter.Increment();
             }
         }
+
         private static bool PixelInThreshold(Color pixel, int thresh, int targetHue)
         {
             // get hsv values
