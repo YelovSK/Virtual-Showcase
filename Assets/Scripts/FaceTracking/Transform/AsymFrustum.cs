@@ -30,7 +30,6 @@ namespace VirtualVitrine.FaceTracking.Transform
 
         public bool verbose;
         private Camera[] _cameras;
-
         private GameObject _virtualWindow;
 
         private void Awake()
@@ -55,33 +54,29 @@ namespace VirtualVitrine.FaceTracking.Transform
 
         private void DrawScreen(Camera cam)
         {
-            // repeated property access is inefficient
             var virtWindowTransform = _virtualWindow.transform;
-            var virtWindowTransformPos = virtWindowTransform.position;
-            var virtWindowTransformR = virtWindowTransform.right;
-            var virtWindowTransformForward = virtWindowTransform.forward;
             
             Gizmos.DrawLine(cam.transform.position, cam.transform.position + cam.transform.up * 10);
             Gizmos.color = Color.green;
-            Gizmos.DrawLine(_virtualWindow.transform.position,
-                virtWindowTransformPos + _virtualWindow.transform.up);
+            Gizmos.DrawLine(virtWindowTransform.position,
+                virtWindowTransform.position + virtWindowTransform.up);
 
             Gizmos.color = Color.blue;
-            Gizmos.DrawLine(virtWindowTransformPos - _virtualWindow.transform.forward * 0.5f * height,
-                virtWindowTransformPos + virtWindowTransformForward * 0.5f * height);
+            Gizmos.DrawLine(virtWindowTransform.position - _virtualWindow.transform.forward * 0.5f * height,
+                virtWindowTransform.position + virtWindowTransform.forward * 0.5f * height);
 
             Gizmos.color = Color.red;
-            Gizmos.DrawLine(virtWindowTransformPos - _virtualWindow.transform.right * 0.5f * width,
-                virtWindowTransformPos + virtWindowTransformR * 0.5f * width);
+            Gizmos.DrawLine(virtWindowTransform.position - _virtualWindow.transform.right * 0.5f * width,
+                virtWindowTransform.position + virtWindowTransform.right * 0.5f * width);
             Gizmos.color = Color.cyan;
-            var leftBottom = virtWindowTransformPos - virtWindowTransformR * 0.5f * width -
-                             virtWindowTransformForward * 0.5f * height;
-            var leftTop = virtWindowTransformPos - virtWindowTransformR * 0.5f * width +
-                          virtWindowTransformForward * 0.5f * height;
-            var rightBottom = virtWindowTransformPos + virtWindowTransformR * 0.5f * width -
-                              virtWindowTransformForward * 0.5f * height;
-            var rightTop = virtWindowTransformPos + virtWindowTransformR * 0.5f * width +
-                           virtWindowTransformForward * 0.5f * height;
+            var leftBottom = virtWindowTransform.position - virtWindowTransform.right * 0.5f * width -
+                             virtWindowTransform.forward * 0.5f * height;
+            var leftTop = virtWindowTransform.position - virtWindowTransform.right * 0.5f * width +
+                          virtWindowTransform.forward * 0.5f * height;
+            var rightBottom = virtWindowTransform.position + virtWindowTransform.right * 0.5f * width -
+                              virtWindowTransform.forward * 0.5f * height;
+            var rightTop = virtWindowTransform.position + virtWindowTransform.right * 0.5f * width +
+                           virtWindowTransform.forward * 0.5f * height;
 
             Gizmos.DrawLine(leftBottom, leftTop);
             Gizmos.DrawLine(leftTop, rightTop);
@@ -118,12 +113,11 @@ namespace VirtualVitrine.FaceTracking.Transform
             // Focal length = orthogonal distance to image plane
             var newpos = pos;
             //newpos.Scale (new Vector3 (1, 1, 1));
-            float focal = 1;
 
             newpos = new Vector3(newpos.x, newpos.z, newpos.y);
             if (verbose) Debug.Log(newpos.x + ";" + newpos.y + ";" + newpos.z);
 
-            focal = Mathf.Clamp(newpos.z, 0.001f, maxHeight);
+            float focal = Mathf.Clamp(newpos.z, 0.001f, maxHeight);
 
             // Ratio for intercept theorem
             var ratio = focal / nearDist;
@@ -159,7 +153,7 @@ namespace VirtualVitrine.FaceTracking.Transform
         /// <param name="top">Top.</param>
         /// <param name="near">Near.</param>
         /// <param name="far">Far.</param>
-        private Matrix4x4 PerspectiveOffCenter(float left, float right, float bottom, float top, float near, float far)
+        private static Matrix4x4 PerspectiveOffCenter(float left, float right, float bottom, float top, float near, float far)
         {
             var x = 2.0f * near / (right - left);
             var y = 2.0f * near / (top - bottom);

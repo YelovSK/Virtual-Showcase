@@ -16,6 +16,23 @@ namespace VirtualVitrine.FaceTracking
         public bool IsCameraRunning => RenderTexture != null && WebCamTexture.isPlaying;
         public bool CameraUpdated => RenderTexture != null && WebCamTexture.didUpdateThisFrame;
         #endregion
+        
+        #region Public Methods
+        public void SetAspectRatio()
+        {
+            if (!WebCamTexture.didUpdateThisFrame)
+                return;
+            
+            var aspect = (float) WebCamTexture.width / WebCamTexture.height;
+            var gap = 1 / aspect;
+            var vflip = WebCamTexture.videoVerticallyMirrored;
+            var scale = new Vector2(gap, vflip ? -1 : 1);
+            var offset = new Vector2((1 - gap) / 2, vflip ? 1 : 0);
+            
+            // put 1:1 WebCamTexture into RenderTexture
+            Graphics.Blit(WebCamTexture, RenderTexture, scale, offset);
+        }
+        #endregion
 
         #region Unity Methods
         private async void Awake()
@@ -29,24 +46,6 @@ namespace VirtualVitrine.FaceTracking
 
             var smallerDimension = Math.Min(WebCamTexture.width, WebCamTexture.height);
             RenderTexture = new RenderTexture(smallerDimension, smallerDimension, 0);
-        }
-
-        /// <summary>
-        /// Sets the aspect ratio of the webcam.
-        /// </summary>
-        private void Update()
-        {
-            if (!WebCamTexture.didUpdateThisFrame)
-                return;
-            
-            var aspect = (float) WebCamTexture.width / WebCamTexture.height;
-            var gap = 1 / aspect;
-            var vflip = WebCamTexture.videoVerticallyMirrored;
-            var scale = new Vector2(gap, vflip ? -1 : 1);
-            var offset = new Vector2((1 - gap) / 2, vflip ? 1 : 0);
-            
-            // put 1:1 WebCamTexture into RenderTexture
-            Graphics.Blit(WebCamTexture, RenderTexture, scale, offset);
         }
 
         private void OnDestroy()

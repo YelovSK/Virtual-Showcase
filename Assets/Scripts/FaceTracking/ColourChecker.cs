@@ -1,8 +1,8 @@
 using System;
 using TMPro;
+using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.UI;
-using VirtualVitrine.Core;
 
 namespace VirtualVitrine.FaceTracking
 {
@@ -12,11 +12,20 @@ namespace VirtualVitrine.FaceTracking
         [SerializeField] private RawImage colorBox;
         #endregion
         
+        #region Public Fields
+        // static variables for ColourCheckJob
+        // NativeArray is a bit slower because of safety checks, static fields are unsafe but I want to go nyoom
+        // PS: prolly don't do this
+        public static Color[] textureColours;
+        public static Color32[] foundPixelsArr;
+        public static int foundPixelsCount = 0;
+        #endregion
+        
         #region Private Fields
         private Texture2D _colOverlayTexture;
         private TMP_Text _pixelCountText;
         #endregion
-
+        
         #region Public Methods
         /// <summary>
         /// Checks pixels in the color box and updates the text to show the number of pixels
@@ -54,18 +63,18 @@ namespace VirtualVitrine.FaceTracking
             // so we have to offset the starting position to get pixels of the inner square
             // e.g. if tex is 1280x720, then the inner square is 720x720 and starting X=(1280-720) / 2
             int offset = Math.Abs(tex.width - tex.height) / 2;
+
             // find pixels in threshold [(x, y), (x, y), ...]
-            var (foundPixels, foundPixelsCount) = FindPixels(tex, offset, startX, startY, boxWidth, boxHeight);
+            // updates static variables -> foundPixelsArr and pixelCount
+            FindPixels(tex, offset, startX, startY, boxWidth, boxHeight);
 
             // check if threshold was passed
             const float threshold = 0.05f;
             var passed = (float) foundPixelsCount / allPixels > threshold;
+
             // don't compute overlay if preview is not showing or not in menu
-            if (PlayerPrefs.GetInt("previewIx") != 0 && GlobalManager.InMainScene)
-            {
-                // Destroy(tex);
+            if (PlayerPrefs.GetInt("previewOn") == 0 && GlobalManager.InMainScene)
                 return passed;
-            }
 
             // set label text to show number of found pixels
             _pixelCountText.color = passed ? Color.green : Color.red;
@@ -93,23 +102,15 @@ namespace VirtualVitrine.FaceTracking
             if (_colOverlayTexture != null)
                 Destroy(_colOverlayTexture);
             _colOverlayTexture = new Texture2D(boxWidth, boxHeight);
-
-            // set found pixels to a given colour
-            var fillPixels = new Color32[boxWidth * boxHeight];
-            // var col = new Color32(255, 255, 255, 255);
-            var col = Color.white;
-            for (var y = 0; y < boxHeight; y++)
-            for (var x = 0; x < boxWidth; x++)
-                if (foundPixels[x, y])
-                    fillPixels[x + y * boxWidth] = col;
-            _colOverlayTexture.SetPixels32(fillPixels);
+            
+            // set found pixels to white (from FindPixels method)
+            _colOverlayTexture.SetPixels32(foundPixelsArr);
 
             // apply and set the texture
             _colOverlayTexture.Apply();
             colorBox.texture = _colOverlayTexture;
             #endregion
 
-            // Destroy(tex);
             return passed;
         }
         
@@ -149,41 +150,42 @@ namespace VirtualVitrine.FaceTracking
             endY = Math.Min(resolution, endY);
         }
 
-        /// <summary>
-        ///     Goes through pixels in a box and finds those that are in colour threshold
-        /// </summary>
-        /// <param name="tex">Texture to go through</param>
-        /// <param name="startX"></param>
-        /// <param name="startY"></param>
-        /// <param name="boxWidth"></param>
-        /// <param name="boxHeight"></param>
-        /// <returns>Returns a tuple: 2D array of bools, number of found pixels</returns>
-        private static Tuple<bool[,], int> FindPixels(WebCamTexture tex, int offset, int startX, int startY, int boxWidth, int boxHeight)
+        // Goes through pixels in a box and finds those that are in colour threshold
+        private void FindPixels(WebCamTexture tex, int offset, int startX, int startY, int boxWidth, int boxHeight)
         {
             // get pixels in range <(startX, startY), (endX, endY)>
-            var pixels = tex.GetPixels(startX+offset, startY, boxWidth, boxHeight);
-            
-            // 2D array of pixels, true if in threshold, false if not
-            var foundPixelsArr = new bool[boxWidth, boxHeight];
-            var pixelsInThresholdCount = 0;
-            
-            var targetHue = PlayerPrefs.GetInt("hue");
-            var hueThresh = PlayerPrefs.GetInt("hueThresh");
-            
-            // go through every pixel
-            for (var y = 0; y < boxHeight; y++)
-            for (var x = 0; x < boxWidth; x++)
+            textureColours = tex.GetPixels(startX+offset, startY, boxWidth, boxHeight);
+
+            // clear static fields
+            foundPixelsArr = new Color32[boxWidth * boxHeight];
+            foundPixelsCount = 0;
+
+            // create job that goes through all pixels in the box
+            var job = new ColourCheckJob
             {
-                var pixel = pixels[x + y * boxWidth];
-                var inThreshold = PixelInThreshold(pixel, hueThresh, targetHue);
-                foundPixelsArr[x, y] = inThreshold;
-                if (inThreshold)
-                    pixelsInThresholdCount++;
-            }
-
-            return Tuple.Create(foundPixelsArr, pixelsInThresholdCount);
+                hueThresh = PlayerPrefs.GetInt("hueThresh"),
+                targetHue = PlayerPrefs.GetInt("hue")
+            };
+            var jobHandle = job.Schedule(textureColours.Length, 250);
+            jobHandle.Complete();
         }
+        #endregion
+    }
 
+    public struct ColourCheckJob : IJobParallelFor
+    {
+        public int hueThresh;
+        public int targetHue;
+        private static readonly Color32 Colour = Color.white;
+        public void Execute(int index)
+        {
+            var pixel = ColourChecker.textureColours[index];
+            if (PixelInThreshold(pixel, hueThresh, targetHue))
+            {
+                ColourChecker.foundPixelsArr[index] = Colour;
+                ColourChecker.foundPixelsCount++;
+            }
+        }
         private static bool PixelInThreshold(Color pixel, int thresh, int targetHue)
         {
             // get hsv values
@@ -201,7 +203,6 @@ namespace VirtualVitrine.FaceTracking
             var hueDifference = Math.Min(diff, 360 - diff);
             return hueDifference < thresh;
         }
-        #endregion
     }
     
 }

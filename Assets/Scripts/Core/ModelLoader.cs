@@ -2,9 +2,9 @@ using Dummiesman;
 using UnityEngine;
 using VirtualVitrine.FaceTracking.Transform;
 
-namespace VirtualVitrine.Core
+namespace VirtualVitrine
 {
-    public class LoadModel : MonoBehaviour
+    public class ModelLoader : MonoBehaviour
     {
         #region Private Fields
         private GameObject _loadedObject;

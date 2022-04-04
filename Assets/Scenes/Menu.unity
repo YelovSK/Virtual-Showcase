@@ -5283,8 +5283,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 2010569697}
-        m_TargetAssemblyTypeName: SceneSwitcher, Assembly-CSharp
-        m_MethodName: switchMain
+        m_TargetAssemblyTypeName: VirtualVitrine.Core.SceneSwitcher, Assembly-CSharp
+        m_MethodName: SwitchMain
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

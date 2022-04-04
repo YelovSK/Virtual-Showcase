@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPipe.BlazeFace;
 using UnityEngine;
-using VirtualVitrine.Core;
 
 namespace VirtualVitrine.FaceTracking
 {
@@ -35,16 +33,16 @@ namespace VirtualVitrine.FaceTracking
         #endregion
         
         #region Public Methods
-        public void SmoothEyes(FaceDetector.Detection detection)
+        public void SmoothEyes()
         {
             Enum.TryParse(PlayerPrefs.GetString("smoothing"), out GlobalManager.SmoothType smoothString);
             switch (smoothString)
             {
                 case GlobalManager.SmoothType.Kalman:
-                    SmoothKalman(detection);
+                    SmoothKalman();
                     break;
                 case GlobalManager.SmoothType.Average:
-                    SmoothAverage(detection);
+                    SmoothAverage();
                     break;
                 case GlobalManager.SmoothType.Off:
                     break;
@@ -61,26 +59,26 @@ namespace VirtualVitrine.FaceTracking
         #endregion
 
         #region Private Methods
-        private void SmoothKalman(FaceDetector.Detection detection)
+        private void SmoothKalman()
         {
             var kQ = KalmanQ;
             var kR = KalmanR;
-            LeftEyeSmoothed = _leftMeasurement.Update(detection.leftEye, kQ, kR);
-            RightEyeSmoothed = _rightMeasurement.Update(detection.rightEye, kQ, kR);
+            LeftEyeSmoothed = _leftMeasurement.Update(MainUpdater.Detection.leftEye, kQ, kR);
+            RightEyeSmoothed = _rightMeasurement.Update(MainUpdater.Detection.rightEye, kQ, kR);
         }
 
-        private void SmoothAverage(FaceDetector.Detection detection)
+        private void SmoothAverage()
         {
             if (FramesSmoothed == 1)
             {
-                LeftEyeSmoothed = detection.leftEye;
-                RightEyeSmoothed = detection.rightEye;
+                LeftEyeSmoothed = MainUpdater.Detection.leftEye;
+                RightEyeSmoothed = MainUpdater.Detection.rightEye;
                 return;
             }
 
             // add new measurement
-            _leftEyeHistory.Add(detection.leftEye);
-            _rightEyeHistory.Add(detection.rightEye);
+            _leftEyeHistory.Add(MainUpdater.Detection.leftEye);
+            _rightEyeHistory.Add(MainUpdater.Detection.rightEye);
             
             // remove oldest values
             if (_leftEyeHistory.Count > FramesSmoothed)

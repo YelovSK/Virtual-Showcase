@@ -1,14 +1,12 @@
-using MediaPipe.BlazeFace;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace VirtualVitrine.FaceTracking.Marker
 {
     public sealed class KeyPointsUpdater : MonoBehaviour
     {
         #region Serialized Fields
-        [FormerlySerializedAs("_keyPoints")] [SerializeField] private RectTransform[] keyPoints;
+        [SerializeField] private RectTransform[] keyPoints;
         #endregion
 
         #region Private Fields
@@ -16,16 +14,16 @@ namespace VirtualVitrine.FaceTracking.Marker
         private RectTransform _parent;
         private RectTransform _xform;
         #endregion
-        
+
         #region Public Methods
-        public void UpdateKeyPoints(FaceDetector.Detection detection)
+        public void UpdateKeyPoints()
         {
             // Bounding box center
             var rect = _parent.rect;
-            _xform.anchoredPosition = detection.center * rect.size;
+            _xform.anchoredPosition = MainUpdater.Detection.center * rect.size;
 
             // Bounding box size
-            var size = detection.extent * rect.size;
+            var size = MainUpdater.Detection.extent * rect.size;
             _xform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
             _xform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
             // print(detection.center + " | " + detection.extent);
@@ -39,7 +37,7 @@ namespace VirtualVitrine.FaceTracking.Marker
             // SetKeyPoint(_keyPoints[5], detection.rightEar);
 
             // Label
-            _label.text = $"{(int) (detection.score * 100)}%";
+            _label.text = $"{(int) (MainUpdater.Detection.score * 100)}%";
         }
         #endregion
 

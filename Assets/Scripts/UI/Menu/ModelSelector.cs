@@ -3,11 +3,10 @@ using System.Linq;
 using SimpleFileBrowser;
 using TMPro;
 using UnityEngine;
-using VirtualVitrine.Core;
 
 namespace VirtualVitrine.UI.Menu
 {
-    public class ModelLoader : MonoBehaviour
+    public class ModelSelector : MonoBehaviour
     {
         #region Serialized Fields
         [SerializeField] private TMP_Text modelText;

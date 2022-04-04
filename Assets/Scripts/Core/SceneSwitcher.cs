@@ -1,15 +1,14 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace VirtualVitrine.Core
+namespace VirtualVitrine
 {
     public class SceneSwitcher : MonoBehaviour
     {
         #region Public Methods
-        public void Quit()
-        {
-            Application.Quit();
-        }
+        public void Quit() => Application.Quit();
+
+        public void SwitchMain() => SceneManager.LoadScene("Main");
         #endregion
         
         #region Unity Methods
