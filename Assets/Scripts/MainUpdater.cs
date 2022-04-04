@@ -1,45 +1,48 @@
 using System.Linq;
-using MediaPipe.BlazeFace;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
-using VirtualVitrine.Core;
-using VirtualVitrine.FaceTracking.Marker;
-using VirtualVitrine.FaceTracking.Transform;
-using VirtualVitrine.UI.Main;
+using MediaPipe.BlazeFace;
 
-namespace VirtualVitrine.FaceTracking
+namespace VirtualVitrine
 {
     public sealed class MainUpdater : MonoBehaviour
     {
         #region Serialized Fields
-        [FormerlySerializedAs("_previewUI")] [SerializeField] private RawImage previewUI;
-        [FormerlySerializedAs("_resources")] [SerializeField] private ResourceSet resources;
-        [FormerlySerializedAs("_markerPrefab")] [SerializeField] private Marker.Marker markerPrefab;
-        [FormerlySerializedAs("_defaultCamTexture")] [SerializeField] private Texture2D defaultCamTexture;
+        [SerializeField] private RawImage previewUI;
+        [SerializeField] private ResourceSet resources;
+        [SerializeField] private Texture2D defaultCamTexture;
+        [SerializeField] private FaceTracking.Marker.Marker markerPrefab;
+        #endregion
+        
+        #region Public Fields
+        public static FaceDetector.Detection Detection => _marker.Detection;
         #endregion
 
         #region Private Fields
-        private WebcamInput _webcamInput;
+        // Barracuda face detector
         private FaceDetector _detector;
-        private Marker.Marker _marker;
-        private ColourChecker _colourChecker;
-        private CameraTransform _cameraTransform;
-        private EyeSmoother _eyeSmoother;
-        private KeyPointsUpdater _keyPointsUpdater;
+        
+        // face tracking scripts
+        private FaceTracking.WebcamInput _webcamInput;
+        private FaceTracking.ColourChecker _colourChecker;
+        private FaceTracking.EyeSmoother _eyeSmoother;
+        private FaceTracking.Marker.KeyPointsUpdater _keyPointsUpdater;
+        private FaceTracking.Transform.CameraTransform _cameraTransform;
+        private static FaceTracking.Marker.Marker _marker;
+        
+        // text showing the face distance from the camera
         private TMP_Text _distanceText;
-        private FaceDetector.Detection Detection => _marker.Detection;
         #endregion
         
         #region Unity Methods
         private void Awake()
         {
-            _colourChecker = GetComponent<ColourChecker>();
-            _cameraTransform = GetComponent<CameraTransform>();
-            _webcamInput = GetComponent<WebcamInput>();
+            _webcamInput = GetComponent<FaceTracking.WebcamInput>();
+            _colourChecker = GetComponent<FaceTracking.ColourChecker>();
+            _eyeSmoother = GetComponent<FaceTracking.EyeSmoother>();
+            _cameraTransform = GetComponent<FaceTracking.Transform.CameraTransform>();
             _distanceText = previewUI.GetComponentInChildren<TMP_Text>();
-            _eyeSmoother = GetComponent<EyeSmoother>();
         }
 
         private void Start()
@@ -53,24 +56,27 @@ namespace VirtualVitrine.FaceTracking
             
             _detector = new FaceDetector(resources);
             _marker = Instantiate(markerPrefab, previewUI.transform);
-            _keyPointsUpdater = _marker.GetComponent<KeyPointsUpdater>();
+            _keyPointsUpdater = _marker.GetComponent<FaceTracking.Marker.KeyPointsUpdater>();
         }
 
         /// <summary>
         /// Main loop of the program, calls other components. Detects face, updates UI and transforms camera.
         /// </summary>
-        private void LateUpdate()
+        private void Update()
         {
             // check if camera got new frame
             if (!_webcamInput.CameraUpdated)
                 return;
+            
+            // set aspect ratio of camera to 1:1
+            _webcamInput.SetAspectRatio();
             
             // update camera preview
             previewUI.texture = _webcamInput.RenderTexture;
 
             // run detection
             bool faceFound = RunDetector(_webcamInput.RenderTexture);
-            
+
             // if face not found, hide UI and return
             if (!faceFound)
             {
@@ -80,19 +86,19 @@ namespace VirtualVitrine.FaceTracking
             }
             
             // smooth left and right eye key points
-            _eyeSmoother.SmoothEyes(Detection);
+            _eyeSmoother.SmoothEyes();
             
             // update key points in UI
-            _keyPointsUpdater.UpdateKeyPoints(Detection);
+            _keyPointsUpdater.UpdateKeyPoints();
             
             // check colour around eyes
             bool glassesOn = _colourChecker.CheckGlassesOn(_webcamInput.WebCamTexture);
 
             // update head distance in UI
-            _distanceText.text = (int) Calibration.GetRealHeadDistance() + "cm";
+            _distanceText.text = (int) UI.Main.Calibration.GetRealHeadDistance() + "cm";
             
             // if not in menu and glasses are on, transform camera
-            if (GlobalManager.InMainScene && glassesOn)
+            if (glassesOn && GlobalManager.InMainScene)
                 _cameraTransform.Transform();
         }
         
@@ -117,19 +123,20 @@ namespace VirtualVitrine.FaceTracking
 
             // Check if any detections were found
             bool faceFound = _detector.Detections.Any();
-            
+
             // Activate/Deactivate marker if face was/wasn't found
             _marker.gameObject.SetActive(faceFound);
-            if (!faceFound)
-                return false;
-            
-            // Get detection with largest bounding box
-            var largestFace = _detector.Detections
-                .OrderByDescending(x => x.extent.magnitude)
-                .First();
-            _marker.Detection = largestFace;
 
-            return true;
+            if (faceFound)
+            {
+                // Get detection with largest bounding box
+                var largestFace = _detector.Detections
+                    .OrderByDescending(x => x.extent.magnitude)
+                    .First();
+                _marker.Detection = largestFace;
+            }
+
+            return faceFound;
         }
         
         #endregion

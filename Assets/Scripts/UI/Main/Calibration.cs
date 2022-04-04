@@ -1,7 +1,6 @@
 using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 using VirtualVitrine.FaceTracking;
 using VirtualVitrine.FaceTracking.Transform;
@@ -12,28 +11,28 @@ namespace VirtualVitrine.UI.Main
     {
         #region Serialized Fields
         [Header("UI Elements")]
-        [FormerlySerializedAs("CalibrationUI")] [SerializeField] private GameObject calibrationUI;
-        [FormerlySerializedAs("MonitorImage")] [SerializeField] private Image monitorImage;
-        [FormerlySerializedAs("MonitorSprites")] [SerializeField] private Sprite[] monitorSprites;
-        [FormerlySerializedAs("CameraPreviewTransform")] [SerializeField] private Transform cameraPreviewTransform;
-        [FormerlySerializedAs("GuideText")] [SerializeField] private TMP_Text guideText;
+        [SerializeField] private GameObject calibrationUI;
+        [SerializeField] private Image monitorImage;
+        [SerializeField] private Sprite[] monitorSprites;
+        [SerializeField] private Transform cameraPreviewTransform;
+        [SerializeField] private TMP_Text guideText;
 
         // head for changing the distance from the display
         [Space]
-        [FormerlySerializedAs("Head")] [SerializeField] private GameObject head;
+        [SerializeField] private GameObject head;
 
         // scene for changing the size based on the display size
         [Space]
-        [FormerlySerializedAs("Scene")] [SerializeField] private GameObject scene;
+        [SerializeField] private GameObject scene;
 
         [Header("Display distance sliders")]
-        [FormerlySerializedAs("Sliders")] [SerializeField] private GameObject sliders;
-        [FormerlySerializedAs("DistanceSlider")] [SerializeField] private Slider distanceSlider;
-        [FormerlySerializedAs("DistanceValue")] [SerializeField] private TMP_Text distanceValue;
+        [SerializeField] private GameObject sliders;
+        [SerializeField] private Slider distanceSlider;
+        [SerializeField] private TMP_Text distanceValue;
 
         [Header("Display size sliders")]
-        [FormerlySerializedAs("SizeSlider")] [SerializeField] private Slider sizeSlider;
-        [FormerlySerializedAs("SizeValue")] [SerializeField] private TMP_Text sizeValue;
+        [SerializeField] private Slider sizeSlider;
+        [SerializeField] private TMP_Text sizeValue;
         #endregion
 
         #region Private Fields
@@ -42,8 +41,8 @@ namespace VirtualVitrine.UI.Main
 
         private Vector3 _origCameraPreviewScale;
 
-        // 0: off, 1: left edge, 2: right edge, 3: bottom edge, 4: top edge, 5: reset to 0
-        private int _state;
+        private enum States { OFF, LEFT, RIGHT, BOTTOM, TOP, SLIDERS, RESET };
+        private States _state = States.OFF;
         #endregion
 
         #region Public Methods
@@ -69,6 +68,7 @@ namespace VirtualVitrine.UI.Main
         #endregion
         
         #region Unity Methods
+
         private void Start()
         {
             // make UI invisible/disabled
@@ -94,9 +94,9 @@ namespace VirtualVitrine.UI.Main
         private void Update()
         {
             // Enter continues to the next state (doesn't initialize)
-            if (Input.GetKeyDown(KeyCode.Return) && _state != 0)
+            if (Input.GetKeyDown(KeyCode.Return) && _state != States.OFF)
             {
-                _state++;
+                _state = _state.Next();
                 UpdateState();
             }
 
@@ -105,12 +105,12 @@ namespace VirtualVitrine.UI.Main
             {
                 if (_state == 0)
                 {
-                    _state++;
+                    _state = _state.Next();
                     UpdateState();
                 }
                 else
                 {
-                    _state = 0;
+                    _state = States.OFF;
                     TurnOffPreview();
                 }
             }
@@ -155,31 +155,31 @@ namespace VirtualVitrine.UI.Main
             switch (_state)
             {
                 // highlight left edge
-                case 1:
+                case States.LEFT:
                     TurnOnPreview();
                     SetGuideText("left");
                     HighlightEdge();
                     break;
                 // set left edge, highlight right edge
-                case 2:
+                case States.RIGHT:
                     PlayerPrefs.SetFloat("LeftCalibration", EyeSmoother.EyeCenter.x);
                     SetGuideText("right");
                     HighlightEdge();
                     break;
                 // set right edge, highlight bottom edge
-                case 3:
+                case States.BOTTOM:
                     PlayerPrefs.SetFloat("RightCalibration", EyeSmoother.EyeCenter.x);
                     SetGuideText("bottom");
                     HighlightEdge();
                     break;
                 // set bottom edge, highlight top edge
-                case 4:
+                case States.TOP:
                     PlayerPrefs.SetFloat("BottomCalibration", EyeSmoother.EyeCenter.y);
                     SetGuideText("top");
                     HighlightEdge();
                     break;
                 // set top edge, show sliders
-                case 5:
+                case States.SLIDERS:
                     PlayerPrefs.SetFloat("TopCalibration", EyeSmoother.EyeCenter.y);
                     guideText.text =
                         "Set the sliders and keep your head pointed at the display from the given distance, then press 'Enter'";
@@ -187,7 +187,7 @@ namespace VirtualVitrine.UI.Main
                     sliders.SetActive(true);
                     break;
                 // set focal length and hide UI
-                case 6:
+                case States.RESET:
                     SetFocalLength();
                     TurnOffPreview();
                     _state = 0;
@@ -205,7 +205,7 @@ namespace VirtualVitrine.UI.Main
 
         private void SetGuideText(string edgeText)
         {
-            var text = "Align your eyes with the " + edgeText + " edge of the display and press 'Enter'";
+            var text = "Align your head with the " + edgeText + " edge of the display and press 'Enter'";
             guideText.text = text;
         }
 
@@ -231,7 +231,7 @@ namespace VirtualVitrine.UI.Main
             sliders.SetActive(false);
         }
 
-        private void HighlightEdge() => monitorImage.sprite = monitorSprites[_state - 1];
+        private void HighlightEdge() => monitorImage.sprite = monitorSprites[(int) _state.Prev()];
         #endregion
     }
 }
