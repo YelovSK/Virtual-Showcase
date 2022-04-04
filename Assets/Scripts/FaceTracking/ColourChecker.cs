@@ -3,6 +3,8 @@ using TMPro;
 using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.Burst;
+using Unity.Collections;
 
 namespace VirtualVitrine.FaceTracking
 {
@@ -11,16 +13,7 @@ namespace VirtualVitrine.FaceTracking
         #region Serialized Fields
         [SerializeField] private RawImage colorBox;
         #endregion
-        
-        #region Public Fields
-        // static variables for ColourCheckJob
-        // NativeArray is a bit slower because of safety checks, static fields are unsafe but I want to go nyoom
-        // PS: prolly don't do this
-        public static Color[] textureColours;
-        public static Color32[] foundPixelsArr;
-        public static int foundPixelsCount = 0;
-        #endregion
-        
+
         #region Private Fields
         private Texture2D _colOverlayTexture;
         private TMP_Text _pixelCountText;
@@ -64,9 +57,8 @@ namespace VirtualVitrine.FaceTracking
             // e.g. if tex is 1280x720, then the inner square is 720x720 and starting X=(1280-720) / 2
             int offset = Math.Abs(tex.width - tex.height) / 2;
 
-            // find pixels in threshold [(x, y), (x, y), ...]
-            // updates static variables -> foundPixelsArr and pixelCount
-            FindPixels(tex, offset, startX, startY, boxWidth, boxHeight);
+            // look at the pixels in the box
+            var (foundPixelsArr, foundPixelsCount) = FindPixels(tex, offset, startX, startY, boxWidth, boxHeight);
 
             // check if threshold was passed
             const float threshold = 0.05f;
@@ -105,7 +97,7 @@ namespace VirtualVitrine.FaceTracking
             
             // set found pixels to white (from FindPixels method)
             _colOverlayTexture.SetPixels32(foundPixelsArr);
-
+            
             // apply and set the texture
             _colOverlayTexture.Apply();
             colorBox.texture = _colOverlayTexture;
@@ -151,39 +143,55 @@ namespace VirtualVitrine.FaceTracking
         }
 
         // Goes through pixels in a box and finds those that are in colour threshold
-        private void FindPixels(WebCamTexture tex, int offset, int startX, int startY, int boxWidth, int boxHeight)
+        private Tuple<Color32[], int> FindPixels(WebCamTexture tex, int offset, int startX, int startY, int boxWidth, int boxHeight)
         {
             // get pixels in range <(startX, startY), (endX, endY)>
-            textureColours = tex.GetPixels(startX+offset, startY, boxWidth, boxHeight);
+            var textureColours = tex.GetPixels(startX+offset, startY, boxWidth, boxHeight);
+            var textureColoursNative = new NativeArray<Color>(textureColours.Length, Allocator.TempJob);
+            textureColoursNative.CopyFrom(textureColours);
 
-            // clear static fields
-            foundPixelsArr = new Color32[boxWidth * boxHeight];
-            foundPixelsCount = 0;
-
-            // create job that goes through all pixels in the box
+            // create a job that goes through all pixels in the box
             var job = new ColourCheckJob
             {
+                textureColours = textureColoursNative,
+                foundPixelsArr = new NativeArray<Color32>(textureColours.Length, Allocator.TempJob),
+                foundPixelsCount = new NativeArray<int>(1, Allocator.TempJob),
                 hueThresh = PlayerPrefs.GetInt("hueThresh"),
                 targetHue = PlayerPrefs.GetInt("hue")
             };
             var jobHandle = job.Schedule(textureColours.Length, 250);
             jobHandle.Complete();
+            
+            // get outputs from job
+            int foundPixelsCount = job.foundPixelsCount[0];
+            Color32[] foundPixelsArr = job.foundPixelsArr.ToArray();
+            
+            // dispose of NativeArrays
+            job.textureColours.Dispose();
+            job.foundPixelsCount.Dispose();
+            job.foundPixelsArr.Dispose();
+
+            return Tuple.Create(foundPixelsArr, foundPixelsCount);
         }
         #endregion
     }
 
+    [BurstCompile]
     public struct ColourCheckJob : IJobParallelFor
     {
+        public NativeArray<Color> textureColours;
+        public NativeArray<Color32> foundPixelsArr;
+        [NativeDisableParallelForRestriction] public NativeArray<int> foundPixelsCount;
         public int hueThresh;
         public int targetHue;
         private static readonly Color32 Colour = Color.white;
         public void Execute(int index)
         {
-            var pixel = ColourChecker.textureColours[index];
+            var pixel = textureColours[index];
             if (PixelInThreshold(pixel, hueThresh, targetHue))
             {
-                ColourChecker.foundPixelsArr[index] = Colour;
-                ColourChecker.foundPixelsCount++;
+                foundPixelsArr[index] = Colour;
+                foundPixelsCount[0]++;
             }
         }
         private static bool PixelInThreshold(Color pixel, int thresh, int targetHue)
