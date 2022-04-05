@@ -5,10 +5,6 @@ using UnityEngine;
 
 namespace VirtualVitrine.FaceTracking
 {
-    /// <summary>
-    /// I'm using this class for exposing the most important face tracking stuff to other classes.
-    /// Also smooths the face tracking data.
-    /// </summary>
     public class EyeSmoother : MonoBehaviour
     {
         #region Private Fields
@@ -35,8 +31,8 @@ namespace VirtualVitrine.FaceTracking
         #region Public Methods
         public void SmoothEyes()
         {
-            Enum.TryParse(PlayerPrefs.GetString("smoothing"), out GlobalManager.SmoothType smoothString);
-            switch (smoothString)
+            Enum.TryParse(PlayerPrefs.GetString("smoothing"), out GlobalManager.SmoothType smoothType);
+            switch (smoothType)
             {
                 case GlobalManager.SmoothType.Kalman:
                     SmoothKalman();
@@ -61,10 +57,8 @@ namespace VirtualVitrine.FaceTracking
         #region Private Methods
         private void SmoothKalman()
         {
-            var kQ = KalmanQ;
-            var kR = KalmanR;
-            LeftEyeSmoothed = _leftMeasurement.Update(MainUpdater.Detection.leftEye, kQ, kR);
-            RightEyeSmoothed = _rightMeasurement.Update(MainUpdater.Detection.rightEye, kQ, kR);
+            LeftEyeSmoothed = _leftMeasurement.Update(MainUpdater.Detection.leftEye, KalmanQ, KalmanR);
+            RightEyeSmoothed = _rightMeasurement.Update(MainUpdater.Detection.rightEye, KalmanQ, KalmanR);
         }
 
         private void SmoothAverage()

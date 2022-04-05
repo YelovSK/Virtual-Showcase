@@ -6,8 +6,21 @@ namespace VirtualVitrine
 {
     public class ModelLoader : MonoBehaviour
     {
-        #region Private Fields
-        private GameObject _loadedObject;
+        #region Public Fields
+        public GameObject LoadedObject { get; private set; }
+        #endregion
+        
+        #region Public Methods
+        public void ResetTransform()
+        {
+            LoadedObject.transform.localPosition = Vector3.zero;
+            LoadedObject.transform.localRotation = Quaternion.identity;
+            LoadedObject.transform.localScale = Vector3.one;
+            
+            // default is middle of the screen, put half of height below
+            var offset = GameObject.Find("HeadNode").GetComponent<AsymFrustum>().height / 2;
+            LoadedObject.transform.Translate(new Vector3(0, -offset, 0));
+        }
         #endregion
         
         #region Unity Methods
@@ -15,62 +28,34 @@ namespace VirtualVitrine
         {
             LoadObject();
         }
-
-        private void Update()
-        {
-            if (_loadedObject is null)
-                return;
-            CheckMouseInput();
-            if (Input.GetKeyDown(KeyCode.R))
-                ResetTransform();
-        }
         #endregion
 
         #region Private Methods
         private void LoadObject()
         {
+            // no model was chosen
             if (PlayerPrefs.GetString("modelPath") == "")
                 return;
+            
+            // model already loaded
             if (GlobalManager.loadedObject != null)
             {
-                _loadedObject = GlobalManager.loadedObject;
-                _loadedObject.transform.parent = transform;
+                LoadedObject = GlobalManager.loadedObject;
+                LoadedObject.transform.parent = transform;
                 print("Loaded model from static var");
             }
+            // model loading for the first time
             else
             {
-                _loadedObject = new OBJLoader().Load(PlayerPrefs.GetString("modelPath"));
-                GlobalManager.loadedObject = _loadedObject;
-                _loadedObject.transform.parent = transform;
+                LoadedObject = new OBJLoader().Load(PlayerPrefs.GetString("modelPath"));
+                GlobalManager.loadedObject = LoadedObject;
+                LoadedObject.transform.parent = transform;
                 ResetTransform();
                 print("Loaded new model");
             }
 
-            // default is middle of the screen, put half of height below
-            var offset = GameObject.Find("HeadNode").GetComponent<AsymFrustum>().height / 2;
-            _loadedObject.transform.Translate(new Vector3(0, -offset, 0));
+            // keep model loaded between scene switches
             DontDestroyOnLoad(this);
-        }
-
-        private void ResetTransform()
-        {
-            _loadedObject.transform.localPosition = Vector3.zero;
-            _loadedObject.transform.localRotation = Quaternion.identity;
-            _loadedObject.transform.localScale = Vector3.one;
-        }
-
-        private void CheckMouseInput()
-        {
-            var mouseX = Input.GetAxis("Mouse X");
-            var mouseY = Input.GetAxis("Mouse Y");
-            if (Input.GetMouseButton(0) && Input.GetMouseButton(1))
-                _loadedObject.transform.Translate(0, mouseY / 20, 0);
-            else if (Input.GetMouseButton(0))
-                _loadedObject.transform.Rotate(0, -mouseX, 0);
-            else if (Input.GetMouseButton(1))
-                _loadedObject.transform.Translate(mouseX / 20, 0, mouseY / 20, Space.World);
-            if (Input.GetAxis("Mouse ScrollWheel") > 0f) _loadedObject.transform.localScale *= 1.1f;
-            if (Input.GetAxis("Mouse ScrollWheel") < 0f) _loadedObject.transform.localScale *= 0.9f;
         }
         #endregion
     }
