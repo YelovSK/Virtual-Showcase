@@ -156,6 +156,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   showcaseInitializer: {fileID: 33135772}
   calibrationManager: {fileID: 33135769}
+  modelLoader: {fileID: 1629763951}
 --- !u!114 &33135769
 MonoBehaviour:
   m_ObjectHideFlags: 0
