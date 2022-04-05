@@ -5,9 +5,9 @@ using UnityEngine.UI;
 using VirtualVitrine.FaceTracking;
 using VirtualVitrine.FaceTracking.Transform;
 
-namespace VirtualVitrine.UI.Main
+namespace VirtualVitrine
 {
-    public class Calibration : MonoBehaviour
+    public class CalibrationManager : MonoBehaviour
     {
         #region Serialized Fields
         [Header("UI Elements")]
@@ -34,11 +34,14 @@ namespace VirtualVitrine.UI.Main
         [SerializeField] private Slider sizeSlider;
         [SerializeField] private TMP_Text sizeValue;
         #endregion
+        
+        #region Public Fields
+        public bool Enabled => _state != States.OFF;
+        #endregion
 
         #region Private Fields
         // camera preview position for setting it to the original transform after calibration
         private Vector3 _origCameraPreviewPosition;
-
         private Vector3 _origCameraPreviewScale;
 
         private enum States { OFF, LEFT, RIGHT, BOTTOM, TOP, SLIDERS, RESET };
@@ -59,11 +62,39 @@ namespace VirtualVitrine.UI.Main
         {
             // eyes distance on camera
             var eyesDistance = GetEyesDistance();
+
             // real life distance of eyes in cm
             const int realEyesDistance = 6;
+            
             // calculate focal length
             var focal = eyesDistance * distanceFromScreen / realEyesDistance;
             return focal;
+        }
+
+        public void ToggleCalibrationUI()
+        {
+            // if UI is disabled, go to the first state
+            if (_state == States.OFF)
+            {
+                _state = _state.Next();
+                UpdateState();
+            }
+            // else disable UI
+            else
+            {
+                _state = States.OFF;
+                TurnOffPreview();
+            }
+        }
+
+        public void SetNextState()
+        {
+            // if UI is disabled, don't continue
+            if (_state == States.OFF)
+                return;
+
+            _state = _state.Next();
+            UpdateState();
         }
         #endregion
         
@@ -88,32 +119,6 @@ namespace VirtualVitrine.UI.Main
 
             ChangeSizeValue(sizeSlider);
             sizeSlider.onValueChanged.AddListener(delegate { ChangeSizeValue(sizeSlider); });
-        }
-
-
-        private void Update()
-        {
-            // Enter continues to the next state (doesn't initialize)
-            if (Input.GetKeyDown(KeyCode.Return) && _state != States.OFF)
-            {
-                _state = _state.Next();
-                UpdateState();
-            }
-
-            // C initializes or disables calibration
-            if (Input.GetKeyDown("c"))
-            {
-                if (_state == 0)
-                {
-                    _state = _state.Next();
-                    UpdateState();
-                }
-                else
-                {
-                    _state = States.OFF;
-                    TurnOffPreview();
-                }
-            }
         }
         #endregion
         
@@ -212,9 +217,11 @@ namespace VirtualVitrine.UI.Main
         private void TurnOnPreview()
         {
             calibrationUI.SetActive(true);
-            PlayerPrefs.SetInt("previewIx", 0);
-            GetComponent<CanvasGroup>().alpha = 1;
-            cameraPreviewTransform.gameObject.SetActive(true);
+            
+            // enable camera preview
+            PlayerPrefs.SetInt("previewOn", 1);
+            GetComponent<ShowcaseInitializer>().SetCamPreview();
+
             // make the webcam preview smaller and put it in a corner
             cameraPreviewTransform.position = new Vector3(200, 200, 0);
             cameraPreviewTransform.localScale = new Vector3(0.4f, 0.4f, 1);
@@ -222,13 +229,16 @@ namespace VirtualVitrine.UI.Main
 
         private void TurnOffPreview()
         {
-            PlayerPrefs.SetInt("previewIx", 1);
-            GetComponent<CanvasGroup>().alpha = 0;
+            calibrationUI.SetActive(false);
+            sliders.SetActive(false);
+            
+            // disable camera preview
+            PlayerPrefs.SetInt("previewOn", 0);
+            GetComponent<ShowcaseInitializer>().SetCamPreview();
+            
             // set back the webcam preview location and size
             cameraPreviewTransform.position = _origCameraPreviewPosition;
             cameraPreviewTransform.localScale = _origCameraPreviewScale;
-            calibrationUI.SetActive(false);
-            sliders.SetActive(false);
         }
 
         private void HighlightEdge() => monitorImage.sprite = monitorSprites[(int) _state.Prev()];

@@ -1,12 +1,10 @@
 using System;
-using System.Linq;
 using TMPro;
 using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.UI;
 using Unity.Burst;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 
 namespace VirtualVitrine.FaceTracking
 {
@@ -189,7 +187,7 @@ namespace VirtualVitrine.FaceTracking
         public NativeCounter.ParallelWriter counter;
         [ReadOnly] public int hueThresh;
         [ReadOnly] public int targetHue;
-        private static readonly Color32 Colour = Color.white;
+        [ReadOnly] private static readonly Color32 Colour = Color.white;
 
         public void Execute(int index)
         {

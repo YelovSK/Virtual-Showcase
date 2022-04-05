@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d46f6d48364029e4097a90fc41ae48f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resolutionWidth: 640
+  resolutionWidth: 1280
 --- !u!114 &7398908018952484068
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -62,8 +62,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   previewUI: {fileID: 0}
   resources: {fileID: 11400000, guid: 5594fd2934aca864980b90fe058f4161, type: 2}
-  markerPrefab: {fileID: -8667460914361412726, guid: b6480b09e4f313b49987b6e2c21a69fe, type: 3}
   defaultCamTexture: {fileID: 2800000, guid: 206ba24cdf772b24e979bf09f3ec3461, type: 3}
+  markerPrefab: {fileID: -8667460914361412726, guid: b6480b09e4f313b49987b6e2c21a69fe, type: 3}
 --- !u!114 &6106036576034832082
 MonoBehaviour:
   m_ObjectHideFlags: 0

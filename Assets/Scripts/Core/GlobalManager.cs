@@ -72,7 +72,7 @@ namespace VirtualVitrine
             PlayerPrefs.SetInt("distanceFromScreenCm", 50);
             
             // focal length for face distance
-            PlayerPrefs.SetFloat("focalLength", UI.Main.Calibration.GetFocalLength(PlayerPrefs.GetInt("distanceFromScreenCm")));
+            PlayerPrefs.SetFloat("focalLength", CalibrationManager.GetFocalLength(PlayerPrefs.GetInt("distanceFromScreenCm")));
         }
         #endregion
     }
