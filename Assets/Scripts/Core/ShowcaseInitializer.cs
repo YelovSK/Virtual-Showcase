@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace VirtualVitrine
 {
-    public class InitializeShowcase : MonoBehaviour
+    public class ShowcaseInitializer : MonoBehaviour
     {
         #region Serialized Fields
         [Header("Cameras")]
@@ -17,6 +17,26 @@ namespace VirtualVitrine
         [Header("Face tracking object")]
         [SerializeField] private GameObject faceTracking;
         #endregion
+        
+        #region Public Methods
+        public void SetCamPreview(bool toggle = false)
+        {
+            if (toggle)
+                PlayerPrefs.SetInt("previewOn", PlayerPrefs.GetInt("previewOn") == 0 ? 1 : 0);
+            canvasGroup.alpha = PlayerPrefs.GetInt("previewOn");
+        }
+
+        public void SetStereo(bool toggle = false)
+        {
+            if (toggle)
+                PlayerPrefs.SetInt("stereoOn", PlayerPrefs.GetInt("stereoOn") == 0 ? 1 : 0);
+            var stereoOn = PlayerPrefs.GetInt("stereoOn") == 1;
+            
+            monoCam.SetActive(!stereoOn);
+            leftCam.SetActive(stereoOn);
+            rightCam.SetActive(stereoOn);
+        }
+        #endregion
 
         #region Unity Methods
         private void Awake()
@@ -30,41 +50,6 @@ namespace VirtualVitrine
         {
             faceTracking.SetActive(true);
         }
-
-        private void Update()
-        {
-            CheckKeyInput();
-        }
-        #endregion
-
-        #region Private Methods
-        private void SetCamPreview(bool toggle = false)
-        {
-            if (toggle)
-                PlayerPrefs.SetInt("previewOn", PlayerPrefs.GetInt("previewOn") == 0 ? 1 : 0);
-            canvasGroup.alpha = PlayerPrefs.GetInt("previewOn");
-        }
-
-        private void SetStereo(bool toggle = false)
-        {
-            if (toggle)
-                PlayerPrefs.SetInt("stereoOn", PlayerPrefs.GetInt("stereoOn") == 0 ? 1 : 0);
-            var stereoOn = PlayerPrefs.GetInt("stereoOn") == 1;
-            
-            monoCam.SetActive(!stereoOn);
-            leftCam.SetActive(stereoOn);
-            rightCam.SetActive(stereoOn);
-        }
-
-        private void CheckKeyInput()
-        {
-            if (Input.GetKeyDown("p"))
-                SetCamPreview(toggle: true);
-
-            if (Input.GetKeyDown(KeyCode.Tab))
-                SetStereo(toggle: true);
-        }
-
         #endregion
     }
 }

@@ -6095,7 +6095,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 15344502680058632, guid: 041dbee215611b140bb0135128062967, type: 3}
       propertyPath: resolutionWidth
-      value: 640
+      value: 1280
       objectReference: {fileID: 0}
     - target: {fileID: 178426139709489057, guid: 041dbee215611b140bb0135128062967, type: 3}
       propertyPath: m_Name

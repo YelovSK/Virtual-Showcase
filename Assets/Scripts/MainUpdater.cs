@@ -95,7 +95,7 @@ namespace VirtualVitrine
             bool glassesOn = _colourChecker.CheckGlassesOn(_webcamInput.WebCamTexture);
 
             // update head distance in UI
-            _distanceText.text = (int) UI.Main.Calibration.GetRealHeadDistance() + "cm";
+            _distanceText.text = (int) CalibrationManager.GetRealHeadDistance() + "cm";
             
             // if not in menu and glasses are on, transform camera
             if (glassesOn && GlobalManager.InMainScene)
