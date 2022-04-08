@@ -2299,8 +2299,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: ElementValues, Assembly-CSharp
+      - m_Target: {fileID: 2147122650}
+        m_TargetAssemblyTypeName: VirtualVitrine.UI.Menu.MenuManager, Assembly-CSharp
         m_MethodName: ResetSettings
         m_Mode: 1
         m_Arguments:
@@ -4658,8 +4658,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: ModelLoader, Assembly-CSharp
+      - m_Target: {fileID: 2147122649}
+        m_TargetAssemblyTypeName: VirtualVitrine.UI.Menu.ModelSelector, Assembly-CSharp
         m_MethodName: ShowFileExplorer
         m_Mode: 1
         m_Arguments:
@@ -5282,9 +5282,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: VirtualVitrine.Core.SceneSwitcher, Assembly-CSharp
-        m_MethodName: SwitchMain
+      - m_Target: {fileID: 2147122651}
+        m_TargetAssemblyTypeName: VirtualVitrine.SceneSwitcher, Assembly-CSharp
+        m_MethodName: SwitchScene
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8250,8 +8250,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: SceneSwitcher, Assembly-CSharp
+      - m_Target: {fileID: 2147122651}
+        m_TargetAssemblyTypeName: VirtualVitrine.SceneSwitcher, Assembly-CSharp
         m_MethodName: Quit
         m_Mode: 1
         m_Arguments:
