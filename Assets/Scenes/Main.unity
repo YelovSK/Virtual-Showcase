@@ -907,7 +907,7 @@ GameObject:
   - component: {fileID: 253675642}
   - component: {fileID: 253675643}
   m_Layer: 0
-  m_Name: HeadNode
+  m_Name: Head
   m_TagString: head
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -937,14 +937,17 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 253675641}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 74d36d1e10994bc4d84c7f35edea618e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 53
-  height: 30
-  maxHeight: 2000
+  aspectRatio: {x: 16, y: 9}
+  drawGizmos: 1
+  cameras:
+  - {fileID: 394463188}
+  - {fileID: 1587285553}
+  - {fileID: 1232827537}
 --- !u!1 &268354396
 GameObject:
   m_ObjectHideFlags: 0
@@ -1538,9 +1541,9 @@ GameObject:
   - component: {fileID: 394463187}
   - component: {fileID: 394463186}
   - component: {fileID: 394463185}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: CameraMono
-  m_TagString: MainCamera
+  m_TagString: Untagged
   m_Icon: {fileID: 2974397684917235467, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5637,11 +5640,11 @@ GameObject:
   - component: {fileID: 1232827535}
   m_Layer: 0
   m_Name: CameraL
-  m_TagString: leftCam
+  m_TagString: Untagged
   m_Icon: {fileID: 2974397684917235467, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1232827533
 Transform:
   m_ObjectHideFlags: 0
@@ -6286,7 +6289,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1447875116}
   m_Layer: 0
-  m_Name: HeadTrackingVirtualScreen
+  m_Name: Projection Plane
   m_TagString: Untagged
   m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -6932,11 +6935,11 @@ GameObject:
   - component: {fileID: 1587285551}
   m_Layer: 0
   m_Name: CameraR
-  m_TagString: rightCam
+  m_TagString: Untagged
   m_Icon: {fileID: 2974397684917235467, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1587285549
 Transform:
   m_ObjectHideFlags: 0

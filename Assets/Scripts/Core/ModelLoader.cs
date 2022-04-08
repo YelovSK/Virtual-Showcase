@@ -28,7 +28,7 @@ namespace VirtualVitrine
             
             // set height to 90% of screen height
             var currentHeight = GetObjectBounds(Model).size.y;
-            var targetHeight = FindObjectOfType<AsymFrustum>().height * 0.9f;
+            var targetHeight = FindObjectOfType<AsymFrustum>().ScreenHeight * 0.9f;
             objTransform.localScale = targetHeight * objTransform.localScale / currentHeight;
 
             // 0 is the middle of the screen, move the object half the screen lower
