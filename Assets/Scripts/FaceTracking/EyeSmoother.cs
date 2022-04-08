@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using VirtualVitrine.FaceTracking.Marker;
 
 namespace VirtualVitrine.FaceTracking
 {
@@ -57,22 +58,22 @@ namespace VirtualVitrine.FaceTracking
         #region Private Methods
         private void SmoothKalman()
         {
-            LeftEyeSmoothed = _leftMeasurement.Update(MainUpdater.Detection.leftEye, KalmanQ, KalmanR);
-            RightEyeSmoothed = _rightMeasurement.Update(MainUpdater.Detection.rightEye, KalmanQ, KalmanR);
+            LeftEyeSmoothed = _leftMeasurement.Update(KeyPointsUpdater.Detection.leftEye, KalmanQ, KalmanR);
+            RightEyeSmoothed = _rightMeasurement.Update(KeyPointsUpdater.Detection.rightEye, KalmanQ, KalmanR);
         }
 
         private void SmoothAverage()
         {
             if (FramesSmoothed == 1)
             {
-                LeftEyeSmoothed = MainUpdater.Detection.leftEye;
-                RightEyeSmoothed = MainUpdater.Detection.rightEye;
+                LeftEyeSmoothed = KeyPointsUpdater.Detection.leftEye;
+                RightEyeSmoothed = KeyPointsUpdater.Detection.rightEye;
                 return;
             }
 
             // add new measurement
-            _leftEyeHistory.Add(MainUpdater.Detection.leftEye);
-            _rightEyeHistory.Add(MainUpdater.Detection.rightEye);
+            _leftEyeHistory.Add(KeyPointsUpdater.Detection.leftEye);
+            _rightEyeHistory.Add(KeyPointsUpdater.Detection.rightEye);
             
             // remove oldest values
             if (_leftEyeHistory.Count > FramesSmoothed)

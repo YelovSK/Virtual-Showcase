@@ -50,7 +50,7 @@ namespace VirtualVitrine.FaceTracking
             CalculateColourBoxSize(resolution, leftEye, rightEye, out var startX, out var endX, out var startY, out var endY);
             var boxWidth = endX - startX;
             var boxHeight = endY - startY;
-            var allPixels = boxWidth * boxHeight;
+            var allPixelsCount = boxWidth * boxHeight;
 
             // tex has original aspect ratio, but the texture in UI is square
             // so we have to offset the starting position to get pixels of the inner square
@@ -62,15 +62,15 @@ namespace VirtualVitrine.FaceTracking
 
             // check if threshold was passed
             const float threshold = 0.05f;
-            var passed = (float) foundPixelsCount / allPixels > threshold;
+            var passed = (float) foundPixelsCount / allPixelsCount > threshold;
 
-            // don't compute overlay if preview is not showing or not in menu
+            // don't compute overlay if preview is not showing in main scene
             if (PlayerPrefs.GetInt("previewOn") == 0 && GlobalManager.InMainScene)
                 return passed;
 
             // set label text to show number of found pixels
             _pixelCountText.color = passed ? Color.green : Color.red;
-            _pixelCountText.text = foundPixelsCount + " / " + allPixels;
+            _pixelCountText.text = foundPixelsCount + " / " + allPixelsCount;
 
             #region Set Overlay Box Position and Size
             var cBox = (RectTransform) colorBox.transform;
@@ -106,12 +106,7 @@ namespace VirtualVitrine.FaceTracking
             return passed;
         }
         
-        public void HideUI()
-        {
-            colorBox.gameObject.SetActive(false);
-            if (_colOverlayTexture != null)
-                Destroy(_colOverlayTexture);
-        }
+        public void HideUI() => colorBox.gameObject.SetActive(false);
         #endregion
 
         #region Unity Methods

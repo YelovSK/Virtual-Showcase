@@ -5455,6 +5455,17 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1308604628 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 954454098136433761, guid: 22e2d045c3aa3d8488266b60b1a28f44, type: 3}
+  m_PrefabInstance: {fileID: 1303517709399545037}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a420d91deb7afa44b655c970ff87693, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1341942438
 GameObject:
   m_ObjectHideFlags: 0
@@ -6158,6 +6169,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7398908018952484068, guid: 041dbee215611b140bb0135128062967, type: 3}
+      propertyPath: marker
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7398908018952484068, guid: 041dbee215611b140bb0135128062967, type: 3}
       propertyPath: distance
       value: 
       objectReference: {fileID: 1289208696}
@@ -6172,7 +6187,11 @@ PrefabInstance:
     - target: {fileID: 7398908018952484068, guid: 041dbee215611b140bb0135128062967, type: 3}
       propertyPath: markerPrefab
       value: 
-      objectReference: {fileID: -8667460914361412726, guid: b6480b09e4f313b49987b6e2c21a69fe, type: 3}
+      objectReference: {fileID: 0}
+    - target: {fileID: 7398908018952484068, guid: 041dbee215611b140bb0135128062967, type: 3}
+      propertyPath: keyPointsUpdater
+      value: 
+      objectReference: {fileID: 1308604628}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 041dbee215611b140bb0135128062967, type: 3}
 --- !u!1 &1463164114

@@ -48,9 +48,8 @@ namespace VirtualVitrine.UI.Menu
         #region Public Methods
         public void ResetSettings()
         {
-            if (GlobalManager.loadedObject != null)
-                Destroy(GlobalManager.loadedObject);
-            GlobalManager.loadedObject = null;
+            if (ModelLoader.Model != null)
+                Destroy(ModelLoader.Model);
             GlobalManager.ResetPlayerPrefs();
             SetElementsToPlayerPrefs();
         }
@@ -187,6 +186,8 @@ namespace VirtualVitrine.UI.Menu
         private void ChangeCamPreview(TMP_Dropdown sender)
         {
             PlayerPrefs.SetString("cam", webcamDropdown.options[sender.value].text);
+            
+            // reset face tracking
             if (_faceTrackingInstance != null)
                 Destroy(_faceTrackingInstance);
             _faceTrackingInstance = Instantiate(faceTracking);
