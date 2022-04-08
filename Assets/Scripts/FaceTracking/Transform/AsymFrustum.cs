@@ -15,8 +15,6 @@ namespace VirtualVitrine.FaceTracking.Transform
     public class AsymFrustum : MonoBehaviour
     {
         #region Serialized Fields
-        [Header("Screen size")]
-        [SerializeField] public Vector2 aspectRatio = new Vector2(16, 9);
         [SerializeField] private bool drawGizmos;
         [SerializeField] private Camera[] cameras;
         #endregion
@@ -26,11 +24,12 @@ namespace VirtualVitrine.FaceTracking.Transform
         public float ScreenHeight { get; private set; }
 
         public float BaseScreenWidth =>
-            CalibrationManager.DiagonalToWidthAndHeight(BaseScreenDiagonal, aspectRatio.x / aspectRatio.y).Item1;
+            CalibrationManager.DiagonalToWidthAndHeight(BaseScreenDiagonal, AspectRatio).Item1;
         #endregion
         
         #region Private Fields
         private const int BaseScreenDiagonal = 24;
+        private const float AspectRatio = 16/9f;
         private GameObject _virtualWindow;
         #endregion
         
@@ -54,7 +53,7 @@ namespace VirtualVitrine.FaceTracking.Transform
 
         public void SetScreenSize(int diagonal)
         {
-            (ScreenWidth, ScreenHeight) = CalibrationManager.DiagonalToWidthAndHeight(diagonal, aspectRatio.x / aspectRatio.y);
+            (ScreenWidth, ScreenHeight) = CalibrationManager.DiagonalToWidthAndHeight(diagonal, AspectRatio);
         }
 
         public void UpdateProjectionMatrix()
