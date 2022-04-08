@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using MediaPipe.BlazeFace;
+using VirtualVitrine.FaceTracking.Marker;
 
 namespace VirtualVitrine
 {
@@ -12,11 +13,7 @@ namespace VirtualVitrine
         [SerializeField] private RawImage previewUI;
         [SerializeField] private ResourceSet resources;
         [SerializeField] private Texture2D defaultCamTexture;
-        [SerializeField] private FaceTracking.Marker.Marker markerPrefab;
-        #endregion
-        
-        #region Public Fields
-        public static FaceDetector.Detection Detection => _marker.Detection;
+        [SerializeField] private KeyPointsUpdater keyPointsUpdater;
         #endregion
 
         #region Private Fields
@@ -27,9 +24,7 @@ namespace VirtualVitrine
         private FaceTracking.WebcamInput _webcamInput;
         private FaceTracking.ColourChecker _colourChecker;
         private FaceTracking.EyeSmoother _eyeSmoother;
-        private FaceTracking.Marker.KeyPointsUpdater _keyPointsUpdater;
         private FaceTracking.Transform.CameraTransform _cameraTransform;
-        private static FaceTracking.Marker.Marker _marker;
         
         // text showing the face distance from the camera
         private TMP_Text _distanceText;
@@ -55,8 +50,6 @@ namespace VirtualVitrine
             }
             
             _detector = new FaceDetector(resources);
-            _marker = Instantiate(markerPrefab, previewUI.transform);
-            _keyPointsUpdater = _marker.GetComponent<FaceTracking.Marker.KeyPointsUpdater>();
         }
 
         /// <summary>
@@ -67,14 +60,14 @@ namespace VirtualVitrine
             // check if camera got new frame
             if (!_webcamInput.CameraUpdated)
                 return;
-            
+
             // set aspect ratio of camera to 1:1
             _webcamInput.SetAspectRatio();
             
             // update camera preview
             previewUI.texture = _webcamInput.RenderTexture;
 
-            // run detection
+            // run detection and update marker in UI
             bool faceFound = RunDetector(_webcamInput.RenderTexture);
 
             // if face not found, hide UI and return
@@ -89,7 +82,7 @@ namespace VirtualVitrine
             _eyeSmoother.SmoothEyes();
             
             // update key points in UI
-            _keyPointsUpdater.UpdateKeyPoints();
+            keyPointsUpdater.UpdateKeyPoints();
             
             // check colour around eyes
             bool glassesOn = _colourChecker.CheckGlassesOn(_webcamInput.WebCamTexture);
@@ -105,8 +98,6 @@ namespace VirtualVitrine
         private void OnDestroy()
         {
             _detector?.Dispose();
-            if (_marker != null)
-                Destroy(_marker.gameObject);
         }
         #endregion
         
@@ -125,7 +116,7 @@ namespace VirtualVitrine
             bool faceFound = _detector.Detections.Any();
 
             // Activate/Deactivate marker if face was/wasn't found
-            _marker.gameObject.SetActive(faceFound);
+            keyPointsUpdater.gameObject.SetActive(faceFound);
 
             if (faceFound)
             {
@@ -133,7 +124,7 @@ namespace VirtualVitrine
                 var largestFace = _detector.Detections
                     .OrderByDescending(x => x.extent.magnitude)
                     .First();
-                _marker.Detection = largestFace;
+                KeyPointsUpdater.Detection = largestFace;
             }
 
             return faceFound;
