@@ -28,7 +28,7 @@ namespace VirtualVitrine.FaceTracking
         public static Vector2 RightEyeSmoothed { get; private set; }
         public static Vector2 EyeCenter => (LeftEyeSmoothed + RightEyeSmoothed) / 2;
         #endregion
-        
+
         #region Public Methods
         public void SmoothEyes()
         {
@@ -42,6 +42,8 @@ namespace VirtualVitrine.FaceTracking
                     SmoothAverage();
                     break;
                 case GlobalManager.SmoothType.Off:
+                    LeftEyeSmoothed = KeyPointsUpdater.Detection.leftEye;
+                    RightEyeSmoothed = KeyPointsUpdater.Detection.rightEye;
                     break;
             }
         }
@@ -74,7 +76,7 @@ namespace VirtualVitrine.FaceTracking
             // add new measurement
             _leftEyeHistory.Add(KeyPointsUpdater.Detection.leftEye);
             _rightEyeHistory.Add(KeyPointsUpdater.Detection.rightEye);
-            
+
             // remove oldest values
             if (_leftEyeHistory.Count > FramesSmoothed)
             {
