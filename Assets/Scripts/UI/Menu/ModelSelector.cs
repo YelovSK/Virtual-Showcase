@@ -33,9 +33,8 @@ namespace VirtualVitrine.UI.Menu
             
             var path = FileBrowser.Result[0];
             PlayerPrefs.SetString("modelPath", path);
-            Destroy(GlobalManager.loadedObject);
-            GlobalManager.loadedObject = null;
             modelText.text = "Current model: " + path.Split('\\').Last();
+            Destroy(ModelLoader.Model);
         }
         #endregion
     }

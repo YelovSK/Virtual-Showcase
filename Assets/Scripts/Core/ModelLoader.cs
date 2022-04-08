@@ -1,5 +1,7 @@
-using Dummiesman;
+using System.IO;
+using System.Linq;
 using UnityEngine;
+using Dummiesman;
 using VirtualVitrine.FaceTracking.Transform;
 
 namespace VirtualVitrine
@@ -7,25 +9,45 @@ namespace VirtualVitrine
     public class ModelLoader : MonoBehaviour
     {
         #region Public Fields
-        public GameObject LoadedObject { get; private set; }
+        public static GameObject Model { get; private set; }
+        #endregion
+        
+        #region Private Fields
+        private static ModelLoader _instance;
         #endregion
         
         #region Public Methods
-        public void ResetTransform()
+        public static void ResetTransform()
         {
-            LoadedObject.transform.localPosition = Vector3.zero;
-            LoadedObject.transform.localRotation = Quaternion.identity;
-            LoadedObject.transform.localScale = Vector3.one;
+            if (Model == null)
+                return;
+
+            var objTransform = Model.transform;
+            objTransform.localRotation = Quaternion.identity;
+            objTransform.localPosition = Vector3.zero;
             
-            // default is middle of the screen, put half of height below
-            var offset = GameObject.Find("HeadNode").GetComponent<AsymFrustum>().height / 2;
-            LoadedObject.transform.Translate(new Vector3(0, -offset, 0));
+            // set height to 90% of screen height
+            var currentHeight = GetObjectBounds(Model).size.y;
+            var targetHeight = FindObjectOfType<AsymFrustum>().height * 0.9f;
+            objTransform.localScale = targetHeight * objTransform.localScale / currentHeight;
+
+            // 0 is the middle of the screen, move the object half the screen lower
+            objTransform.Translate(new Vector3(0, -(targetHeight / 2), 0));
         }
         #endregion
         
         #region Unity Methods
-        private void Start()
+
+        private void Awake()
         {
+            if (_instance == null)
+            {    
+                _instance = this; // in first scene, make us the singleton
+                DontDestroyOnLoad(gameObject);  // keep model loaded between scene switches
+            }
+            else if (_instance != this)
+                Destroy(gameObject); // on reload, singleton already set, so destroy duplicate
+
             LoadObject();
         }
         #endregion
@@ -36,26 +58,53 @@ namespace VirtualVitrine
             // no model was chosen
             if (PlayerPrefs.GetString("modelPath") == "")
                 return;
-            
-            // model already loaded
-            if (GlobalManager.loadedObject != null)
-            {
-                LoadedObject = GlobalManager.loadedObject;
-                LoadedObject.transform.parent = transform;
-                print("Loaded model from static var");
-            }
-            // model loading for the first time
-            else
-            {
-                LoadedObject = new OBJLoader().Load(PlayerPrefs.GetString("modelPath"));
-                GlobalManager.loadedObject = LoadedObject;
-                LoadedObject.transform.parent = transform;
-                ResetTransform();
-                print("Loaded new model");
-            }
 
-            // keep model loaded between scene switches
-            DontDestroyOnLoad(this);
+            // model already loaded
+            if (Model != null) return;
+            
+            // model loading for the first time
+            var mtlFilePath = CheckMtlFile();
+            Model = new OBJLoader().Load(PlayerPrefs.GetString("modelPath"), mtlFilePath);
+            Model.transform.parent = _instance.transform;
+            ResetTransform();
+            print("Loaded new model");
+        }
+
+        /// <summary>
+        /// Checks if there's a .mtl file alongside the .obj file.
+        /// </summary>
+        /// <returns>Path of the .mtl file or null if file not found</returns>
+        private static string CheckMtlFile()
+        {
+            var objPath = PlayerPrefs.GetString("modelPath");
+            var objDir = Path.GetDirectoryName(objPath);
+
+            // get files ending with .mtl in the same directory as the .obj file
+            var mtlFiles = Directory
+                .GetFiles(objDir)
+                .Where(file => file.EndsWith(".mtl"))
+                .ToList();
+            
+            // return the first .mtl file found or null if no file found
+            return mtlFiles.Count == 0 ? null : mtlFiles.First();
+        }
+
+        /// <summary>
+        /// Gets the bounds of all the children of the given object.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns>Encapsulated bounds of children.</returns>
+        private static Bounds GetObjectBounds(GameObject obj)
+        {
+            // get meshes of all children
+            var meshRenderers = obj.GetComponentsInChildren<MeshRenderer>();
+            
+            // encapsulate bounds of all meshes
+            var bounds = new Bounds(_instance.transform.position, Vector3.zero);
+            foreach (var meshRenderer in meshRenderers)
+                bounds.Encapsulate(meshRenderer.bounds);
+
+            return bounds;
         }
         #endregion
     }
