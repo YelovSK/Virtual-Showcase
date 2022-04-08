@@ -7,8 +7,6 @@ TagManager:
   - Face tracking
   - ColorBox
   - virtualWindow
-  - leftCam
-  - rightCam
   - head
   layers:
   - Default

@@ -5,6 +5,7 @@
 /// and http://answers.unity3d.com/questions/165443/asymmetric-view-frusta-selective-region-rendering.html
 /// </summary>
 
+using System;
 using System.Linq;
 using UnityEngine;
 
@@ -13,34 +14,52 @@ namespace VirtualVitrine.FaceTracking.Transform
     [ExecuteInEditMode]
     public class AsymFrustum : MonoBehaviour
     {
-        /// <summary>
-        ///     Screen/window to virtual world width (in units. I suggest using meters)
-        /// </summary>
-        public float width;
+        #region Serialized Fields
+        [Header("Screen size")]
+        [SerializeField] public Vector2 aspectRatio = new Vector2(16, 9);
+        [SerializeField] private bool drawGizmos;
+        [SerializeField] private Camera[] cameras;
+        #endregion
+        
+        #region Public Fields
+        public float ScreenWidth { get; private set; }
+        public float ScreenHeight { get; private set; }
 
-        /// <summary>
-        ///     Screen/window to virtual world height (in units. I suggest using meters)
-        /// </summary>
-        public float height;
-
-        /// <summary>
-        ///     The maximum height the camera can have (up axis in local coordinates from  the virtualWindow) (in units. I suggest
-        ///     using meters)
-        /// </summary>
-        public float maxHeight = 2000.0f;
-
-        private Camera[] _cameras;
+        public float BaseScreenWidth =>
+            CalibrationManager.DiagonalToWidthAndHeight(BaseScreenDiagonal, aspectRatio.x / aspectRatio.y).Item1;
+        #endregion
+        
+        #region Private Fields
+        private const int BaseScreenDiagonal = 24;
         private GameObject _virtualWindow;
-
+        #endregion
+        
         private void Awake()
         {
             _virtualWindow = transform.parent.gameObject;
-            _cameras = GetComponentsInChildren<Camera>(true);
+            SetScreenSize(PlayerPrefs.GetInt("screenDiagonalInches"));
+        }
+
+        /// <summary>
+        /// This update runs only in the editor so that the frustum can be updated in real time
+        /// </summary>
+        private void Update()
+        {
+            if (Application.isPlaying)
+                return;
+            
+            SetScreenSize(BaseScreenDiagonal);
+            UpdateProjectionMatrix();
+        }
+
+        public void SetScreenSize(int diagonal)
+        {
+            (ScreenWidth, ScreenHeight) = CalibrationManager.DiagonalToWidthAndHeight(diagonal, aspectRatio.x / aspectRatio.y);
         }
 
         public void UpdateProjectionMatrix()
         {
-            var activeCameras = _cameras.Where(x => x.isActiveAndEnabled);
+            var activeCameras = cameras.Where(x => x.isActiveAndEnabled);
             foreach (var cam in activeCameras)
             {
                 var localPos = _virtualWindow.transform.InverseTransformPoint(cam.transform.position);
@@ -61,16 +80,16 @@ namespace VirtualVitrine.FaceTracking.Transform
             pos = new Vector3(pos.x, pos.z, pos.y);
 
             // Focal length = orthogonal distance to image plane
-            var focal = Mathf.Clamp(pos.z, 0.001f, maxHeight);
+            var focal = pos.z;
 
             // Ratio for intercept theorem
             var ratio = focal / nearDist;
 
             // Compute size for focal
-            var imageLeft = -width / 2.0f - pos.x;
-            var imageRight = width / 2.0f - pos.x;
-            var imageTop = height / 2.0f - pos.y;
-            var imageBottom = -height / 2.0f - pos.y;
+            var imageLeft = -ScreenWidth / 2.0f - pos.x;
+            var imageRight = ScreenWidth / 2.0f - pos.x;
+            var imageTop = ScreenHeight / 2.0f - pos.y;
+            var imageBottom = -ScreenHeight / 2.0f - pos.y;
 
             // Intercept theorem for getting x, y coordinates of near plane corners
             var nearLeft = imageLeft / ratio;
@@ -99,12 +118,16 @@ namespace VirtualVitrine.FaceTracking.Transform
         /// <param name="far">Far.</param>
         private static Matrix4x4 PerspectiveOffCenter(float left, float right, float bottom, float top, float near, float far)
         {
-            var x = 2 * near / (right - left);
-            var y = 2 * near / (top - bottom);
-            var a = (right + left) / (right - left);
-            var b = (top + bottom) / (top - bottom);
-            var c = -(far + near) / (far - near);
-            var d = -(2 * far * near) / (far - near);
+            var nearWidth = right - left;
+            var nearHeight = top - bottom;
+            var frustumDepth = far - near;
+            
+            var x = (2 * near) / nearWidth;
+            var y = (2 * near) / nearHeight;
+            var a = (left + right) / nearWidth;
+            var b = (bottom + top) / nearHeight;
+            var c = -(far + near) / frustumDepth;
+            var d = -(2 * far * near) / frustumDepth;
 
             var m = new Matrix4x4
             {
@@ -121,14 +144,24 @@ namespace VirtualVitrine.FaceTracking.Transform
         /// </summary>
         public virtual void OnDrawGizmos()
         {
-            var activeCameras = _cameras.Where(x => x.isActiveAndEnabled);
+            if (!drawGizmos)
+                return;
+            
+            // draw lines to show the screen
+            DrawScreen();
+            
+            // draw lines from cameras to screen corners
+            var activeCameras = cameras.Where(x => x.isActiveAndEnabled);
             foreach (var cam in activeCameras)
-                DrawScreen(cam);
+                DrawCameraGizmos(cam);
         }
 
-        private void DrawScreen(Camera cam)
+        private void DrawScreen()
         {
             var window = _virtualWindow.transform;
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawIcon(transform.position, "head.png");
+            // Gizmos.DrawSphere(transform.position, 5f);
             
             // draw line towards camera
             Gizmos.color = Color.green;
@@ -140,22 +173,18 @@ namespace VirtualVitrine.FaceTracking.Transform
             // draw vertical line
             Gizmos.color = Color.blue;
             Gizmos.DrawLine(
-                window.position - _virtualWindow.transform.forward * 0.5f * height,
-                window.position + window.forward * 0.5f * height
+                window.position - _virtualWindow.transform.forward * 0.5f * ScreenHeight,
+                window.position + window.forward * 0.5f * ScreenHeight
             );
 
             // draw horizontal line
             Gizmos.color = Color.red;
             Gizmos.DrawLine(
-                window.position - _virtualWindow.transform.right * 0.5f * width,
-                window.position + window.right * 0.5f * width
+                window.position - _virtualWindow.transform.right * 0.5f * ScreenWidth,
+                window.position + window.right * 0.5f * ScreenWidth
             );
             
-            // corners
-            var leftBottom = window.position - window.right * 0.5f * width - window.forward * 0.5f * height;
-            var leftTop = window.position - window.right * 0.5f * width + window.forward * 0.5f * height;
-            var rightBottom = window.position + window.right * 0.5f * width - window.forward * 0.5f * height;
-            var rightTop = window.position + window.right * 0.5f * width + window.forward * 0.5f * height;
+            GetScreenCorners(out var leftBottom, out var leftTop, out var rightBottom, out var rightTop);
 
             // draw border
             Gizmos.color = Color.cyan;
@@ -164,13 +193,31 @@ namespace VirtualVitrine.FaceTracking.Transform
             Gizmos.DrawLine(rightTop, rightBottom);
             Gizmos.DrawLine(rightBottom, leftBottom);
             Gizmos.color = Color.grey;
-            
+        }
+        
+        private void DrawCameraGizmos(Camera cam)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawSphere(cam.transform.position, 1f);
+
+            GetScreenCorners(out var leftBottom, out var leftTop, out var rightBottom, out var rightTop);
+
             // draw lines from camera to corners
             var pos = cam.transform.position;
             Gizmos.DrawLine(pos, leftTop);
             Gizmos.DrawLine(pos, rightTop);
             Gizmos.DrawLine(pos, rightBottom);
             Gizmos.DrawLine(pos, leftBottom);
+        }
+        
+        private void GetScreenCorners(out Vector3 leftBottom, out Vector3 leftTop, out Vector3 rightBottom, out Vector3 rightTop)
+        {
+            var window = _virtualWindow.transform;
+
+            leftBottom = window.position - window.right * 0.5f * ScreenWidth - window.forward * 0.5f * ScreenHeight;
+            leftTop = window.position - window.right * 0.5f * ScreenWidth + window.forward * 0.5f * ScreenHeight;
+            rightBottom = window.position + window.right * 0.5f * ScreenWidth - window.forward * 0.5f * ScreenHeight;
+            rightTop = window.position + window.right * 0.5f * ScreenWidth + window.forward * 0.5f * ScreenHeight;
         }
     }
 }

@@ -96,6 +96,20 @@ namespace VirtualVitrine
             _state = _state.Next();
             UpdateState();
         }
+        
+        /// <summary>
+        ///     Returns width and height of display in centimeters from diagonal inches.
+        /// </summary>
+        /// <param name="diagonalInches"></param>
+        /// <param name="aspectRatio"></param>
+        /// <returns></returns>
+        public static Tuple<float, float> DiagonalToWidthAndHeight(int diagonalInches, float aspectRatio)
+        {
+            const float cmsInInch = 2.54f;
+            var height = diagonalInches / Math.Sqrt(aspectRatio * aspectRatio + 1);
+            var width = aspectRatio * height;
+            return Tuple.Create((float) (width * cmsInInch), (float) (height * cmsInInch));
+        }
         #endregion
         
         #region Unity Methods
@@ -123,36 +137,25 @@ namespace VirtualVitrine
         #endregion
         
         #region Private Methods
-        /// <summary>
-        ///     Returns width and height of display in centimeters from diagonal inches.
-        /// </summary>
-        /// <param name="diagonalInches"></param>
-        /// <returns></returns>
-        private static Tuple<int, int> DiagonalToWidthAndHeight(int diagonalInches)
-        {
-            const float cmsInInch = 2.54f;
-            const double aspectRatio = (double) 16 / 9;
-            var height = diagonalInches / Math.Sqrt(aspectRatio * aspectRatio + 1);
-            var width = aspectRatio * height;
-            return Tuple.Create((int) (width * cmsInInch), (int) (height * cmsInInch));
-        }
-        
         private static float GetEyesDistance() => (EyeSmoother.LeftEyeSmoothed - EyeSmoother.RightEyeSmoothed).magnitude;
 
         private void ChangeDistanceValue(Slider sender) => distanceValue.text = sender.value + "cm";
 
         private void ChangeSizeValue(Slider sender)
         {
+            var screen = head.GetComponent<AsymFrustum>();
+            
+            // update UI
             sizeValue.text = sender.value + "''";
+            
+            // update player pref
             PlayerPrefs.SetInt("screenDiagonalInches", (int) sender.value);
-            var (width, height) = DiagonalToWidthAndHeight((int) sender.value);
-            // base width of 53cm is for 24'' diagonal, so 24'' is scale 1.0
-            const int baseWidth = 53;
-            var ratio = (float) width / baseWidth;
-            scene.transform.localScale = new Vector3(ratio, ratio, ratio);
-            // set the size in asym frustum, which deals with the projection
-            head.GetComponent<AsymFrustum>().width = width;
-            head.GetComponent<AsymFrustum>().height = height;
+            
+            // update size of screen
+            screen.SetScreenSize((int) sender.value);
+            
+            // set new size of scene
+            scene.transform.localScale = Vector3.one * (screen.ScreenWidth / screen.BaseScreenWidth);
         }
 
         private void UpdateState()
