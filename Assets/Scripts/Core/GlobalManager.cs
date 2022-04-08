@@ -7,7 +7,6 @@ namespace VirtualVitrine
     public static class GlobalManager
     {
         #region Public Fields
-        public static GameObject loadedObject = null;
         public static bool InMainScene => SceneManager.GetActiveScene().name == "Main";
         public static bool InMenuScene => SceneManager.GetActiveScene().name == "Menu";
 
