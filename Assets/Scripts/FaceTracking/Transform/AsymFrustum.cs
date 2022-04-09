@@ -6,37 +6,61 @@
 /// </summary>
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 namespace VirtualVitrine.FaceTracking.Transform
 {
     [ExecuteInEditMode]
-    public class AsymFrustum : MonoBehaviour
+    public sealed class AsymFrustum : MonoBehaviour
     {
         #region Serialized Fields
         [SerializeField] private bool drawGizmos;
         [SerializeField] private Camera[] cameras;
+        [SerializeField] private GameObject scene;
         #endregion
         
         #region Public Fields
-        public float ScreenWidth { get; private set; }
-        public float ScreenHeight { get; private set; }
+        public int ScreenDistance
+        {
+            set
+            {
+                MyPrefs.ScreenDistance = value;
+                // Set the head distance.
+                transform.localPosition = new Vector3(0, value, 0);
+                // Set the camera's near according to the distance
+                // because Unity's fog is affected by the camera's near.
+                foreach (var cam in cameras)
+                    cam.nearClipPlane = value - 15f;
+            }
+        }
+        public int ScreenSize
+        {
+            get => MyPrefs.ScreenSize;
+            set
+            {
+                MyPrefs.ScreenSize = value;
+                // Set the new size of scene.
+                scene.transform.localScale = Vector3.one * (ScreenWidth / BaseScreenWidth);
+            }
+        }
 
-        public float BaseScreenWidth =>
-            CalibrationManager.DiagonalToWidthAndHeight(BaseScreenDiagonal, AspectRatio).Item1;
+        public float ScreenWidth => DiagonalToWidthAndHeight(ScreenSize, AspectRatio).x;
+        public float ScreenHeight => DiagonalToWidthAndHeight(ScreenSize, AspectRatio).y;
         #endregion
         
         #region Private Fields
+        private static float BaseScreenWidth => DiagonalToWidthAndHeight(BaseScreenDiagonal, AspectRatio).x;
         private const int BaseScreenDiagonal = 24;
         private const float AspectRatio = 16/9f;
         private GameObject _virtualWindow;
+        private IEnumerable<Camera> ActiveCameras => cameras.Where(x => x.isActiveAndEnabled);
         #endregion
         
         private void Awake()
         {
             _virtualWindow = transform.parent.gameObject;
-            SetScreenSize(MyPrefs.ScreenSize);
         }
 
         /// <summary>
@@ -47,19 +71,27 @@ namespace VirtualVitrine.FaceTracking.Transform
             if (Application.isPlaying)
                 return;
             
-            SetScreenSize(BaseScreenDiagonal);
+            ScreenSize = BaseScreenDiagonal;
             UpdateProjectionMatrix();
         }
-
-        public void SetScreenSize(int diagonal)
+        
+        /// <summary>
+        ///     Returns width and height of display in centimeters from diagonal inches.
+        /// </summary>
+        /// <param name="diagonalInches"></param>
+        /// <param name="aspectRatio"></param>
+        /// <returns></returns>
+        public static Vector2 DiagonalToWidthAndHeight(int diagonalInches, float aspectRatio)
         {
-            (ScreenWidth, ScreenHeight) = CalibrationManager.DiagonalToWidthAndHeight(diagonal, AspectRatio);
+            const float cmsInInch = 2.54f;
+            var height = diagonalInches / Math.Sqrt(aspectRatio * aspectRatio + 1);
+            var width = aspectRatio * height;
+            return new Vector2((float) (width * cmsInInch), (float) (height * cmsInInch));
         }
 
         public void UpdateProjectionMatrix()
         {
-            var activeCameras = cameras.Where(x => x.isActiveAndEnabled);
-            foreach (var cam in activeCameras)
+            foreach (var cam in ActiveCameras)
             {
                 var localPos = _virtualWindow.transform.InverseTransformPoint(cam.transform.position);
                 SetAsymmetricFrustum(cam, localPos, cam.nearClipPlane);
@@ -141,7 +173,7 @@ namespace VirtualVitrine.FaceTracking.Transform
         /// <summary>
         /// Draws gizmos in the Edit window.
         /// </summary>
-        public virtual void OnDrawGizmos()
+        public void OnDrawGizmos()
         {
             if (!drawGizmos)
                 return;
@@ -150,8 +182,7 @@ namespace VirtualVitrine.FaceTracking.Transform
             DrawScreen();
             
             // draw lines from cameras to screen corners
-            var activeCameras = cameras.Where(x => x.isActiveAndEnabled);
-            foreach (var cam in activeCameras)
+            foreach (var cam in ActiveCameras)
                 DrawCameraGizmos(cam);
         }
 
