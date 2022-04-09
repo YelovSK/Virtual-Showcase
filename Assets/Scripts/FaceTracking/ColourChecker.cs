@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Unity.Burst;
 using Unity.Collections;
+using UnityEngine.SceneManagement;
 
 namespace VirtualVitrine.FaceTracking
 {
@@ -28,11 +29,12 @@ namespace VirtualVitrine.FaceTracking
         public bool CheckGlassesOn(WebCamTexture tex)
         {
             // if glasses check is off, don't display overlay and set to true to transform anyway
-            if (PlayerPrefs.GetInt("glassesCheck") == 0)
+            if (MyPrefs.GlassesCheck == 0)
             {
                 HideUI();
                 return true;
             }
+
             colorBox.gameObject.SetActive(true);
             // resolution of the 1:1 texture
             var resolution = Math.Min(tex.width, tex.height);
@@ -65,7 +67,7 @@ namespace VirtualVitrine.FaceTracking
             var passed = (float) foundPixelsCount / allPixelsCount > threshold;
 
             // don't compute overlay if preview is not showing in main scene
-            if (PlayerPrefs.GetInt("previewOn") == 0 && GlobalManager.InMainScene)
+            if (MyPrefs.PreviewOn == 0 && SceneManager.GetActiveScene().name == "Main")
                 return passed;
 
             // set label text to show number of found pixels
@@ -154,8 +156,8 @@ namespace VirtualVitrine.FaceTracking
                 textureColours = textureColoursNative,
                 foundPixelsArr = new NativeArray<Color32>(textureColours.Length, Allocator.TempJob),
                 counter = foundPixelsCounter,
-                hueThresh = PlayerPrefs.GetInt("hueThresh"),
-                targetHue = PlayerPrefs.GetInt("hue")
+                hueThresh = MyPrefs.HueThreshold,
+                targetHue = MyPrefs.Hue
             };
             var jobHandle = job.Schedule(textureColours.Length, 250);
             jobHandle.Complete();

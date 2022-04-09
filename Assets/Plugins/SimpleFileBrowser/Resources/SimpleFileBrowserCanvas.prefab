@@ -1066,7 +1066,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 114000013689746302}
-        m_TargetAssemblyTypeName: 
+        m_TargetAssemblyTypeName: SimpleFileBrowser.FileBrowser, SimpleFileBrowser.Runtime
         m_MethodName: OnShowHiddenFilesToggleChanged
         m_Mode: 1
         m_Arguments:
@@ -1198,7 +1198,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114000011769758306}
   m_HandleRect: {fileID: 224000011063755118}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -4296,7 +4296,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 224000013440901968}
   m_Direction: 2
   m_Value: 0
-  m_Size: 1
+  m_Size: 0.06832298
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -4721,7 +4721,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 300}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1000013666513282
@@ -8357,7 +8357,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4904278185319220
 Transform:
   m_ObjectHideFlags: 0

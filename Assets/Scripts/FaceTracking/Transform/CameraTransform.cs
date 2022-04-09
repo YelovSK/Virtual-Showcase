@@ -35,10 +35,8 @@ namespace VirtualVitrine.FaceTracking.Transform
         public void Transform()
         {
             // map coords based on the calibration
-            var centerX = Map(EyeSmoother.EyeCenter.x, PlayerPrefs.GetFloat("LeftCalibration"),
-                PlayerPrefs.GetFloat("RightCalibration"), 0.0f, 1.0f);
-            var centerY = Map(EyeSmoother.EyeCenter.y, PlayerPrefs.GetFloat("BottomCalibration"),
-                PlayerPrefs.GetFloat("TopCalibration"), 0.0f, 1.0f);
+            var centerX = Map(EyeSmoother.EyeCenter.x, MyPrefs.LeftCalibration, MyPrefs.RightCalibration, 0.0f, 1.0f);
+            var centerY = Map(EyeSmoother.EyeCenter.y, MyPrefs.BottomCalibration, MyPrefs.TopCalibration, 0.0f, 1.0f);
             
             // middle is 0.0f, left is -0.5f, right is 0.5f
             var x = (centerX - 0.5f) * head.ScreenWidth;

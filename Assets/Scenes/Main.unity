@@ -942,7 +942,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74d36d1e10994bc4d84c7f35edea618e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  aspectRatio: {x: 16, y: 9}
   drawGizmos: 1
   cameras:
   - {fileID: 394463188}

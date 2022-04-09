@@ -16,11 +16,6 @@ namespace VirtualVitrine.FaceTracking
         // Kalman
         private KalmanFilter<Vector2> _leftMeasurement;
         private KalmanFilter<Vector2> _rightMeasurement;
-
-        // Player prefs
-        private static float KalmanQ => PlayerPrefs.GetFloat("kalmanQ");
-        private static float KalmanR => PlayerPrefs.GetFloat("kalmanR");
-        private static int FramesSmoothed => PlayerPrefs.GetInt("framesSmoothed");
         #endregion
 
         #region Public Fields
@@ -32,16 +27,16 @@ namespace VirtualVitrine.FaceTracking
         #region Public Methods
         public void SmoothEyes()
         {
-            Enum.TryParse(PlayerPrefs.GetString("smoothing"), out GlobalManager.SmoothType smoothType);
+            Enum.TryParse(MyPrefs.SmoothingType, out MyPrefs.SmoothingTypeEnum smoothType);
             switch (smoothType)
             {
-                case GlobalManager.SmoothType.Kalman:
+                case MyPrefs.SmoothingTypeEnum.Kalman:
                     SmoothKalman();
                     break;
-                case GlobalManager.SmoothType.Average:
+                case MyPrefs.SmoothingTypeEnum.Average:
                     SmoothAverage();
                     break;
-                case GlobalManager.SmoothType.Off:
+                case MyPrefs.SmoothingTypeEnum.Off:
                     LeftEyeSmoothed = KeyPointsUpdater.Detection.leftEye;
                     RightEyeSmoothed = KeyPointsUpdater.Detection.rightEye;
                     break;
@@ -52,21 +47,21 @@ namespace VirtualVitrine.FaceTracking
         #region Unity Methods
         private void Start()
         {
-            _leftMeasurement = new KalmanFilter<Vector2>(KalmanQ, KalmanR);
-            _rightMeasurement = new KalmanFilter<Vector2>(KalmanQ, KalmanR);
+            _leftMeasurement = new KalmanFilter<Vector2>(MyPrefs.KalmanQ, MyPrefs.KalmanR);
+            _rightMeasurement = new KalmanFilter<Vector2>(MyPrefs.KalmanQ, MyPrefs.KalmanR);
         }
         #endregion
 
         #region Private Methods
         private void SmoothKalman()
         {
-            LeftEyeSmoothed = _leftMeasurement.Update(KeyPointsUpdater.Detection.leftEye, KalmanQ, KalmanR);
-            RightEyeSmoothed = _rightMeasurement.Update(KeyPointsUpdater.Detection.rightEye, KalmanQ, KalmanR);
+            LeftEyeSmoothed = _leftMeasurement.Update(KeyPointsUpdater.Detection.leftEye, MyPrefs.KalmanQ, MyPrefs.KalmanR);
+            RightEyeSmoothed = _rightMeasurement.Update(KeyPointsUpdater.Detection.rightEye, MyPrefs.KalmanQ, MyPrefs.KalmanR);
         }
 
         private void SmoothAverage()
         {
-            if (FramesSmoothed == 1)
+            if (MyPrefs.FramesSmoothed == 1)
             {
                 LeftEyeSmoothed = KeyPointsUpdater.Detection.leftEye;
                 RightEyeSmoothed = KeyPointsUpdater.Detection.rightEye;
@@ -78,10 +73,10 @@ namespace VirtualVitrine.FaceTracking
             _rightEyeHistory.Add(KeyPointsUpdater.Detection.rightEye);
 
             // remove oldest values
-            if (_leftEyeHistory.Count > FramesSmoothed)
+            if (_leftEyeHistory.Count > MyPrefs.FramesSmoothed)
             {
-                _leftEyeHistory.RemoveRange(0, _leftEyeHistory.Count - FramesSmoothed);
-                _rightEyeHistory.RemoveRange(0, _rightEyeHistory.Count - FramesSmoothed);
+                _leftEyeHistory.RemoveRange(0, _leftEyeHistory.Count - MyPrefs.FramesSmoothed);
+                _rightEyeHistory.RemoveRange(0, _rightEyeHistory.Count - MyPrefs.FramesSmoothed);
             }
 
             // calculate new average

@@ -36,7 +36,7 @@ namespace VirtualVitrine.FaceTracking.Transform
         private void Awake()
         {
             _virtualWindow = transform.parent.gameObject;
-            SetScreenSize(PlayerPrefs.GetInt("screenDiagonalInches"));
+            SetScreenSize(MyPrefs.ScreenSize);
         }
 
         /// <summary>

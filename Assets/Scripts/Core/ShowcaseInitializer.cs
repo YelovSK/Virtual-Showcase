@@ -22,15 +22,15 @@ namespace VirtualVitrine
         public void SetCamPreview(bool toggle = false)
         {
             if (toggle)
-                PlayerPrefs.SetInt("previewOn", PlayerPrefs.GetInt("previewOn") == 0 ? 1 : 0);
-            canvasGroup.alpha = PlayerPrefs.GetInt("previewOn");
+                MyPrefs.PreviewOn = MyPrefs.PreviewOn == 0 ? 1 : 0;
+            canvasGroup.alpha = MyPrefs.PreviewOn;
         }
 
         public void SetStereo(bool toggle = false)
         {
             if (toggle)
-                PlayerPrefs.SetInt("stereoOn", PlayerPrefs.GetInt("stereoOn") == 0 ? 1 : 0);
-            var stereoOn = PlayerPrefs.GetInt("stereoOn") == 1;
+                MyPrefs.StereoOn = MyPrefs.StereoOn == 0 ? 1 : 0;
+            var stereoOn = MyPrefs.StereoOn == 1;
             
             monoCam.SetActive(!stereoOn);
             leftCam.SetActive(stereoOn);
@@ -41,7 +41,7 @@ namespace VirtualVitrine
         #region Unity Methods
         private void Awake()
         {
-            GlobalManager.CheckPlayerPrefs();
+            MyPrefs.CheckPlayerPrefs();
             SetCamPreview();
             SetStereo();
         }

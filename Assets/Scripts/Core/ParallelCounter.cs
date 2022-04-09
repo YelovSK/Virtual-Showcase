@@ -123,8 +123,7 @@ namespace VirtualVitrine
     #endif
              
             // The current worker thread index; it must use this exact name since it is injected
-            [NativeSetThreadIndex]
-            int m_ThreadIndex;
+            [NativeSetThreadIndex] private int m_ThreadIndex;
      
             // This is what makes it possible to assign to NativeCounter.Concurrent from NativeCounter
             public static implicit operator ParallelWriter(NativeCounter cnt) {
