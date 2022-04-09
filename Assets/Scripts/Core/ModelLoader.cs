@@ -2,6 +2,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using Dummiesman;
+using JetBrains.Annotations;
 using VirtualVitrine.FaceTracking.Transform;
 
 namespace VirtualVitrine
@@ -56,7 +57,7 @@ namespace VirtualVitrine
         private void LoadObject()
         {
             // no model was chosen
-            if (PlayerPrefs.GetString("modelPath") == "")
+            if (MyPrefs.ModelPath == "")
                 return;
 
             // model already loaded
@@ -64,7 +65,7 @@ namespace VirtualVitrine
             
             // model loading for the first time
             var mtlFilePath = CheckMtlFile();
-            Model = new OBJLoader().Load(PlayerPrefs.GetString("modelPath"), mtlFilePath);
+            Model = new OBJLoader().Load(MyPrefs.ModelPath, mtlFilePath);
             Model.transform.parent = _instance.transform;
             ResetTransform();
             print("Loaded new model");
@@ -74,11 +75,14 @@ namespace VirtualVitrine
         /// Checks if there's a .mtl file alongside the .obj file.
         /// </summary>
         /// <returns>Path of the .mtl file or null if file not found</returns>
+        [CanBeNull]
         private static string CheckMtlFile()
         {
-            var objPath = PlayerPrefs.GetString("modelPath");
+            var objPath = MyPrefs.ModelPath;
             var objDir = Path.GetDirectoryName(objPath);
-
+            if (objDir == null)
+                return null;
+            
             // get files ending with .mtl in the same directory as the .obj file
             var mtlFiles = Directory
                 .GetFiles(objDir)

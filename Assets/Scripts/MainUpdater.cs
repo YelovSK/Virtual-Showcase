@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using MediaPipe.BlazeFace;
+using UnityEngine.SceneManagement;
 using VirtualVitrine.FaceTracking.Marker;
 
 namespace VirtualVitrine
@@ -90,8 +91,8 @@ namespace VirtualVitrine
             // update head distance in UI
             _distanceText.text = (int) CalibrationManager.GetRealHeadDistance() + "cm";
             
-            // if not in menu and glasses are on, transform camera
-            if (glassesOn && GlobalManager.InMainScene)
+            // if glasses found and in main scene, transform camera
+            if (glassesOn && SceneManager.GetActiveScene().name == "Main")
                 _cameraTransform.Transform();
         }
         
@@ -110,7 +111,7 @@ namespace VirtualVitrine
         private bool RunDetector(Texture input)
         {
             // Face detection
-            _detector.ProcessImage(input, PlayerPrefs.GetFloat("threshold"));
+            _detector.ProcessImage(input, MyPrefs.DetectionThreshold);
 
             // Check if any detections were found
             bool faceFound = _detector.Detections.Any();

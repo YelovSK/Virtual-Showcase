@@ -37,7 +37,7 @@ namespace VirtualVitrine.FaceTracking
         #region Unity Methods
         private async void Awake()
         {
-            WebCamTexture = new WebCamTexture(PlayerPrefs.GetString("cam"), resolutionWidth, resolutionWidth);
+            WebCamTexture = new WebCamTexture(MyPrefs.CameraName, resolutionWidth, resolutionWidth);
             WebCamTexture.Play();
 
             // takes a bit for the webcam to initialize

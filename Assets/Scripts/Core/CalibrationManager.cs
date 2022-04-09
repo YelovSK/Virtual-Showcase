@@ -52,9 +52,8 @@ namespace VirtualVitrine
         public static float GetRealHeadDistance()
         {
             // https://www.youtube.com/watch?v=jsoe1M2AjFk
-            var focal = PlayerPrefs.GetFloat("focalLength");
             const int realEyesDistance = 6;
-            var realDistance = realEyesDistance * focal / GetEyesDistance();
+            var realDistance = realEyesDistance * MyPrefs.FocalLength / GetEyesDistance();
             return realDistance;
         }
 
@@ -124,8 +123,8 @@ namespace VirtualVitrine
             _origCameraPreviewScale = cameraPreviewTransform.localScale;
 
             // set sliders to the player prefs
-            distanceSlider.value = PlayerPrefs.GetInt("distanceFromScreenCm");
-            sizeSlider.value = PlayerPrefs.GetInt("screenDiagonalInches");
+            distanceSlider.value = MyPrefs.ScreenDistance;
+            sizeSlider.value = MyPrefs.ScreenSize;
 
             // set delegates
             ChangeDistanceValue(distanceSlider);
@@ -149,7 +148,7 @@ namespace VirtualVitrine
             sizeValue.text = sender.value + "''";
             
             // update player pref
-            PlayerPrefs.SetInt("screenDiagonalInches", (int) sender.value);
+            MyPrefs.ScreenSize = (int) sender.value;
             
             // update size of screen
             screen.SetScreenSize((int) sender.value);
@@ -170,25 +169,25 @@ namespace VirtualVitrine
                     break;
                 // set left edge, highlight right edge
                 case States.RIGHT:
-                    PlayerPrefs.SetFloat("LeftCalibration", EyeSmoother.EyeCenter.x);
+                    MyPrefs.LeftCalibration = EyeSmoother.EyeCenter.x;
                     SetGuideText("right");
                     HighlightEdge();
                     break;
                 // set right edge, highlight bottom edge
                 case States.BOTTOM:
-                    PlayerPrefs.SetFloat("RightCalibration", EyeSmoother.EyeCenter.x);
+                    MyPrefs.RightCalibration = EyeSmoother.EyeCenter.x;
                     SetGuideText("bottom");
                     HighlightEdge();
                     break;
                 // set bottom edge, highlight top edge
                 case States.TOP:
-                    PlayerPrefs.SetFloat("BottomCalibration", EyeSmoother.EyeCenter.y);
+                    MyPrefs.BottomCalibration = EyeSmoother.EyeCenter.y;
                     SetGuideText("top");
                     HighlightEdge();
                     break;
                 // set top edge, show sliders
                 case States.SLIDERS:
-                    PlayerPrefs.SetFloat("TopCalibration", EyeSmoother.EyeCenter.y);
+                    MyPrefs.TopCalibration = EyeSmoother.EyeCenter.y;
                     guideText.text =
                         "Set the sliders and keep your head pointed at the display from the given distance, then press 'Enter'";
                     HighlightEdge();
@@ -205,10 +204,10 @@ namespace VirtualVitrine
 
         private void SetFocalLength()
         {
-            PlayerPrefs.SetInt("distanceFromScreenCm", (int) distanceSlider.value);
+            MyPrefs.ScreenDistance = (int) distanceSlider.value;
             // position of the head is offset by sender.value from the display
             head.transform.localPosition = new Vector3(0, (int) distanceSlider.value, 0);
-            PlayerPrefs.SetFloat("focalLength", GetFocalLength(distanceSlider.value));
+            MyPrefs.FocalLength = GetFocalLength(distanceSlider.value);
         }
 
         private void SetGuideText(string edgeText)
@@ -222,7 +221,7 @@ namespace VirtualVitrine
             calibrationUI.SetActive(true);
             
             // enable camera preview
-            PlayerPrefs.SetInt("previewOn", 1);
+            MyPrefs.PreviewOn = 1;
             GetComponent<ShowcaseInitializer>().SetCamPreview();
 
             // make the webcam preview smaller and put it in a corner
@@ -236,7 +235,7 @@ namespace VirtualVitrine
             sliders.SetActive(false);
             
             // disable camera preview
-            PlayerPrefs.SetInt("previewOn", 0);
+            MyPrefs.PreviewOn = 0;
             GetComponent<ShowcaseInitializer>().SetCamPreview();
             
             // set back the webcam preview location and size

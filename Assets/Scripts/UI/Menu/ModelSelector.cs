@@ -32,7 +32,7 @@ namespace VirtualVitrine.UI.Menu
             if (!FileBrowser.Success) yield break;
             
             var path = FileBrowser.Result[0];
-            PlayerPrefs.SetString("modelPath", path);
+            MyPrefs.ModelPath = path;
             modelText.text = "Current model: " + path.Split('\\').Last();
             Destroy(ModelLoader.Model);
         }

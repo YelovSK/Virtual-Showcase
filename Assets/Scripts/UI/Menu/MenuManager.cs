@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -50,7 +49,7 @@ namespace VirtualVitrine.UI.Menu
         {
             if (ModelLoader.Model != null)
                 Destroy(ModelLoader.Model);
-            GlobalManager.ResetPlayerPrefs();
+            MyPrefs.ResetPlayerPrefs();
             SetElementsToPlayerPrefs();
         }
         #endregion
@@ -58,7 +57,7 @@ namespace VirtualVitrine.UI.Menu
         #region Unity Methods
         private void Start()
         {
-            GlobalManager.CheckPlayerPrefs();
+            MyPrefs.CheckPlayerPrefs();
             SetElementsToPlayerPrefs();
             SetDelegates();
         }
@@ -73,19 +72,16 @@ namespace VirtualVitrine.UI.Menu
         #region Private Methods
         private void SetElementsToPlayerPrefs()
         {
-            if (File.Exists(PlayerPrefs.GetString("modelPath")))
-                currentModelText.text = "Current model: " + PlayerPrefs.GetString("modelPath").Split('\\').Last();
-            else
-                currentModelText.text = "Current model: ";
-            SetCamName(PlayerPrefs.GetString("cam"));
-            SetSmoothingOption(PlayerPrefs.GetString("smoothing"));
-            SetAvgSliderAndText(PlayerPrefs.GetInt("framesSmoothed"));
-            qSlider.value = PlayerPrefs.GetFloat("kalmanQ");
-            rSlider.value = PlayerPrefs.GetFloat("kalmanR");
-            thresholdSlider.value = PlayerPrefs.GetFloat("threshold");
-            hueSlider.value = PlayerPrefs.GetInt("hue");
-            hueThreshSlider.value = PlayerPrefs.GetInt("hueThresh");
-            glassesCheck.isOn = PlayerPrefs.GetInt("glassesCheck") == 1;
+            currentModelText.text = "Current model: " + MyPrefs.ModelPath.Split('\\').Last();
+            SetCamName(MyPrefs.CameraName);
+            SetSmoothingOption(MyPrefs.SmoothingType);
+            SetAvgSliderAndText(MyPrefs.FramesSmoothed);
+            qSlider.value = MyPrefs.KalmanQ;
+            rSlider.value = MyPrefs.KalmanR;
+            thresholdSlider.value = MyPrefs.DetectionThreshold;
+            hueSlider.value = MyPrefs.Hue;
+            hueThreshSlider.value = MyPrefs.HueThreshold;
+            glassesCheck.isOn = MyPrefs.GlassesCheck == 1;
         }
         
         private void SetAvgSliderAndText(int framesSmoothed)
@@ -109,7 +105,7 @@ namespace VirtualVitrine.UI.Menu
         private void SetSmoothingOption(string smoothingOption)
         {
             if (smoothingDropdown.options.Count == 0)
-                smoothingDropdown.AddOptions(Enum.GetNames(typeof(GlobalManager.SmoothType)).ToList());
+                smoothingDropdown.AddOptions(Enum.GetNames(typeof(MyPrefs.SmoothingTypeEnum)).ToList());
             smoothingDropdown.value = smoothingDropdown.options.FindIndex(option => option.text == smoothingOption);
         }
 
@@ -146,7 +142,7 @@ namespace VirtualVitrine.UI.Menu
         private void ChangeThreshold(Slider sender)
         {
             thresholdText.text = Mathf.RoundToInt(sender.value * 100) + "%";
-            PlayerPrefs.SetFloat("threshold", sender.value);
+            MyPrefs.DetectionThreshold = sender.value;
         }
 
         private void ChangeHue(Slider sender)
@@ -156,36 +152,36 @@ namespace VirtualVitrine.UI.Menu
             var RGBcolor = Color.HSVToRGB((float) hue / 360, 1, 1);
             // fill hueSlider with given colour
             hueSlider.GetComponentInChildren<Image>().color = RGBcolor;
-            PlayerPrefs.SetInt("hue", hue);
+            MyPrefs.Hue = hue;
         }
 
         private void ChangeHueThresh(Slider sender)
         {
             var thresh = (int) sender.value;
             hueThreshText.text = thresh.ToString();
-            PlayerPrefs.SetInt("hueThresh", thresh);
+            MyPrefs.HueThreshold = thresh;
         }
 
         private void ChangeGlassesCheck(Toggle sender)
         {
-            PlayerPrefs.SetInt("glassesCheck", sender.isOn ? 1 : 0);
+            MyPrefs.GlassesCheck = sender.isOn ? 1 : 0;
         }
 
         private void ChangeRslider(Slider slider)
         {
-            PlayerPrefs.SetFloat("kalmanR", slider.value);
+            MyPrefs.KalmanR = slider.value;
             rValue.text = slider.value.ToString("0.0000");
         }
 
         private void ChangeQslider(Slider slider)
         {
-            PlayerPrefs.SetFloat("kalmanQ", slider.value);
+            MyPrefs.KalmanQ = slider.value;
             qValue.text = slider.value.ToString("0.00000");
         }
 
         private void ChangeCamPreview(TMP_Dropdown sender)
         {
-            PlayerPrefs.SetString("cam", webcamDropdown.options[sender.value].text);
+            MyPrefs.CameraName = sender.options[sender.value].text;
             
             // reset face tracking
             if (_faceTrackingInstance != null)
@@ -196,16 +192,16 @@ namespace VirtualVitrine.UI.Menu
 
         private void ChangeSmoothing(TMP_Dropdown sender)
         {
-            PlayerPrefs.SetString("smoothing", smoothingDropdown.options[sender.value].text);
-            var averageActive = PlayerPrefs.GetString("smoothing") == GlobalManager.SmoothType.Average.ToString();
+            MyPrefs.SmoothingType = sender.options[sender.value].text;
+            var averageActive = MyPrefs.SmoothingType == MyPrefs.SmoothingTypeEnum.Average.ToString();
             averageSlider.transform.parent.gameObject.SetActive(averageActive);
-            var kalmanActive = PlayerPrefs.GetString("smoothing") == GlobalManager.SmoothType.Kalman.ToString();
+            var kalmanActive = MyPrefs.SmoothingType == MyPrefs.SmoothingTypeEnum.Kalman.ToString();
             qSlider.transform.parent.gameObject.SetActive(kalmanActive);
         }
 
         private void ChangeAvgFrames(Slider slider)
         {
-            PlayerPrefs.SetInt("framesSmoothed", Convert.ToInt16(slider.value));
+            MyPrefs.FramesSmoothed = (int) slider.value;
             averageValue.text = slider.value + " frames";
         }
         #endregion
