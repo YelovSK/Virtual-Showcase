@@ -1,4 +1,3 @@
-using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,14 +18,9 @@ namespace VirtualVitrine
 
         // head for changing the distance from the display
         [Space]
-        [SerializeField] private GameObject head;
-
-        // scene for changing the size based on the display size
-        [Space]
-        [SerializeField] private GameObject scene;
+        [SerializeField] private AsymFrustum head;
 
         [Header("Display distance sliders")]
-        [SerializeField] private GameObject sliders;
         [SerializeField] private Slider distanceSlider;
         [SerializeField] private TMP_Text distanceValue;
 
@@ -95,20 +89,6 @@ namespace VirtualVitrine
             _state = _state.Next();
             UpdateState();
         }
-        
-        /// <summary>
-        ///     Returns width and height of display in centimeters from diagonal inches.
-        /// </summary>
-        /// <param name="diagonalInches"></param>
-        /// <param name="aspectRatio"></param>
-        /// <returns></returns>
-        public static Tuple<float, float> DiagonalToWidthAndHeight(int diagonalInches, float aspectRatio)
-        {
-            const float cmsInInch = 2.54f;
-            var height = diagonalInches / Math.Sqrt(aspectRatio * aspectRatio + 1);
-            var width = aspectRatio * height;
-            return Tuple.Create((float) (width * cmsInInch), (float) (height * cmsInInch));
-        }
         #endregion
         
         #region Unity Methods
@@ -138,23 +118,21 @@ namespace VirtualVitrine
         #region Private Methods
         private static float GetEyesDistance() => (EyeSmoother.LeftEyeSmoothed - EyeSmoother.RightEyeSmoothed).magnitude;
 
-        private void ChangeDistanceValue(Slider sender) => distanceValue.text = sender.value + "cm";
+        private void ChangeDistanceValue(Slider sender)
+        {
+            distanceValue.text = sender.value + "cm";
+            head.ScreenDistance = (int) sender.value;
+        }
 
         private void ChangeSizeValue(Slider sender)
         {
-            var screen = head.GetComponent<AsymFrustum>();
+            var screenSize = (int) sender.value;
             
             // update UI
-            sizeValue.text = sender.value + "''";
-            
-            // update player pref
-            MyPrefs.ScreenSize = (int) sender.value;
+            sizeValue.text = screenSize + "''";
             
             // update size of screen
-            screen.SetScreenSize((int) sender.value);
-            
-            // set new size of scene
-            scene.transform.localScale = Vector3.one * (screen.ScreenWidth / screen.BaseScreenWidth);
+            head.ScreenSize = screenSize;
         }
 
         private void UpdateState()
@@ -185,29 +163,20 @@ namespace VirtualVitrine
                     SetGuideText("top");
                     HighlightEdge();
                     break;
-                // set top edge, show sliders
+                // set top edge, highlight middle
                 case States.SLIDERS:
                     MyPrefs.TopCalibration = EyeSmoother.EyeCenter.y;
                     guideText.text =
                         "Set the sliders and keep your head pointed at the display from the given distance, then press 'Enter'";
                     HighlightEdge();
-                    sliders.SetActive(true);
                     break;
                 // set focal length and hide UI
                 case States.RESET:
-                    SetFocalLength();
+                    MyPrefs.FocalLength = GetFocalLength(distanceSlider.value);
                     TurnOffPreview();
                     _state = 0;
                     break;
             }
-        }
-
-        private void SetFocalLength()
-        {
-            MyPrefs.ScreenDistance = (int) distanceSlider.value;
-            // position of the head is offset by sender.value from the display
-            head.transform.localPosition = new Vector3(0, (int) distanceSlider.value, 0);
-            MyPrefs.FocalLength = GetFocalLength(distanceSlider.value);
         }
 
         private void SetGuideText(string edgeText)
@@ -232,7 +201,6 @@ namespace VirtualVitrine
         private void TurnOffPreview()
         {
             calibrationUI.SetActive(false);
-            sliders.SetActive(false);
             
             // disable camera preview
             MyPrefs.PreviewOn = 0;

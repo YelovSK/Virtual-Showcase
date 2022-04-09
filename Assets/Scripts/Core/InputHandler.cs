@@ -34,7 +34,8 @@ namespace VirtualVitrine
                 ModelLoader.ResetTransform();
             
             // loaded object gets controlled with mouse input
-            HandleMouseInput();
+            if (!calibrationManager.Enabled)
+                HandleMouseInput();
         }
 
         private void HandleMouseInput()
