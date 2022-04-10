@@ -43,7 +43,7 @@ namespace VirtualVitrine
 
         private void Start()
         {
-            // broken webcam, image set to "NO WEBCAM SHOWING"
+            // Broken webcam, image set to "NO WEBCAM SHOWING".
             if (!_webcamInput.IsCameraRunning)
             {
                 previewUI.texture = defaultCamTexture;
@@ -58,20 +58,20 @@ namespace VirtualVitrine
         /// </summary>
         private void Update()
         {
-            // check if camera got new frame
+            // Check if camera got new frame.
             if (!_webcamInput.CameraUpdated)
                 return;
 
-            // set aspect ratio of camera to 1:1
+            // Set aspect ratio of camera to 1:1.
             _webcamInput.SetAspectRatio();
             
-            // update camera preview
+            // Update camera preview.
             previewUI.texture = _webcamInput.RenderTexture;
 
-            // run detection and update marker in UI
+            // Run detection and update marker in UI.
             bool faceFound = RunDetector(_webcamInput.RenderTexture);
 
-            // if face not found, hide UI and return
+            // If face not found, hide UI and return.
             if (!faceFound)
             {
                 _distanceText.text = "";
@@ -79,19 +79,19 @@ namespace VirtualVitrine
                 return;
             }
             
-            // smooth left and right eye key points
+            // Smooth left and right eye key points.
             _eyeSmoother.SmoothEyes();
             
-            // update key points in UI
+            // Update key points in UI.
             keyPointsUpdater.UpdateKeyPoints();
             
-            // check colour around eyes
+            // Check colour around eyes.
             bool glassesOn = _colourChecker.CheckGlassesOn(_webcamInput.WebCamTexture);
 
-            // update head distance in UI
+            // Update head distance in UI.
             _distanceText.text = (int) CalibrationManager.GetRealHeadDistance() + "cm";
             
-            // if glasses found and in main scene, transform camera
+            // If glasses found and in main scene, transform camera.
             if (glassesOn && SceneManager.GetActiveScene().name == "Main")
                 _cameraTransform.Transform();
         }
@@ -111,18 +111,18 @@ namespace VirtualVitrine
         /// <returns>True if face was found, False if wasn't found</returns>
         private bool RunDetector(Texture input)
         {
-            // Face detection
+            // Face detection.
             _detector.ProcessImage(input, MyPrefs.DetectionThreshold);
 
-            // Check if any detections were found
+            // Check if any detections were found.
             bool faceFound = _detector.Detections.Any();
 
-            // Activate/Deactivate marker if face was/wasn't found
+            // Activate/Deactivate marker if face was/wasn't found.
             keyPointsUpdater.gameObject.SetActive(faceFound);
 
             if (faceFound)
             {
-                // Get detection with largest bounding box
+                // Get detection with largest bounding box.
                 var largestFace = _detector.Detections
                     .OrderByDescending(x => x.extent.magnitude)
                     .First();

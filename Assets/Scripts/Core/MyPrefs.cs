@@ -206,43 +206,43 @@ namespace VirtualVitrine
 
         private static void SetDefaultPlayerPrefs()
         {
-            // eyes smoothing types
+            // Eyes smoothing types.
             SmoothingType = SmoothingTypeEnum.Average.ToString();
             
-            // smoothing values
+            // Smoothing values.
             FramesSmoothed = 8;
             KalmanQ = 0.002f;
             KalmanR = 0.04f;
             
-            // webcam names
+            // Webcam names.
             CameraName = WebCamTexture.devices.First().name;
             
-            // threshold for face detection confidence
+            // Threshold for face detection confidence.
             DetectionThreshold = 0.5f;
             
-            // hue range for glasses detection
+            // Hue range for glasses detection.
             Hue = 240;
             HueThreshold = 20;
             
-            // path to .obj file to get loaded
+            // Path to .obj file to get loaded.
             ModelPath = "";
             
-            // checks
+            // Checks.
             PreviewOn = 0;
             StereoOn = 0;
             GlassesCheck = 1;
             
-            // calibration screen edge values
+            // Calibration screen edge values.
             BottomCalibration = 0.0f;
             TopCalibration = 1.0f;
             LeftCalibration = 0.0f;
             RightCalibration = 1.0f;
             
-            // calibration screen parameters
+            // Calibration screen parameters.
             ScreenSize = 24;
             ScreenDistance = 50;
             
-            // focal length for face distance
+            // Focal length for face distance.
             FocalLength = CalibrationManager.GetFocalLength(ScreenDistance);
         }
     }

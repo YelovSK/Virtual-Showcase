@@ -4,7 +4,7 @@ namespace VirtualVitrine
 {
     public static class Extensions
     {
-        // next enum value
+        // Next enum value.
         public static T Next<T>(this T src) where T : struct
         {
             if (!typeof(T).IsEnum) throw new ArgumentException($"Argument {typeof(T).FullName} is not an Enum");
@@ -14,7 +14,7 @@ namespace VirtualVitrine
             return (arr.Length == j) ? arr[0] : arr[j];            
         }
         
-        // previous enum value
+        // Previous enum value.
         public static T Prev<T>(this T src) where T : struct
         {
             if (!typeof(T).IsEnum) throw new ArgumentException($"Argument {typeof(T).FullName} is not an Enum");

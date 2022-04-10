@@ -68,18 +68,18 @@ namespace VirtualVitrine.FaceTracking
                 return;
             }
 
-            // add new measurement
+            // Add new measurement.
             _leftEyeHistory.Add(KeyPointsUpdater.Detection.leftEye);
             _rightEyeHistory.Add(KeyPointsUpdater.Detection.rightEye);
 
-            // remove oldest values
+            // Remove oldest values.
             if (_leftEyeHistory.Count > MyPrefs.FramesSmoothed)
             {
                 _leftEyeHistory.RemoveRange(0, _leftEyeHistory.Count - MyPrefs.FramesSmoothed);
                 _rightEyeHistory.RemoveRange(0, _rightEyeHistory.Count - MyPrefs.FramesSmoothed);
             }
 
-            // calculate new average
+            // Calculate new average.
             LeftEyeSmoothed = new Vector2(
                 _leftEyeHistory.Average(x => x[0]),
                 _leftEyeHistory.Average(x => x[1])

@@ -92,7 +92,7 @@ namespace VirtualVitrine.UI.Menu
         
         private void SetCamName(string camName)
         {
-            // add WebCam devices to dropdown options
+            // Add WebCam devices to dropdown options.
             if (webcamDropdown.options.Count == 0)
             {
                 var options = WebCamTexture.devices.Select(device => new TMP_Dropdown.OptionData(device.name)).ToList();
@@ -150,7 +150,7 @@ namespace VirtualVitrine.UI.Menu
             var hue = (int) sender.value;
             hueText.text = hue.ToString();
             var RGBcolor = Color.HSVToRGB((float) hue / 360, 1, 1);
-            // fill hueSlider with given colour
+            // Fill hueSlider with given colour.
             hueSlider.GetComponentInChildren<Image>().color = RGBcolor;
             MyPrefs.Hue = hue;
         }
@@ -183,7 +183,7 @@ namespace VirtualVitrine.UI.Menu
         {
             MyPrefs.CameraName = sender.options[sender.value].text;
             
-            // reset face tracking
+            // Reset face tracking.
             if (_faceTrackingInstance != null)
                 Destroy(_faceTrackingInstance);
             _faceTrackingInstance = Instantiate(faceTracking);

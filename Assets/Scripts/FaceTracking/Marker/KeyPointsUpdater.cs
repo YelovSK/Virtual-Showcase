@@ -23,11 +23,11 @@ namespace VirtualVitrine.FaceTracking.Marker
         #region Public Methods
         public void UpdateKeyPoints()
         {
-            // Bounding box center
+            // Bounding box center.
             var rect = _parent.rect;
             _xform.anchoredPosition = Detection.center * rect.size;
 
-            // Bounding box size
+            // Bounding box size.
             var size = Detection.extent * rect.size;
             _xform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
             _xform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
@@ -41,7 +41,7 @@ namespace VirtualVitrine.FaceTracking.Marker
             // SetKeyPoint(_keyPoints[4], detection.leftEar);
             // SetKeyPoint(_keyPoints[5], detection.rightEar);
 
-            // Label
+            // Label.
             _label.text = $"{(int) (Detection.score * 100)}%";
         }
         #endregion
