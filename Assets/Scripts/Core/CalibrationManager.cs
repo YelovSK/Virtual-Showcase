@@ -18,7 +18,7 @@ namespace VirtualVitrine
 
         // head for changing the distance from the display
         [Space]
-        [SerializeField] private AsymFrustum head;
+        [SerializeField] private Projection head;
 
         [Header("Display distance sliders")]
         [SerializeField] private Slider distanceSlider;
