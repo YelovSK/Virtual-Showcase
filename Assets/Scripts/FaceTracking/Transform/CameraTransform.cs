@@ -34,15 +34,15 @@ namespace VirtualVitrine.FaceTracking.Transform
         #region Private Methods
         public void Transform()
         {
-            // map coords based on the calibration
+            // Map coords based on the calibration.
             var centerX = Map(EyeSmoother.EyeCenter.x, MyPrefs.LeftCalibration, MyPrefs.RightCalibration, 0.0f, 1.0f);
             var centerY = Map(EyeSmoother.EyeCenter.y, MyPrefs.BottomCalibration, MyPrefs.TopCalibration, 0.0f, 1.0f);
             
-            // middle is 0.0f, left is -0.5f, right is 0.5f
+            // Middle is 0.0f, left is -0.5f, right is 0.5f.
             var x = (centerX - 0.5f) * head.ScreenWidth;
             var y = (centerY - 0.5f) * head.ScreenHeight;
             
-            // update the position of the head
+            // Update the position of the head.
             head.transform.position = new Vector3(x, y, head.transform.position.z);
             head.UpdateCameraProjection();
         }

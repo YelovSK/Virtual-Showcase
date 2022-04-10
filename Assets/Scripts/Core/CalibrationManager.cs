@@ -16,7 +16,7 @@ namespace VirtualVitrine
         [SerializeField] private Transform cameraPreviewTransform;
         [SerializeField] private TMP_Text guideText;
 
-        // head for changing the distance from the display
+        // Head for changing the distance from the display.
         [Space]
         [SerializeField] private Projection head;
 
@@ -34,7 +34,7 @@ namespace VirtualVitrine
         #endregion
 
         #region Private Fields
-        // camera preview position for setting it to the original transform after calibration
+        // Camera preview position for setting it to the original transform after calibration.
         private Vector3 _origCameraPreviewPosition;
         private Vector3 _origCameraPreviewScale;
 
@@ -53,26 +53,26 @@ namespace VirtualVitrine
 
         public static float GetFocalLength(float distanceFromScreen)
         {
-            // eyes distance on camera
+            // Eyes distance on camera.
             var eyesDistance = GetEyesDistance();
 
-            // real life distance of eyes in cm
+            // Real life distance of eyes in cm.
             const int realEyesDistance = 6;
             
-            // calculate focal length
+            // Calculate focal length.
             var focal = eyesDistance * distanceFromScreen / realEyesDistance;
             return focal;
         }
 
         public void ToggleCalibrationUI()
         {
-            // if UI is disabled, go to the first state
+            // If UI is disabled, go to the first state.
             if (_state == States.OFF)
             {
                 _state = _state.Next();
                 UpdateState();
             }
-            // else disable UI
+            // Else disable UI.
             else
             {
                 _state = States.OFF;
@@ -82,7 +82,7 @@ namespace VirtualVitrine
 
         public void SetNextState()
         {
-            // if UI is disabled, don't continue
+            // If UI is disabled, don't continue.
             if (_state == States.OFF)
                 return;
 
@@ -95,18 +95,18 @@ namespace VirtualVitrine
 
         private void Start()
         {
-            // make UI invisible/disabled
+            // Make UI invisible/disabled.
             calibrationUI.SetActive(false);
 
-            // save the transform of camera preview, to reset it back after calibration
+            // Save the transform of camera preview, to reset it back after calibration.
             _origCameraPreviewPosition = cameraPreviewTransform.position;
             _origCameraPreviewScale = cameraPreviewTransform.localScale;
 
-            // set sliders to the player prefs
+            // Set sliders to the player prefs.
             distanceSlider.value = MyPrefs.ScreenDistance;
             sizeSlider.value = MyPrefs.ScreenSize;
 
-            // set delegates
+            // Set delegates.
             ChangeDistanceValue(distanceSlider);
             distanceSlider.onValueChanged.AddListener(delegate { ChangeDistanceValue(distanceSlider); });
 
@@ -128,10 +128,10 @@ namespace VirtualVitrine
         {
             var screenSize = (int) sender.value;
             
-            // update UI
+            // Update UI.
             sizeValue.text = screenSize + "''";
             
-            // update size of screen
+            // Update size of screen.
             head.ScreenSize = screenSize;
         }
 
@@ -139,38 +139,38 @@ namespace VirtualVitrine
         {
             switch (_state)
             {
-                // highlight left edge
+                // Highlight left edge.
                 case States.LEFT:
                     TurnOnPreview();
                     SetGuideText("left");
                     HighlightEdge();
                     break;
-                // set left edge, highlight right edge
+                // Set left edge, highlight right edge.
                 case States.RIGHT:
                     MyPrefs.LeftCalibration = EyeSmoother.EyeCenter.x;
                     SetGuideText("right");
                     HighlightEdge();
                     break;
-                // set right edge, highlight bottom edge
+                // Set right edge, highlight bottom edge.
                 case States.BOTTOM:
                     MyPrefs.RightCalibration = EyeSmoother.EyeCenter.x;
                     SetGuideText("bottom");
                     HighlightEdge();
                     break;
-                // set bottom edge, highlight top edge
+                // Set bottom edge, highlight top edge.
                 case States.TOP:
                     MyPrefs.BottomCalibration = EyeSmoother.EyeCenter.y;
                     SetGuideText("top");
                     HighlightEdge();
                     break;
-                // set top edge, highlight middle
+                // Set top edge, highlight middle.
                 case States.SLIDERS:
                     MyPrefs.TopCalibration = EyeSmoother.EyeCenter.y;
                     guideText.text =
                         "Set the sliders and keep your head pointed at the display from the given distance, then press 'Enter'";
                     HighlightEdge();
                     break;
-                // set focal length and hide UI
+                // Set focal length and hide UI.
                 case States.RESET:
                     MyPrefs.FocalLength = GetFocalLength(distanceSlider.value);
                     TurnOffPreview();
@@ -189,11 +189,11 @@ namespace VirtualVitrine
         {
             calibrationUI.SetActive(true);
             
-            // enable camera preview
+            // Enable camera preview.
             MyPrefs.PreviewOn = 1;
             GetComponent<ShowcaseInitializer>().SetCamPreview();
 
-            // make the webcam preview smaller and put it in a corner
+            // Make the webcam preview smaller and put it in a corner.
             cameraPreviewTransform.position = new Vector3(200, 200, 0);
             cameraPreviewTransform.localScale = new Vector3(0.4f, 0.4f, 1);
         }
@@ -202,11 +202,11 @@ namespace VirtualVitrine
         {
             calibrationUI.SetActive(false);
             
-            // disable camera preview
+            // Disable camera preview.
             MyPrefs.PreviewOn = 0;
             GetComponent<ShowcaseInitializer>().SetCamPreview();
             
-            // set back the webcam preview location and size
+            // Set back the webcam preview location and size.
             cameraPreviewTransform.position = _origCameraPreviewPosition;
             cameraPreviewTransform.localScale = _origCameraPreviewScale;
         }

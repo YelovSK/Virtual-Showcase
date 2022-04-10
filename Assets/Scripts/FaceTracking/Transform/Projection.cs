@@ -92,14 +92,14 @@ namespace VirtualVitrine.FaceTracking.Transform
 
         private void SetCameraFrustum(Camera cam)
         {
-            // Ratio for intercept theorem.
-            var ratio = ScreenDistance / cam.nearClipPlane;
-            
             // Cache variables.
             var width = ScreenWidth;
             var height = ScreenHeight;
             var x = cam.transform.position.x;
             var y = cam.transform.position.y;
+            
+            // Ratio for intercept theorem.
+            var ratio = ScreenDistance / cam.nearClipPlane;
             
             // Intercept theorem for getting coordinates of near plane sides.
             var left = (-width / 2 - x) / ratio;

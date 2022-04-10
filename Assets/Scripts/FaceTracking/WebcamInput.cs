@@ -29,7 +29,7 @@ namespace VirtualVitrine.FaceTracking
             var scale = new Vector2(gap, vflip ? -1 : 1);
             var offset = new Vector2((1 - gap) / 2, vflip ? 1 : 0);
             
-            // put 1:1 WebCamTexture into RenderTexture
+            // Put 1:1 WebCamTexture into RenderTexture.
             Graphics.Blit(WebCamTexture, RenderTexture, scale, offset);
         }
         #endregion
@@ -40,7 +40,7 @@ namespace VirtualVitrine.FaceTracking
             WebCamTexture = new WebCamTexture(MyPrefs.CameraName, resolutionWidth, resolutionWidth);
             WebCamTexture.Play();
 
-            // takes a bit for the webcam to initialize
+            // Takes a bit for the webcam to initialize.
             while (WebCamTexture.width == 16 || WebCamTexture.height == 16)
                 await Task.Yield();
 
