@@ -1,11 +1,4 @@
-﻿// source: https://github.com/Emerix/AsymFrustum
-/// <summary>
-/// Asym frustum.
-/// based on http://paulbourke.net/stereographics/stereorender/
-/// and http://answers.unity3d.com/questions/165443/asymmetric-view-frusta-selective-region-rendering.html
-/// </summary>
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -13,7 +6,7 @@ using UnityEngine;
 namespace VirtualVitrine.FaceTracking.Transform
 {
     [ExecuteInEditMode]
-    public sealed class AsymFrustum : MonoBehaviour
+    public sealed class Projection : MonoBehaviour
     {
         #region Serialized Fields
         [SerializeField] private bool drawGizmos;
@@ -24,6 +17,7 @@ namespace VirtualVitrine.FaceTracking.Transform
         #region Public Fields
         public int ScreenDistance
         {
+            get => MyPrefs.ScreenDistance;
             set
             {
                 MyPrefs.ScreenDistance = value;
@@ -35,6 +29,7 @@ namespace VirtualVitrine.FaceTracking.Transform
                     cam.nearClipPlane = value - 15f;
             }
         }
+
         public int ScreenSize
         {
             get => MyPrefs.ScreenSize;
@@ -72,7 +67,7 @@ namespace VirtualVitrine.FaceTracking.Transform
                 return;
             
             ScreenSize = BaseScreenDiagonal;
-            UpdateProjectionMatrix();
+            UpdateCameraProjection();
         }
         
         /// <summary>
@@ -89,87 +84,34 @@ namespace VirtualVitrine.FaceTracking.Transform
             return new Vector2((float) (width * cmsInInch), (float) (height * cmsInInch));
         }
 
-        public void UpdateProjectionMatrix()
+        public void UpdateCameraProjection()
         {
             foreach (var cam in ActiveCameras)
-            {
-                var localPos = _virtualWindow.transform.InverseTransformPoint(cam.transform.position);
-                SetAsymmetricFrustum(cam, localPos, cam.nearClipPlane);
-            }
+                SetCameraFrustum(cam);
         }
 
-        /// <summary>
-        ///     Sets the asymmetric Frustum for the given virtual Window (at pos 0,0,0 )
-        ///     and the camera passed
-        /// </summary>
-        /// <param name="cam">Camera to get the asymmetric frustum for</param>
-        /// <param name="pos">Position of the camera. Usually cam.transform.position</param>
-        /// <param name="nearDist">Near clipping plane, usually cam.nearClipPlane</param>
-        private void SetAsymmetricFrustum(Camera cam, Vector3 pos, float nearDist)
+        private void SetCameraFrustum(Camera cam)
         {
-            // swap y and z, since z makes more sense for describing depth/distance
-            pos = new Vector3(pos.x, pos.z, pos.y);
-
-            // Focal length = orthogonal distance to image plane
-            var focal = pos.z;
-
-            // Ratio for intercept theorem
-            var ratio = focal / nearDist;
-
-            // Compute size for focal
-            var imageLeft = -ScreenWidth / 2.0f - pos.x;
-            var imageRight = ScreenWidth / 2.0f - pos.x;
-            var imageTop = ScreenHeight / 2.0f - pos.y;
-            var imageBottom = -ScreenHeight / 2.0f - pos.y;
-
-            // Intercept theorem for getting x, y coordinates of near plane corners
-            var nearLeft = imageLeft / ratio;
-            var nearRight = imageRight / ratio;
-            var nearTop = imageTop / ratio;
-            var nearBottom = imageBottom / ratio;
-
-            // update camera's projection matrix
-            cam.projectionMatrix = PerspectiveOffCenter(nearLeft, nearRight, nearBottom, nearTop, cam.nearClipPlane, cam.farClipPlane);
-        }
-
-
-        /// <summary>
-        ///     Set an off-center projection, where perspective's vanishing
-        ///     point is not necessarily in the center of the screen.
-        ///     left/right/top/bottom define near plane size, i.e.
-        ///     how offset are corners of camera's near plane.
-        ///     Tweak the values and you can see camera's frustum change.
-        /// </summary>
-        /// <returns>The off center.</returns>
-        /// <param name="left">Left.</param>
-        /// <param name="right">Right.</param>
-        /// <param name="bottom">Bottom.</param>
-        /// <param name="top">Top.</param>
-        /// <param name="near">Near.</param>
-        /// <param name="far">Far.</param>
-        private static Matrix4x4 PerspectiveOffCenter(float left, float right, float bottom, float top, float near, float far)
-        {
-            var nearWidth = right - left;
-            var nearHeight = top - bottom;
-            var frustumDepth = far - near;
+            // Ratio for intercept theorem.
+            var ratio = ScreenDistance / cam.nearClipPlane;
             
-            var x = (2 * near) / nearWidth;
-            var y = (2 * near) / nearHeight;
-            var a = (left + right) / nearWidth;
-            var b = (bottom + top) / nearHeight;
-            var c = -(far + near) / frustumDepth;
-            var d = -(2 * far * near) / frustumDepth;
-
-            var m = new Matrix4x4
-            {
-                [0, 0] = x, [0, 1] = 0, [0, 2] = a, [0, 3] = 0,
-                [1, 0] = 0, [1, 1] = y, [1, 2] = b, [1, 3] = 0,
-                [2, 0] = 0, [2, 1] = 0, [2, 2] = c, [2, 3] = d,
-                [3, 0] = 0, [3, 1] = 0, [3, 2] = -1, [3, 3] = 0
-            };
-            return m;
+            // Cache variables.
+            var width = ScreenWidth;
+            var height = ScreenHeight;
+            var x = cam.transform.position.x;
+            var y = cam.transform.position.y;
+            
+            // Intercept theorem for getting coordinates of near plane sides.
+            var left = (-width / 2 - x) / ratio;
+            var right = (width / 2 - x) / ratio;
+            var bottom = (-height / 2 - y) / ratio;
+            var top = (height / 2 - y) / ratio;
+            
+            // Load the perpendicular projection.
+            cam.projectionMatrix = Matrix4x4.Frustum(left, right, bottom, top, cam.nearClipPlane, cam.farClipPlane);
         }
         
+        #region Gizmos drawing
         /// <summary>
         /// Draws gizmos in the Edit window.
         /// </summary>
@@ -242,12 +184,15 @@ namespace VirtualVitrine.FaceTracking.Transform
         
         private void GetScreenCorners(out Vector3 leftBottom, out Vector3 leftTop, out Vector3 rightBottom, out Vector3 rightTop)
         {
-            var window = _virtualWindow.transform;
-
-            leftBottom = window.position - window.right * 0.5f * ScreenWidth - window.forward * 0.5f * ScreenHeight;
-            leftTop = window.position - window.right * 0.5f * ScreenWidth + window.forward * 0.5f * ScreenHeight;
-            rightBottom = window.position + window.right * 0.5f * ScreenWidth - window.forward * 0.5f * ScreenHeight;
-            rightTop = window.position + window.right * 0.5f * ScreenWidth + window.forward * 0.5f * ScreenHeight;
+            var screen = _virtualWindow.transform;
+            var width = ScreenWidth;
+            var height = ScreenHeight;
+            
+            leftBottom = screen.position - screen.right * 0.5f * width - screen.forward * 0.5f * height;
+            leftTop = screen.position - screen.right * 0.5f * width + screen.forward * 0.5f * height;
+            rightBottom = screen.position + screen.right * 0.5f * width - screen.forward * 0.5f * height;
+            rightTop = screen.position + screen.right * 0.5f * width + screen.forward * 0.5f * height;
         }
+        #endregion
     }
 }

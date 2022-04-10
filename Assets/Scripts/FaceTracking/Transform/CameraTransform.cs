@@ -5,7 +5,7 @@ namespace VirtualVitrine.FaceTracking.Transform
     public class CameraTransform : MonoBehaviour
     {
         #region Serialized Fields
-        [SerializeField] private AsymFrustum head;
+        [SerializeField] private Projection head;
         #endregion
         
         #region Public Methods
@@ -27,7 +27,7 @@ namespace VirtualVitrine.FaceTracking.Transform
         #region Unity Methods
         private void Start()
         {
-            head.UpdateProjectionMatrix();
+            head.UpdateCameraProjection();
         }
         #endregion
         
@@ -44,7 +44,7 @@ namespace VirtualVitrine.FaceTracking.Transform
             
             // update the position of the head
             head.transform.position = new Vector3(x, y, head.transform.position.z);
-            head.UpdateProjectionMatrix();
+            head.UpdateCameraProjection();
         }
         #endregion
     }

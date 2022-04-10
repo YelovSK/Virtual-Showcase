@@ -99,6 +99,7 @@ namespace VirtualVitrine
         private void OnDestroy()
         {
             _detector?.Dispose();
+            _distanceText.text = "";
         }
         #endregion
         
