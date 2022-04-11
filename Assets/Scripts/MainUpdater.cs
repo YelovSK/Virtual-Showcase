@@ -140,15 +140,16 @@ namespace VirtualVitrine
             var calibratedDistance = MyPrefs.ScreenDistance;
             
             // Green text if within threshold, else red.
-            _distanceText.color = Math.Abs(currentDistance - calibratedDistance) <= threshold ? Color.green : Color.red;
+            var color = Math.Abs(currentDistance - calibratedDistance) <= threshold ? "green" : "red";
 
             // Difference in cm, show "+" if too far, "-" if too close.
             var difference = (currentDistance - calibratedDistance) + "cm";
             if (difference[0] != '-' && difference[0] != '0')
                 difference = "+" + difference;
             
-            // Update UI.
-            _distanceText.text = $"{difference} ({currentDistance}cm vs {calibratedDistance}cm)";
+            // Update UI. Text in brackets is smaller. Difference and current distance is coloured.
+            var size = _distanceText.fontSize / 2.2f;
+            _distanceText.text = $"<color={color}>{difference}</color> <size={size}>(<color={color}>{currentDistance}cm</color> vs {calibratedDistance}cm)</size>";
         }
         #endregion
     }
