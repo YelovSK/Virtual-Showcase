@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -88,8 +89,7 @@ namespace VirtualVitrine
             // Check colour around eyes.
             bool glassesOn = _colourChecker.CheckGlassesOn(_webcamInput.WebCamTexture);
 
-            // Update head distance in UI.
-            _distanceText.text = (int) CalibrationManager.GetRealHeadDistance() + "cm";
+            UpdateHeadDistanceInUI();
             
             // If glasses found and in main scene, transform camera.
             if (glassesOn && SceneManager.GetActiveScene().name == "Main")
@@ -131,7 +131,25 @@ namespace VirtualVitrine
 
             return faceFound;
         }
-        
+
+        private void UpdateHeadDistanceInUI()
+        {
+            // Threshold in cm for distance to be considered "close" to the calibrated distance.
+            const int threshold = 10;
+            var currentDistance = (int) CalibrationManager.GetRealHeadDistance();
+            var calibratedDistance = MyPrefs.ScreenDistance;
+            
+            // Green text if within threshold, else red.
+            _distanceText.color = Math.Abs(currentDistance - calibratedDistance) <= threshold ? Color.green : Color.red;
+
+            // Difference in cm, show "+" if too far, "-" if too close.
+            var difference = (currentDistance - calibratedDistance) + "cm";
+            if (difference[0] != '-' && difference[0] != '0')
+                difference = "+" + difference;
+            
+            // Update UI.
+            _distanceText.text = $"{difference} ({currentDistance}cm vs {calibratedDistance}cm)";
+        }
         #endregion
     }
 }
