@@ -8,6 +8,12 @@ namespace VirtualVitrine.FaceTracking
 {
     public class EyeSmoother : MonoBehaviour
     {
+        #region Public Fields
+        public static Vector2 LeftEyeSmoothed { get; private set; }
+        public static Vector2 RightEyeSmoothed { get; private set; }
+        public static Vector2 EyeCenter => (LeftEyeSmoothed + RightEyeSmoothed) / 2;
+        #endregion
+        
         #region Private Fields
         // Average
         private readonly List<Vector2> _leftEyeHistory = new List<Vector2>();
@@ -16,12 +22,6 @@ namespace VirtualVitrine.FaceTracking
         // Kalman
         private KalmanFilter<Vector2> _leftMeasurement;
         private KalmanFilter<Vector2> _rightMeasurement;
-        #endregion
-
-        #region Public Fields
-        public static Vector2 LeftEyeSmoothed { get; private set; }
-        public static Vector2 RightEyeSmoothed { get; private set; }
-        public static Vector2 EyeCenter => (LeftEyeSmoothed + RightEyeSmoothed) / 2;
         #endregion
 
         #region Public Methods
