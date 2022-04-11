@@ -109,8 +109,8 @@ namespace VirtualVitrine.FaceTracking.Transform
             var screenBottom = -(height / 2) - headPos.y;
             var screenTop = (height / 2) - headPos.y;
 
-            // Ratio for intercept theorem.
-            var ratio = cam.nearClipPlane / ScreenDistance;
+            // Ratio for intercept theorem: zNear / screenDistance.
+            var ratio = cam.nearClipPlane / headPos.z;
 
             // Coordinates of the frustum's sides at near clip distance (using intercept theorem).
             var left = screenLeft * ratio;
