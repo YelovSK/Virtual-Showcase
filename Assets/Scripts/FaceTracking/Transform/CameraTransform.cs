@@ -35,15 +35,16 @@ namespace VirtualVitrine.FaceTracking.Transform
         public void Transform()
         {
             // Map coords based on the calibration.
+            // Middle of the screen is 0.0f, left is -0.5f, right is 0.5f.
             var centerX = Map(EyeSmoother.EyeCenter.x, MyPrefs.LeftCalibration, MyPrefs.RightCalibration, 0.0f, 1.0f);
             var centerY = Map(EyeSmoother.EyeCenter.y, MyPrefs.BottomCalibration, MyPrefs.TopCalibration, 0.0f, 1.0f);
 
-            // Middle is 0.0f, left is -0.5f, right is 0.5f.
+            // Get local x, y coordinates of the head.
             var x = (centerX - 0.5f) * head.ScreenWidth;
             var y = (centerY - 0.5f) * head.ScreenHeight;
 
             // Update the position of the head.
-            head.transform.localPosition = new Vector3(x, head.transform.localPosition.y, y);
+            head.transform.localPosition = new Vector3(x, y, head.transform.localPosition.z);
             head.UpdateCameraProjection();
         }
         #endregion
