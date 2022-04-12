@@ -21,8 +21,8 @@ namespace VirtualVitrine.FaceTracking.Transform
             set
             {
                 MyPrefs.ScreenDistance = value;
-                // Set the head distance.
-                transform.localPosition = new Vector3(0, value, 0);
+                // Set the head distance. Head is set further back, so negative Z value is used.
+                transform.localPosition = new Vector3(0, 0, -value);
                 // Set the camera's near according to the distance
                 // because Unity's fog is affected by the camera's near.
                 foreach (var cam in cameras)
@@ -100,9 +100,6 @@ namespace VirtualVitrine.FaceTracking.Transform
             // Head (camera) position relative to the screen.
             var headPos = screen.InverseTransformPoint(cam.transform.position);
 
-            // Swap X, Y coordinates, so that Z describes the depth and Y describes the height.
-            (headPos.y, headPos.z) = (headPos.z, headPos.y);
-
             // Coordinates of the frustum's sides at screen distance.
             var screenLeft = -(width / 2) - headPos.x;
             var screenRight = (width / 2) - headPos.x;
@@ -110,7 +107,7 @@ namespace VirtualVitrine.FaceTracking.Transform
             var screenTop = (height / 2) - headPos.y;
 
             // Ratio for intercept theorem: zNear / screenDistance.
-            var ratio = cam.nearClipPlane / headPos.z;
+            var ratio = cam.nearClipPlane / -headPos.z;
 
             // Coordinates of the frustum's sides at near clip distance (using intercept theorem).
             var left = screenLeft * ratio;
@@ -156,8 +153,8 @@ namespace VirtualVitrine.FaceTracking.Transform
             // Draw vertical line.
             Gizmos.color = Color.blue;
             Gizmos.DrawLine(
-                window.position - _virtualWindow.transform.forward * 0.5f * ScreenHeight,
-                window.position + window.forward * 0.5f * ScreenHeight
+                window.position - _virtualWindow.transform.up * 0.5f * ScreenHeight,
+                window.position + window.up * 0.5f * ScreenHeight
             );
 
             // Draw horizontal line.
@@ -199,10 +196,10 @@ namespace VirtualVitrine.FaceTracking.Transform
             var width = ScreenWidth;
             var height = ScreenHeight;
 
-            leftBottom = screen.position - screen.right * 0.5f * width - screen.forward * 0.5f * height;
-            leftTop = screen.position - screen.right * 0.5f * width + screen.forward * 0.5f * height;
-            rightBottom = screen.position + screen.right * 0.5f * width - screen.forward * 0.5f * height;
-            rightTop = screen.position + screen.right * 0.5f * width + screen.forward * 0.5f * height;
+            leftBottom = screen.position - screen.right * 0.5f * width - screen.up * 0.5f * height;
+            leftTop = screen.position - screen.right * 0.5f * width + screen.up * 0.5f * height;
+            rightBottom = screen.position + screen.right * 0.5f * width - screen.up * 0.5f * height;
+            rightTop = screen.position + screen.right * 0.5f * width + screen.up * 0.5f * height;
         }
         #endregion
     }
