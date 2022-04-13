@@ -97,26 +97,26 @@ namespace VirtualVitrine.FaceTracking.Transform
             var height = ScreenHeight;
             var screen = _virtualWindow.transform;
 
-            // Head (camera) position relative to the screen.
-            var headPos = screen.InverseTransformPoint(cam.transform.position);
+            // Screen position relative to the head (camera).
+            var screenPos = cam.transform.InverseTransformPoint(screen.position);
 
             // Coordinates of the frustum's sides at screen distance.
-            var screenLeft = -(width / 2) - headPos.x;
-            var screenRight = (width / 2) - headPos.x;
-            var screenBottom = -(height / 2) - headPos.y;
-            var screenTop = (height / 2) - headPos.y;
+            var screenLeftX = screenPos.x - (width / 2);
+            var screenRightX = screenPos.x + (width / 2);
+            var screenBottomY = screenPos.y - (height / 2);
+            var screenTopY = screenPos.y + (height / 2);
 
             // Ratio for intercept theorem: zNear / screenDistance.
-            var ratio = cam.nearClipPlane / -headPos.z;
+            var ratio = cam.nearClipPlane / screenPos.z;
 
             // Coordinates of the frustum's sides at near clip distance (using intercept theorem).
-            var left = screenLeft * ratio;
-            var right = screenRight * ratio;
-            var bottom = screenBottom * ratio;
-            var top = screenTop * ratio;
+            var leftX = screenLeftX * ratio;
+            var rightX = screenRightX * ratio;
+            var bottomY = screenBottomY * ratio;
+            var topY = screenTopY * ratio;
 
             // Load the perpendicular projection.
-            cam.projectionMatrix = Matrix4x4.Frustum(left, right, bottom, top, cam.nearClipPlane, cam.farClipPlane);
+            cam.projectionMatrix = Matrix4x4.Frustum(leftX, rightX, bottomY, topY, cam.nearClipPlane, cam.farClipPlane);
         }
 
         #region Gizmos drawing
