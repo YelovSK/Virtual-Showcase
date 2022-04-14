@@ -9,7 +9,7 @@
         "com.unity.modules.jsonserialize": "1.0.0",
         "com.unity.modules.imageconversion": "1.0.0"
       },
-      "hash": "956eb962af2e1185a87027c6eb2f03eba3db2ef7"
+      "hash": "80909e3320d7582cb8a70f52d027bfa1851abf50"
     },
     "com.unity.burst": {
       "version": "1.6.5",
