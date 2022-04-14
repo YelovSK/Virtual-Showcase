@@ -193,9 +193,9 @@ namespace VirtualVitrine
             MyPrefs.PreviewOn = 1;
             GetComponent<ShowcaseInitializer>().SetCamPreview();
 
-            // Make the webcam preview smaller and put it in a corner.
-            cameraPreviewTransform.position = new Vector3(200, 200, 0);
-            cameraPreviewTransform.localScale = new Vector3(0.4f, 0.4f, 1);
+            // Make the webcam preview smaller and put it in the left corner.
+            cameraPreviewTransform.localScale = Vector3.one * 0.5f;
+            cameraPreviewTransform.localPosition = new Vector3(-710, -310, 0);
         }
 
         private void TurnOffPreview()

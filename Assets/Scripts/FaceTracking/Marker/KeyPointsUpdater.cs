@@ -36,10 +36,10 @@ namespace VirtualVitrine.FaceTracking.Marker
             // Key points
             SetKeyPoint(keyPoints[0], EyeSmoother.LeftEyeSmoothed);
             SetKeyPoint(keyPoints[1], EyeSmoother.RightEyeSmoothed);
-            // SetKeyPoint(keyPoints[2], detection.mouth);
-            // SetKeyPoint(_keyPoints[3], detection.nose);
-            // SetKeyPoint(_keyPoints[4], detection.leftEar);
-            // SetKeyPoint(_keyPoints[5], detection.rightEar);
+            // SetKeyPoint(keyPoints[2], Detection.mouth);
+            // SetKeyPoint(keyPoints[3], Detection.nose);
+            // SetKeyPoint(keyPoints[4], Detection.leftEar);
+            // SetKeyPoint(keyPoints[5], Detection.rightEar);
 
             // Label.
             _label.text = $"{(int) (Detection.score * 100)}%";
