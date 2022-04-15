@@ -11,7 +11,6 @@ namespace VirtualVitrine.FaceTracking.Transform
         #region Serialized Fields
         [SerializeField] private bool drawGizmos;
         [SerializeField] private Camera[] cameras;
-        [SerializeField] private GameObject scene;
         #endregion
 
         #region Public Fields
@@ -21,12 +20,7 @@ namespace VirtualVitrine.FaceTracking.Transform
             set
             {
                 MyPrefs.ScreenDistance = value;
-                // Set the head distance. Head is set further back, so negative Z value is used.
-                transform.localPosition = new Vector3(0, 0, -value);
-                // Set the camera's near according to the distance
-                // because Unity's fog is affected by the camera's near.
-                foreach (var cam in cameras)
-                    cam.nearClipPlane = value - 29f;
+                SetCameraDistance();
             }
         }
 
@@ -36,17 +30,14 @@ namespace VirtualVitrine.FaceTracking.Transform
             set
             {
                 MyPrefs.ScreenSize = value;
-                // Set the new size of scene.
-                scene.transform.localScale = Vector3.one * (ScreenWidth / BaseScreenWidth);
+                SetCameraDistance();
             }
         }
-
-        public float ScreenWidth => DiagonalToWidthAndHeight(ScreenSize, AspectRatio).x;
-        public float ScreenHeight => DiagonalToWidthAndHeight(ScreenSize, AspectRatio).y;
+        public static float ScreenWidth => DiagonalToWidthAndHeight(BaseScreenDiagonal, AspectRatio).x;
+        public static float ScreenHeight => DiagonalToWidthAndHeight(BaseScreenDiagonal, AspectRatio).y;
         #endregion
 
         #region Private Fields
-        private static float BaseScreenWidth => DiagonalToWidthAndHeight(BaseScreenDiagonal, AspectRatio).x;
         private const int BaseScreenDiagonal = 24;
         private const float AspectRatio = 16 / 9f;
         private GameObject _virtualWindow;
@@ -82,6 +73,25 @@ namespace VirtualVitrine.FaceTracking.Transform
             var height = diagonalInches / Math.Sqrt(aspectRatio * aspectRatio + 1);
             var width = aspectRatio * height;
             return new Vector2((float)(width * cmsInInch), (float)(height * cmsInInch));
+        }
+        
+        private void SetCameraDistance()
+        {
+            // Instead of setting the camera distance to the exact value set in the prefs
+            // and scaling the scene according to the screen size, the screen size stays
+            // the same and only the head distance changes. The field of view is the same
+            // as if the scene/screen got scaled to the new size.
+            var sizeRatio = (float) BaseScreenDiagonal / ScreenSize;
+            var headDistance = ScreenDistance * sizeRatio;
+            transform.localPosition = new Vector3(0, 0, -headDistance);
+
+            // Set the camera's near according to the distance
+            // because Unity's fog is affected by the camera's near.
+            foreach (var cam in cameras)
+            {
+                cam.nearClipPlane = Math.Max(headDistance - 30f, 0.1f);
+                cam.farClipPlane = headDistance + 200;
+            }
         }
 
         public void UpdateCameraProjection()
@@ -123,7 +133,7 @@ namespace VirtualVitrine.FaceTracking.Transform
         /// <summary>
         /// Draws gizmos in the Edit window.
         /// </summary>
-        public void OnDrawGizmos()
+        private void OnDrawGizmos()
         {
             if (!drawGizmos)
                 return;
