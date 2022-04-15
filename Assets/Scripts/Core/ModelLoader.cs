@@ -29,11 +29,11 @@ namespace VirtualVitrine
             
             // Set height to 90% of screen height.
             var currentHeight = GetObjectBounds(Model).size.y;
-            var targetHeight = FindObjectOfType<Projection>().ScreenHeight * 0.9f;
+            var targetHeight = Projection.ScreenHeight * 0.9f;
             objTransform.localScale = targetHeight * objTransform.localScale / currentHeight;
 
             // 0 is the middle of the screen, move the object half the screen lower.
-            objTransform.Translate(new Vector3(0, -(targetHeight / 2), 0));
+            objTransform.Translate(new Vector3(0, -(Projection.ScreenHeight / 2), -2));
         }
         #endregion
         
@@ -64,6 +64,8 @@ namespace VirtualVitrine
             // Model loading for the first time.
             var mtlFilePath = CheckMtlFile();
             Model = new OBJLoader().Load(MyPrefs.ModelPath, mtlFilePath);
+            foreach (Transform child in Model.transform)
+                child.gameObject.layer = 3;
             Model.transform.parent = _instance.transform;
             ResetTransform();
             print("Loaded new model");

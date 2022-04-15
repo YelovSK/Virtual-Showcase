@@ -18,7 +18,7 @@ namespace VirtualVitrine.UI.Menu
             FileBrowser.SetFilters(true, new FileBrowser.Filter("Objects", ".obj"));
             FileBrowser.SetDefaultFilter(".obj");
             FileBrowser.AddQuickLink("Desktop", "Desktop");
-            FileBrowser.AddQuickLink("Local models", "Assets\\Objects");
+            FileBrowser.AddQuickLink("Local models", "Assets/Models");
             StartCoroutine(ShowLoadDialogCoroutine());
         }
         #endregion
