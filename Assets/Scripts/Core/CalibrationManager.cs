@@ -9,6 +9,7 @@ namespace VirtualVitrine
     public class CalibrationManager : MonoBehaviour
     {
         #region Serialized Fields
+
         [Header("UI Elements")]
         [SerializeField] private GameObject calibrationUI;
         [SerializeField] private Image monitorImage;
@@ -27,71 +28,19 @@ namespace VirtualVitrine
         [Header("Display size sliders")]
         [SerializeField] private Slider sizeSlider;
         [SerializeField] private TMP_Text sizeValue;
-        #endregion
-        
-        #region Public Fields
-        public bool Enabled => _state != States.OFF;
+
         #endregion
 
-        #region Private Fields
+
         // Camera preview position for setting it to the original transform after calibration.
-        private Vector3 _origCameraPreviewPosition;
-        private Vector3 _origCameraPreviewScale;
+        private Vector3 origCameraPreviewPosition;
+        private Vector3 origCameraPreviewScale;
+        private States state = States.OFF;
 
-        private enum States { OFF, LEFT, RIGHT, BOTTOM, TOP, SLIDERS, RESET };
-        private States _state = States.OFF;
-        #endregion
 
-        #region Public Methods
-        public static float GetRealHeadDistance()
-        {
-            // https://www.youtube.com/watch?v=jsoe1M2AjFk
-            const int realEyesDistance = 6;
-            var realDistance = realEyesDistance * MyPrefs.FocalLength / GetEyesDistance();
-            return realDistance;
-        }
+        public bool Enabled => state != States.OFF;
 
-        public static float GetFocalLength(float distanceFromScreen)
-        {
-            // Eyes distance on camera.
-            var eyesDistance = GetEyesDistance();
-
-            // Real life distance of eyes in cm.
-            const int realEyesDistance = 6;
-            
-            // Calculate focal length.
-            var focal = eyesDistance * distanceFromScreen / realEyesDistance;
-            return focal;
-        }
-
-        public void ToggleCalibrationUI()
-        {
-            // If UI is disabled, go to the first state.
-            if (_state == States.OFF)
-            {
-                _state = _state.Next();
-                UpdateState();
-            }
-            // Else disable UI.
-            else
-            {
-                _state = States.OFF;
-                TurnOffPreview();
-            }
-        }
-
-        public void SetNextState()
-        {
-            // If UI is disabled, don't continue.
-            if (_state == States.OFF)
-                return;
-
-            _state = _state.Next();
-            UpdateState();
-        }
-        #endregion
-        
-        #region Unity Methods
+        #region Event Functions
 
         private void Start()
         {
@@ -99,8 +48,8 @@ namespace VirtualVitrine
             calibrationUI.SetActive(false);
 
             // Save the transform of camera preview, to reset it back after calibration.
-            _origCameraPreviewPosition = cameraPreviewTransform.position;
-            _origCameraPreviewScale = cameraPreviewTransform.localScale;
+            origCameraPreviewPosition = cameraPreviewTransform.position;
+            origCameraPreviewScale = cameraPreviewTransform.localScale;
 
             // Set sliders to the player prefs.
             distanceSlider.value = MyPrefs.ScreenDistance;
@@ -113,10 +62,72 @@ namespace VirtualVitrine
             ChangeSizeValue(sizeSlider);
             sizeSlider.onValueChanged.AddListener(delegate { ChangeSizeValue(sizeSlider); });
         }
+
         #endregion
-        
-        #region Private Methods
-        private static float GetEyesDistance() => (EyeSmoother.LeftEyeSmoothed - EyeSmoother.RightEyeSmoothed).magnitude;
+
+        private enum States
+        {
+            OFF,
+            LEFT,
+            RIGHT,
+            BOTTOM,
+            TOP,
+            SLIDERS,
+            RESET
+        }
+
+        public static float GetRealHeadDistance()
+        {
+            // https://www.youtube.com/watch?v=jsoe1M2AjFk
+            const int realEyesDistance = 6;
+            float realDistance = realEyesDistance * MyPrefs.FocalLength / GetEyesDistance();
+            return realDistance;
+        }
+
+        public static float GetFocalLength(float distanceFromScreen)
+        {
+            // Eyes distance on camera.
+            float eyesDistance = GetEyesDistance();
+
+            // Real life distance of eyes in cm.
+            const int realEyesDistance = 6;
+
+            // Calculate focal length.
+            float focal = eyesDistance * distanceFromScreen / realEyesDistance;
+            return focal;
+        }
+
+        public void ToggleCalibrationUI()
+        {
+            // If UI is disabled, go to the first state.
+            if (state == States.OFF)
+            {
+                state = state.Next();
+                UpdateState();
+            }
+            // Else disable UI.
+            else
+            {
+                state = States.OFF;
+                TurnOffPreview();
+            }
+        }
+
+        public void SetNextState()
+        {
+            // If UI is disabled, don't continue.
+            if (state == States.OFF)
+                return;
+
+            state = state.Next();
+            UpdateState();
+        }
+
+
+        private static float GetEyesDistance()
+        {
+            return (EyeSmoother.LeftEyeSmoothed - EyeSmoother.RightEyeSmoothed).magnitude;
+        }
 
         private void ChangeDistanceValue(Slider sender)
         {
@@ -127,17 +138,17 @@ namespace VirtualVitrine
         private void ChangeSizeValue(Slider sender)
         {
             var screenSize = (int) sender.value;
-            
+
             // Update UI.
             sizeValue.text = screenSize + "''";
-            
+
             // Update size of screen.
             head.ScreenSize = screenSize;
         }
 
         private void UpdateState()
         {
-            switch (_state)
+            switch (state)
             {
                 // Highlight left edge.
                 case States.LEFT:
@@ -174,21 +185,21 @@ namespace VirtualVitrine
                 case States.RESET:
                     MyPrefs.FocalLength = GetFocalLength(distanceSlider.value);
                     TurnOffPreview();
-                    _state = 0;
+                    state = 0;
                     break;
             }
         }
 
         private void SetGuideText(string edgeText)
         {
-            var text = "Align your head with the " + edgeText + " edge of the display and press 'Enter'";
+            string text = "Align your head with the " + edgeText + " edge of the display and press 'Enter'";
             guideText.text = text;
         }
 
         private void TurnOnPreview()
         {
             calibrationUI.SetActive(true);
-            
+
             // Enable camera preview.
             MyPrefs.PreviewOn = 1;
             GetComponent<ShowcaseInitializer>().SetCamPreview();
@@ -201,17 +212,19 @@ namespace VirtualVitrine
         private void TurnOffPreview()
         {
             calibrationUI.SetActive(false);
-            
+
             // Disable camera preview.
             MyPrefs.PreviewOn = 0;
             GetComponent<ShowcaseInitializer>().SetCamPreview();
-            
+
             // Set back the webcam preview location and size.
-            cameraPreviewTransform.position = _origCameraPreviewPosition;
-            cameraPreviewTransform.localScale = _origCameraPreviewScale;
+            cameraPreviewTransform.position = origCameraPreviewPosition;
+            cameraPreviewTransform.localScale = origCameraPreviewScale;
         }
 
-        private void HighlightEdge() => monitorImage.sprite = monitorSprites[(int) _state.Prev()];
-        #endregion
+        private void HighlightEdge()
+        {
+            monitorImage.sprite = monitorSprites[(int) state.Prev()];
+        }
     }
 }

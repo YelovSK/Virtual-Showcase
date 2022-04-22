@@ -1,36 +1,46 @@
+using MediaPipe.BlazeFace;
 using TMPro;
 using UnityEngine;
-using MediaPipe.BlazeFace;
 
 namespace VirtualVitrine.FaceTracking.Marker
 {
     public sealed class KeyPointsUpdater : MonoBehaviour
     {
-        #region Public Fields
         public static FaceDetector.Detection Detection;
-        #endregion
-        
+
         #region Serialized Fields
+
         [SerializeField] private RectTransform[] keyPoints;
+
         #endregion
 
-        #region Private Fields
-        private TMP_Text _label;
-        private RectTransform _parent;
-        private RectTransform _xform;
+
+        private TMP_Text label;
+        private RectTransform parent;
+        private RectTransform xform;
+
+        #region Event Functions
+
+        private void Awake()
+        {
+            xform = GetComponent<RectTransform>();
+            parent = (RectTransform) xform.parent;
+            label = GetComponentInChildren<TMP_Text>();
+        }
+
         #endregion
 
-        #region Public Methods
+
         public void UpdateKeyPoints()
         {
             // Bounding box center.
-            var rect = _parent.rect;
-            _xform.anchoredPosition = Detection.center * rect.size;
+            Rect rect = parent.rect;
+            xform.anchoredPosition = Detection.center * rect.size;
 
             // Bounding box size.
-            var size = Detection.extent * rect.size;
-            _xform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
-            _xform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+            Vector2 size = Detection.extent * rect.size;
+            xform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
+            xform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
             // print(detection.center + " | " + detection.extent);
 
             // Key points
@@ -42,25 +52,14 @@ namespace VirtualVitrine.FaceTracking.Marker
             // SetKeyPoint(keyPoints[5], Detection.rightEar);
 
             // Label.
-            _label.text = $"{(int) (Detection.score * 100)}%";
+            label.text = $"{(int) (Detection.score * 100)}%";
         }
-        #endregion
 
-        #region Unity Methods
-        private void Awake()
-        {
-            _xform = GetComponent<RectTransform>();
-            _parent = (RectTransform) _xform.parent;
-            _label = GetComponentInChildren<TMP_Text>();
-        }
-        #endregion
-        
-        #region Private Methods
+
         private void SetKeyPoint(RectTransform xform, Vector2 point)
         {
             xform.anchoredPosition =
-                point * _parent.rect.size - _xform.anchoredPosition;
+                point * parent.rect.size - this.xform.anchoredPosition;
         }
-        #endregion
     }
 }

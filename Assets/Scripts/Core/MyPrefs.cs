@@ -6,29 +6,36 @@ namespace VirtualVitrine
 {
     public static class MyPrefs
     {
-        #region Player Prefs
-        public enum SmoothingTypeEnum { Kalman, Average, Off }
+        public enum SmoothingTypeEnum
+        {
+            Kalman,
+            Average,
+            Off
+        }
+
         public static string SmoothingType
         {
             get => PlayerPrefs.GetString("SmoothingType", "Kalman");
             set => PlayerPrefs.SetString("SmoothingType", value);
         }
+
         public static int FramesSmoothed
         {
             get => PlayerPrefs.GetInt("framesSmoothed");
             set
             {
                 if (value < 2 || value > 200) return;
-                PlayerPrefs.SetInt("framesSmoothed", value);   
+                PlayerPrefs.SetInt("framesSmoothed", value);
             }
         }
+
         public static float KalmanQ
         {
             get => PlayerPrefs.GetFloat("kalmanQ");
             set
             {
                 if (value < 0.00000001f || value > 0.01f) return;
-                PlayerPrefs.SetFloat("kalmanQ", value);   
+                PlayerPrefs.SetFloat("kalmanQ", value);
             }
         }
 
@@ -147,7 +154,7 @@ namespace VirtualVitrine
                 PlayerPrefs.SetFloat("LeftCalibration", value);
             }
         }
-        
+
         public static float RightCalibration
         {
             get => PlayerPrefs.GetFloat("RightCalibration");
@@ -184,13 +191,10 @@ namespace VirtualVitrine
             set => PlayerPrefs.SetFloat("focalLength", value);
         }
 
-        #endregion
-        
-        #region Private Fields
-        private static bool PrefsLoaded => PlayerPrefs.HasKey("SmoothingType");
-        #endregion
 
-        #region Public Methods
+        private static bool PrefsLoaded => PlayerPrefs.HasKey("SmoothingType");
+
+
         public static void CheckPlayerPrefs()
         {
             if (!PrefsLoaded)
@@ -202,46 +206,46 @@ namespace VirtualVitrine
             PlayerPrefs.DeleteAll();
             SetDefaultPlayerPrefs();
         }
-        #endregion
+
 
         private static void SetDefaultPlayerPrefs()
         {
             // Eyes smoothing types.
             SmoothingType = SmoothingTypeEnum.Average.ToString();
-            
+
             // Smoothing values.
             FramesSmoothed = 8;
             KalmanQ = 0.002f;
             KalmanR = 0.04f;
-            
+
             // Webcam names.
             CameraName = WebCamTexture.devices.First().name;
-            
+
             // Threshold for face detection confidence.
             DetectionThreshold = 0.5f;
-            
+
             // Hue range for glasses detection.
             Hue = 240;
             HueThreshold = 20;
-            
+
             // Path to .obj file to get loaded.
             ModelPath = "";
-            
+
             // Checks.
             PreviewOn = 0;
             StereoOn = 0;
             GlassesCheck = 1;
-            
+
             // Calibration screen edge values.
             BottomCalibration = 0.0f;
             TopCalibration = 1.0f;
             LeftCalibration = 0.0f;
             RightCalibration = 1.0f;
-            
+
             // Calibration screen parameters.
             ScreenSize = 24;
             ScreenDistance = 50;
-            
+
             // Focal length for face distance.
             FocalLength = CalibrationManager.GetFocalLength(ScreenDistance);
         }
