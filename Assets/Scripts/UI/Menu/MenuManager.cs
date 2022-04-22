@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -9,9 +10,10 @@ namespace VirtualVitrine.UI.Menu
     public class MenuManager : MonoBehaviour
     {
         #region Serialized Fields
+
         [SerializeField] private TMP_Dropdown webcamDropdown;
         [SerializeField] private TMP_Text currentModelText;
-        
+
         [Header("Smoothing elements")]
         [SerializeField] private TMP_Dropdown smoothingDropdown;
         // average
@@ -22,39 +24,30 @@ namespace VirtualVitrine.UI.Menu
         [SerializeField] private Slider rSlider;
         [SerializeField] private TMP_Text qValue;
         [SerializeField] private TMP_Text rValue;
-        
+
         [Header("Tracking threshold")]
         [SerializeField] private Slider thresholdSlider;
         [SerializeField] private TMP_Text thresholdText;
-        
+
         [Header("Hue")]
         [SerializeField] private Slider hueSlider;
         [SerializeField] private TMP_Text hueText;
         [SerializeField] private Slider hueThreshSlider;
         [SerializeField] private TMP_Text hueThreshText;
-        
+
         [Header("Glasses")]
         [SerializeField] private Toggle glassesCheck;
-        
+
         [Header("Face tracking object")]
         [SerializeField] private GameObject faceTracking;
+
         #endregion
-        
-        #region Private Fields
-        private GameObject _faceTrackingInstance;
-        #endregion
-        
-        #region Public Methods
-        public void ResetSettings()
-        {
-            if (ModelLoader.Model != null)
-                Destroy(ModelLoader.Model);
-            MyPrefs.ResetPlayerPrefs();
-            SetElementsToPlayerPrefs();
-        }
-        #endregion
-        
-        #region Unity Methods
+
+
+        private GameObject faceTrackingInstance;
+
+        #region Event Functions
+
         private void Start()
         {
             MyPrefs.CheckPlayerPrefs();
@@ -64,12 +57,22 @@ namespace VirtualVitrine.UI.Menu
 
         private void OnDestroy()
         {
-            if (_faceTrackingInstance != null)
-                Destroy(_faceTrackingInstance);
+            if (faceTrackingInstance != null)
+                Destroy(faceTrackingInstance);
         }
+
         #endregion
-        
-        #region Private Methods
+
+
+        public void ResetSettings()
+        {
+            if (ModelLoader.Model != null)
+                Destroy(ModelLoader.Model);
+            MyPrefs.ResetPlayerPrefs();
+            SetElementsToPlayerPrefs();
+        }
+
+
         private void SetElementsToPlayerPrefs()
         {
             currentModelText.text = "Current model: " + MyPrefs.ModelPath.Split('\\').Last();
@@ -83,19 +86,19 @@ namespace VirtualVitrine.UI.Menu
             hueThreshSlider.value = MyPrefs.HueThreshold;
             glassesCheck.isOn = MyPrefs.GlassesCheck == 1;
         }
-        
+
         private void SetAvgSliderAndText(int framesSmoothed)
         {
             averageSlider.value = framesSmoothed;
             averageValue.text = framesSmoothed + " frames";
         }
-        
+
         private void SetCamName(string camName)
         {
             // Add WebCam devices to dropdown options.
             if (webcamDropdown.options.Count == 0)
             {
-                var options = WebCamTexture.devices.Select(device => new TMP_Dropdown.OptionData(device.name)).ToList();
+                List<TMP_Dropdown.OptionData> options = WebCamTexture.devices.Select(device => new TMP_Dropdown.OptionData(device.name)).ToList();
                 webcamDropdown.AddOptions(options);
             }
 
@@ -149,9 +152,9 @@ namespace VirtualVitrine.UI.Menu
         {
             var hue = (int) sender.value;
             hueText.text = hue.ToString();
-            var RGBcolor = Color.HSVToRGB((float) hue / 360, 1, 1);
+            Color rgBcolor = Color.HSVToRGB((float) hue / 360, 1, 1);
             // Fill hueSlider with given colour.
-            hueSlider.GetComponentInChildren<Image>().color = RGBcolor;
+            hueSlider.GetComponentInChildren<Image>().color = rgBcolor;
             MyPrefs.Hue = hue;
         }
 
@@ -182,20 +185,20 @@ namespace VirtualVitrine.UI.Menu
         private void ChangeCamPreview(TMP_Dropdown sender)
         {
             MyPrefs.CameraName = sender.options[sender.value].text;
-            
+
             // Reset face tracking.
-            if (_faceTrackingInstance != null)
-                Destroy(_faceTrackingInstance);
-            _faceTrackingInstance = Instantiate(faceTracking);
-            _faceTrackingInstance.SetActive(true);
+            if (faceTrackingInstance != null)
+                Destroy(faceTrackingInstance);
+            faceTrackingInstance = Instantiate(faceTracking);
+            faceTrackingInstance.SetActive(true);
         }
 
         private void ChangeSmoothing(TMP_Dropdown sender)
         {
             MyPrefs.SmoothingType = sender.options[sender.value].text;
-            var averageActive = MyPrefs.SmoothingType == MyPrefs.SmoothingTypeEnum.Average.ToString();
+            bool averageActive = MyPrefs.SmoothingType == MyPrefs.SmoothingTypeEnum.Average.ToString();
             averageSlider.transform.parent.gameObject.SetActive(averageActive);
-            var kalmanActive = MyPrefs.SmoothingType == MyPrefs.SmoothingTypeEnum.Kalman.ToString();
+            bool kalmanActive = MyPrefs.SmoothingType == MyPrefs.SmoothingTypeEnum.Kalman.ToString();
             qSlider.transform.parent.gameObject.SetActive(kalmanActive);
         }
 
@@ -204,6 +207,5 @@ namespace VirtualVitrine.UI.Menu
             MyPrefs.FramesSmoothed = (int) slider.value;
             averageValue.text = slider.value + " frames";
         }
-        #endregion
     }
 }

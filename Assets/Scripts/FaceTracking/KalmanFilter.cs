@@ -14,16 +14,16 @@ namespace VirtualVitrine.FaceTracking
         public const float DefaultR = 0.01f;
 
         public const float DefaultP = 1f;
-        private float _k;
-        private float _p = DefaultP;
+        private float k;
+        private float p = DefaultP;
 
         //-----------------------------------------------------------------------------------------
         // Private Fields:
         //-----------------------------------------------------------------------------------------
 
-        private float _q;
-        private float _r;
-        private T _x;
+        private float q;
+        private float r;
+        private T x;
 
         //-----------------------------------------------------------------------------------------
         // Constructors:
@@ -37,8 +37,8 @@ namespace VirtualVitrine.FaceTracking
 
         public KalmanFilter(float aQ = DefaultQ, float aR = DefaultR)
         {
-            _q = aQ;
-            _r = aR;
+            q = aQ;
+            r = aR;
         }
 
         //-----------------------------------------------------------------------------------------
@@ -48,19 +48,19 @@ namespace VirtualVitrine.FaceTracking
         public T Update(T measurement, float? newQ = null, float? newR = null)
         {
             // update values if supplied.
-            if (newQ != null && _q != newQ) _q = (float) newQ;
-            if (newR != null && _r != newR) _r = (float) newR;
+            if (newQ != null && q != newQ) q = (float) newQ;
+            if (newR != null && r != newR) r = (float) newR;
 
             // update measurement.
             {
-                _k = (_p + _q) / (_p + _q + _r);
-                _p = _r * (_p + _q) / (_r + _p + _q);
+                k = (p + q) / (p + q + r);
+                p = r * (p + q) / (r + p + q);
             }
 
             // filter result back into calculation.
             dynamic dynamicMeasurement = measurement;
-            var result = _x + (dynamicMeasurement - _x) * _k;
-            _x = result;
+            dynamic result = x + (dynamicMeasurement - x) * k;
+            x = result;
             return result;
         }
 
@@ -68,7 +68,7 @@ namespace VirtualVitrine.FaceTracking
             float? newR = null)
         {
             var result = default(T);
-            var i = areMeasurementsNewestFirst ? measurements.Count - 1 : 0;
+            int i = areMeasurementsNewestFirst ? measurements.Count - 1 : 0;
 
             while (i < measurements.Count && i >= 0)
             {
@@ -86,9 +86,9 @@ namespace VirtualVitrine.FaceTracking
 
         public void Reset()
         {
-            _p = 1;
-            _x = default;
-            _k = 0;
+            p = 1;
+            x = default;
+            k = 0;
         }
     }
 }
