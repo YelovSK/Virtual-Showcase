@@ -13,7 +13,7 @@ namespace VirtualVitrine
 
         [Header("Canvas")]
         [SerializeField] private GameObject camPreview;
-        [SerializeField] private CanvasGroup canvasGroup;
+        [SerializeField] private GameObject darkenImage;
 
         [Header("Face tracking object")]
         [SerializeField] private GameObject faceTracking;
@@ -25,13 +25,13 @@ namespace VirtualVitrine
         private void Awake()
         {
             MyPrefs.CheckPlayerPrefs();
-            SetCamPreview();
-            SetStereo();
         }
 
         private void Start()
         {
             faceTracking.SetActive(true);
+            SetCamPreview();
+            SetStereo();
         }
 
         #endregion
@@ -41,7 +41,8 @@ namespace VirtualVitrine
         {
             if (toggle)
                 MyPrefs.PreviewOn = MyPrefs.PreviewOn == 0 ? 1 : 0;
-            canvasGroup.alpha = MyPrefs.PreviewOn;
+            camPreview.gameObject.SetActive(MyPrefs.PreviewOn == 1);
+            darkenImage.gameObject.SetActive(MyPrefs.PreviewOn == 1);
         }
 
         public void SetStereo(bool toggle = false)

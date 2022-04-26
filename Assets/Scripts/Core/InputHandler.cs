@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 namespace VirtualVitrine
 {
@@ -8,6 +9,8 @@ namespace VirtualVitrine
 
         [SerializeField] private ShowcaseInitializer showcaseInitializer;
         [SerializeField] private CalibrationManager calibrationManager;
+        [SerializeField] private Image rotationImage;
+        [SerializeField] private Sprite[] rotationImages;
 
         #endregion
 
@@ -55,15 +58,35 @@ namespace VirtualVitrine
             float mouseY = Input.GetAxis("Mouse Y");
             const float mouseFactor = 0.25f;
 
-            // Both mouse buttons pressed => lower/raise object.
-            if (Input.GetMouseButton(0) && Input.GetMouseButton(1))
+            // Right mouse button pressed => lower/raise object.
+            if (Input.GetMouseButton(1))
                 ModelLoader.Model.transform.Translate(0, mouseY * mouseFactor, 0);
-            // Right mouse button pressed => move object.
-            else if (Input.GetMouseButton(1))
-                ModelLoader.Model.transform.Translate(mouseX * mouseFactor, 0, mouseY * mouseFactor, Space.World);
-            // Left mouse button pressed => rotate object.
+            // Left mouse button pressed => move object.
             else if (Input.GetMouseButton(0))
+                ModelLoader.Model.transform.Translate(mouseX * mouseFactor, 0, mouseY * mouseFactor, Space.World);
+            // X pressed => rotate object around X-axis.
+            else if (Input.GetKey("x"))
+            {
+                ModelLoader.Model.transform.Rotate(-mouseY, 0, 0);
+                rotationImage.gameObject.SetActive(true);
+                rotationImage.sprite = rotationImages[0];
+            }
+            // Y pressed => rotate object around Y-axis.
+            else if (Input.GetKey("y"))
+            {
                 ModelLoader.Model.transform.Rotate(0, -mouseX, 0);
+                rotationImage.gameObject.SetActive(true);
+                rotationImage.sprite = rotationImages[1];
+            }
+            // Z pressed => rotate object around Z-axis.
+            else if (Input.GetKey("z"))
+            {
+                ModelLoader.Model.transform.Rotate(0, 0, mouseX);
+                rotationImage.gameObject.SetActive(true);
+                rotationImage.sprite = rotationImages[2];
+            }
+            else
+                rotationImage.gameObject.SetActive(false);
 
             // Mouse wheel => scale object.
             if (Input.GetAxis("Mouse ScrollWheel") > 0f) ModelLoader.Model.transform.localScale *= 1.1f;
