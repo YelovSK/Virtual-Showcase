@@ -31,12 +31,12 @@ namespace VirtualVitrine
 
         #endregion
 
-
         // Camera preview position for setting it to the original transform after calibration.
         private Vector3 origCameraPreviewPosition;
         private Vector3 origCameraPreviewScale;
         private States state = States.OFF;
 
+        private static float EyesDistance => (EyeSmoother.LeftEyeSmoothed - EyeSmoother.RightEyeSmoothed).magnitude;
 
         public bool Enabled => state != States.OFF;
 
@@ -80,14 +80,14 @@ namespace VirtualVitrine
         {
             // https://www.youtube.com/watch?v=jsoe1M2AjFk
             const int realEyesDistance = 6;
-            float realDistance = realEyesDistance * MyPrefs.FocalLength / GetEyesDistance();
+            float realDistance = realEyesDistance * MyPrefs.FocalLength / EyesDistance;
             return realDistance;
         }
 
         public static float GetFocalLength(float distanceFromScreen)
         {
             // Eyes distance on camera.
-            float eyesDistance = GetEyesDistance();
+            float eyesDistance = EyesDistance;
 
             // Real life distance of eyes in cm.
             const int realEyesDistance = 6;
@@ -121,12 +121,6 @@ namespace VirtualVitrine
 
             state = state.Next();
             UpdateState();
-        }
-
-
-        private static float GetEyesDistance()
-        {
-            return (EyeSmoother.LeftEyeSmoothed - EyeSmoother.RightEyeSmoothed).magnitude;
         }
 
         private void ChangeDistanceValue(Slider sender)
