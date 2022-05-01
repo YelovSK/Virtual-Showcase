@@ -9,9 +9,7 @@ View-dependent stereo (off-axis projection) running in Unity.
 -   **C** - toggle calibration
 -   **P** - toggle webcam preview
 -   **R** - reset the position of the loaded object
--   **X** + **Mouse drag** - rotate object around X-axis
--   **Y** + **Mouse drag** - rotate object around Y-axis
--   **Z** + **Mouse drag** - rotate object around Z-axis
+-   **X/Y/Z** + **Mouse drag** - rotate object around X/Y/Z-axis
 -   **Left Click** - move the loaded object on the ground
 -   **Right Click** - move the loaded object up/down
 -   **Mouse wheel** - scale the loaded object
