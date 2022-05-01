@@ -110,12 +110,8 @@ namespace VirtualVitrine.FaceTracking.Transform
             transform.localPosition = new Vector3(0, 0, -headDistance);
 
             // Likewise, eye separation needs to be adjusted with the same ratio.
-            List<Camera> activeCams = ActiveCameras.ToList();
-            if (activeCams.Count == 2)
-            {
-                activeCams[0].gameObject.transform.localPosition = new Vector3(3 * sizeRatio, 0, 0);
-                activeCams[1].gameObject.transform.localPosition = new Vector3(-3 * sizeRatio, 0, 0);
-            }
+            cameras[1].transform.localPosition = new Vector3(3 * sizeRatio, 0, 0); // right eye
+            cameras[2].transform.localPosition = new Vector3(-3 * sizeRatio, 0, 0); // left eye
 
             // Set the camera's near according to the distance
             // because Unity's fog is affected by the camera's near.
