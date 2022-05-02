@@ -6,7 +6,8 @@
 [Bb]uilds/
 [Uu]ser[Ss]ettings/
 Assets/AssetStoreTools*
-Assets/objects
+Assets/Objects
+Assets/Models
 
 # Visual Studio cache directory
 .vs/

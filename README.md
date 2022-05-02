@@ -28,6 +28,8 @@ Bachelor's thesis (SK) - https://www.overleaf.com/read/jstzfmshnmnv
 
 [KalmanFilter](https://gist.github.com/davidfoster/48acce6c13e5f7f247dc5d5909dce349) for smoothing eye keypoints.
 
+[UnityMeshSimplifier](https://github.com/Whinarn/UnityMeshSimplifier) for reducing object vertex count.
+
 ## UNITY ASSETS
 
 [Runtime OBJ Importer](https://assetstore.unity.com/packages/tools/modeling/runtime-obj-importer-49547) for loading .obj files at runtime.

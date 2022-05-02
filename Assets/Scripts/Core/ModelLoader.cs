@@ -1,9 +1,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Dummiesman;
 using JetBrains.Annotations;
+using TMPro;
 using UnityEngine;
+using UnityMeshSimplifier;
 using VirtualVitrine.FaceTracking.Transform;
 
 namespace VirtualVitrine
@@ -11,6 +14,13 @@ namespace VirtualVitrine
     public class ModelLoader : MonoBehaviour
     {
         private static ModelLoader instance;
+
+        #region Serialized Fields
+
+        // UI text for displaying mesh simplification status.
+        [SerializeField] private TMP_Text statusText;
+
+        #endregion
 
         public static GameObject Model { get; private set; }
 
@@ -24,10 +34,7 @@ namespace VirtualVitrine
                 instance = this;
                 DontDestroyOnLoad(gameObject);
             }
-            else if (instance != this)
-            {
-                Destroy(gameObject);
-            }
+            else if (instance != this) Destroy(gameObject);
 
             LoadObject();
         }
@@ -45,12 +52,19 @@ namespace VirtualVitrine
             objTransform.localPosition = Vector3.zero;
 
             // Set height to 90% of screen height.
-            float currentHeight = GetObjectBounds(Model).size.y;
+            Bounds bounds = GetObjectBounds(Model);
+            float currentHeight = bounds.size.y;
             float targetHeight = Projection.ScreenHeight * 0.9f;
             objTransform.localScale = targetHeight * objTransform.localScale / currentHeight;
 
-            // 0 is the middle of the screen, move the object half the screen lower.
-            objTransform.Translate(new Vector3(0, -(Projection.ScreenHeight / 2), -2));
+            // Object centering.
+            // Get new bounds (scale was changed).
+            bounds = GetObjectBounds(Model);
+            // Set position to be the middle of the parent (center of the screen).
+            objTransform.position = objTransform.parent.position;
+            // Lower the object by its center.
+            // Eg if the set center is at the feet of a person, we can lower it by the real center.
+            objTransform.Translate(new Vector3(0, -bounds.center.y, -2));
         }
 
 
@@ -63,11 +77,56 @@ namespace VirtualVitrine
             // Model loading for the first time.
             string mtlFilePath = CheckMtlFile();
             Model = new OBJLoader().Load(MyPrefs.ModelPath, mtlFilePath);
+
+            // Simplify mesh.
+            SimplifyObject(Model);
+
+            // Set layers.
             foreach (Transform child in Model.transform)
                 child.gameObject.layer = 3;
             Model.transform.parent = instance.transform;
             ResetTransform();
-            print("Loaded new model");
+        }
+
+        private async void SimplifyMeshFilter(MeshFilter meshFilter, float quality)
+        {
+            Mesh sourceMesh = meshFilter.sharedMesh;
+            if (sourceMesh == null)
+                return;
+
+            // Create mesh simplifier with the given mesh.
+            var meshSimplifier = new MeshSimplifier(sourceMesh);
+
+            // Simplify mesh with the given quality.
+            // Runs asynchronously.
+            statusText.text = "Simplifying mesh...";
+            await Task.Run(() => meshSimplifier.SimplifyMesh(quality));
+
+            // Create our final mesh and apply it back to our mesh filter.
+            meshFilter.sharedMesh = meshSimplifier.ToMesh();
+            statusText.text = "";
+            print("Mesh simplification finished");
+        }
+
+        private void SimplifyObject(GameObject obj)
+        {
+            const int maxVertexCount = 100_000;
+            MeshFilter[] meshFilters = obj.GetComponentsInChildren<MeshFilter>();
+
+            // Vertex count of all meshes.
+            int vertexCount = meshFilters.Sum(x => x.mesh.vertexCount);
+
+            // Simplify only if vertex count is at least 50% more than the max vertex count.
+            if (vertexCount < maxVertexCount * 1.5f)
+                return;
+
+            // Quality is the percentage of vertices to keep. In our case we want maxVertexCount vertices.
+            float quality = (float) maxVertexCount / vertexCount;
+
+            // Simplify every child mesh of the object.
+            print($"Simplifying object from {vertexCount} to {maxVertexCount} vertices ({(1.0f - quality) * 100}% reduction).");
+            foreach (MeshFilter meshFilter in meshFilters)
+                SimplifyMeshFilter(meshFilter, quality);
         }
 
         /// <summary>
@@ -109,5 +168,7 @@ namespace VirtualVitrine
 
             return bounds;
         }
+
+        // [SerializeField] private ImportOptions importOptions;
     }
 }
