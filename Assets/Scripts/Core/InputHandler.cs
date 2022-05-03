@@ -22,6 +22,9 @@ namespace VirtualVitrine
             if (Input.GetKeyDown(KeyCode.Escape))
                 SceneSwitcher.SwitchScene();
 
+            if (Input.GetKeyDown("s"))
+                SceneSwitcher.SwitchDifferentMain();
+
             // Toggle webcam preview (ignore if calibration is active).
             if (Input.GetKeyDown("p") && !calibrationManager.Enabled)
                 showcaseInitializer.SetCamPreview(true);

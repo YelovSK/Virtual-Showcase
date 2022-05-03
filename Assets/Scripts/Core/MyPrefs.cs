@@ -6,16 +6,15 @@ namespace VirtualVitrine
 {
     public static class MyPrefs
     {
-        public enum SmoothingTypeEnum
+        public static string MainScene
         {
-            Kalman,
-            Average,
-            Off
+            get => PlayerPrefs.GetString("mainScene");
+            set => PlayerPrefs.SetString("mainScene", value);
         }
 
         public static string SmoothingType
         {
-            get => PlayerPrefs.GetString("SmoothingType", "Kalman");
+            get => PlayerPrefs.GetString("SmoothingType");
             set => PlayerPrefs.SetString("SmoothingType", value);
         }
 
@@ -191,7 +190,6 @@ namespace VirtualVitrine
             set => PlayerPrefs.SetFloat("focalLength", value);
         }
 
-
         private static bool PrefsLoaded => PlayerPrefs.HasKey("SmoothingType");
 
 
@@ -210,6 +208,9 @@ namespace VirtualVitrine
 
         private static void SetDefaultPlayerPrefs()
         {
+            // Default main scene.
+            MainScene = SceneSwitcher.MainScenes.MainRoom.ToString();
+
             // Eyes smoothing types.
             SmoothingType = SmoothingTypeEnum.Average.ToString();
 
@@ -249,5 +250,16 @@ namespace VirtualVitrine
             // Focal length for face distance.
             FocalLength = CalibrationManager.GetFocalLength(ScreenDistance);
         }
+
+        #region Nested type: SmoothingTypeEnum
+
+        public enum SmoothingTypeEnum
+        {
+            Kalman,
+            Average,
+            Off
+        }
+
+        #endregion
     }
 }

@@ -5,6 +5,8 @@ namespace VirtualVitrine
 {
     public class SceneSwitcher : MonoBehaviour
     {
+        public static bool InMainScene => SceneManager.GetActiveScene().name != "Menu";
+
         #region Event Functions
 
         private void Update()
@@ -20,14 +22,22 @@ namespace VirtualVitrine
             Application.Quit();
         }
 
-        public static void SwitchMain()
-        {
-            SceneManager.LoadScene("Main");
-        }
-
         public static void SwitchScene()
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name == "Main" ? "Menu" : "Main");
+            SceneManager.LoadScene(InMainScene ? "Menu" : MyPrefs.MainScene);
+        }
+
+        public static void SwitchDifferentMain()
+        {
+            var mainScene = Extensions.ParseEnum<MainScenes>(MyPrefs.MainScene);
+            MyPrefs.MainScene = mainScene.Next().ToString();
+            SceneManager.LoadScene(MyPrefs.MainScene);
+        }
+
+        public enum MainScenes
+        {
+            MainRoom,
+            MainLines
         }
     }
 }

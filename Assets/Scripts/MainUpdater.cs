@@ -3,7 +3,6 @@ using System.Linq;
 using MediaPipe.BlazeFace;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using VirtualVitrine.FaceTracking;
 using VirtualVitrine.FaceTracking.Marker;
@@ -96,7 +95,7 @@ namespace VirtualVitrine
             UpdateHeadDistanceInUI();
 
             // If glasses found and in main scene, transform camera.
-            if (glassesOn && SceneManager.GetActiveScene().name == "Main")
+            if (glassesOn && SceneSwitcher.InMainScene)
                 cameraTransform.Transform();
         }
 
