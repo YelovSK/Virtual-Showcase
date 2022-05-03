@@ -23,5 +23,11 @@ namespace VirtualVitrine
             int j = Array.IndexOf(arr, src) - 1;
             return -1 == j ? arr[arr.Length - 1] : arr[j];
         }
+
+        // String to enum.
+        public static T ParseEnum<T>(string value)
+        {
+            return (T) Enum.Parse(typeof(T), value, true);
+        }
     }
 }
