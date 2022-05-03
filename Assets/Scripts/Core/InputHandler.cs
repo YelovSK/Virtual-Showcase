@@ -63,28 +63,28 @@ namespace VirtualVitrine
 
             // Right mouse button pressed => lower/raise object.
             if (Input.GetMouseButton(1))
-                ModelLoader.Model.transform.Translate(0, mouseY * mouseFactor, 0);
+                ModelLoader.Model.transform.Translate(0, mouseY * mouseFactor, 0, Space.World);
             // Left mouse button pressed => move object.
             else if (Input.GetMouseButton(0))
                 ModelLoader.Model.transform.Translate(mouseX * mouseFactor, 0, mouseY * mouseFactor, Space.World);
             // X pressed => rotate object around X-axis.
             else if (Input.GetKey("x"))
             {
-                ModelLoader.Model.transform.Rotate(-mouseY, 0, 0);
+                ModelLoader.Model.transform.Rotate(mouseY, 0, 0, Space.World);
                 rotationImage.gameObject.SetActive(true);
                 rotationImage.sprite = rotationImages[0];
             }
             // Y pressed => rotate object around Y-axis.
             else if (Input.GetKey("y"))
             {
-                ModelLoader.Model.transform.Rotate(0, -mouseX, 0);
+                ModelLoader.Model.transform.Rotate(0, -mouseX, 0, Space.World);
                 rotationImage.gameObject.SetActive(true);
                 rotationImage.sprite = rotationImages[1];
             }
             // Z pressed => rotate object around Z-axis.
             else if (Input.GetKey("z"))
             {
-                ModelLoader.Model.transform.Rotate(0, 0, mouseX);
+                ModelLoader.Model.transform.Rotate(0, 0, -mouseX, Space.World);
                 rotationImage.gameObject.SetActive(true);
                 rotationImage.sprite = rotationImages[2];
             }
