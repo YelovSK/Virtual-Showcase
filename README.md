@@ -6,6 +6,7 @@ View-dependent stereo (off-axis projection) running in Unity.
 
 -   **ESC** - toggle menu
 -   **TAB** - toggle mono/stereo view
+-   **S** - cycle main scenes
 -   **C** - toggle calibration
 -   **P** - toggle webcam preview
 -   **R** - reset the position of the loaded object
