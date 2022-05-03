@@ -118,7 +118,7 @@ namespace VirtualVitrine
 
             // Copy of the AtomicSafetyHandle from the full NativeCounter. The dispose sentinel is not copied since this inner struct does not own the memory and is not responsible for freeing it.
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-            private AtomicSafetyHandle mSafety;
+            private AtomicSafetyHandle m_Safety;
 #endif
 
             // The current worker thread index; it must use this exact name since it is injected
@@ -130,8 +130,8 @@ namespace VirtualVitrine
                 ParallelWriter parallelWriter;
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
                 AtomicSafetyHandle.CheckWriteAndThrow(cnt.m_Safety);
-                parallelWriter.mSafety = cnt.m_Safety;
-                AtomicSafetyHandle.UseSecondaryVersion(ref parallelWriter.mSafety);
+                parallelWriter.m_Safety = cnt.m_Safety;
+                AtomicSafetyHandle.UseSecondaryVersion(ref parallelWriter.m_Safety);
 #endif
 
                 parallelWriter.countIntegers = cnt.countIntegers;
@@ -144,7 +144,7 @@ namespace VirtualVitrine
             {
                 // Increment still needs to check for write permissions
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-                AtomicSafetyHandle.CheckWriteAndThrow(mSafety);
+                AtomicSafetyHandle.CheckWriteAndThrow(m_Safety);
 #endif
 
                 // No need for atomics any more since we are just incrementing the local count
