@@ -12,55 +12,56 @@
  * all copies or substantial portions of the Software.
 */
 
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using UnityEngine;
-using System;
-using Dummiesman;
+using Debug = UnityEngine.Debug;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 namespace Dummiesman
 {
-    public enum SplitMode {
+    public enum SplitMode
+    {
         None,
         Object,
         Material
     }
-    
+
     public class OBJLoader
     {
-        //options
-        /// <summary>
-        /// Determines how objects will be created
-        /// </summary>
-        public SplitMode SplitMode = SplitMode.Object;
-
-        //global lists, accessed by objobjectbuilder
-        internal List<Vector3> Vertices = new List<Vector3>();
-        internal List<Vector3> Normals = new List<Vector3>();
-        internal List<Vector2> UVs = new List<Vector2>();
-
-        //materials, accessed by objobjectbuilder
-        internal Dictionary<string, Material> Materials;
-
         //file info for files loaded from file path, used for GameObject naming and MTL finding
         private FileInfo _objInfo;
 
+        //materials, accessed by objobjectbuilder
+        internal Dictionary<string, Material> Materials;
+        internal List<Vector3> Normals = new();
+        //options
+        /// <summary>
+        ///     Determines how objects will be created
+        /// </summary>
+        public SplitMode SplitMode = SplitMode.Object;
+        internal List<Vector2> UVs = new();
+
+        //global lists, accessed by objobjectbuilder
+        internal List<Vector3> Vertices = new();
+
 #if UNITY_EDITOR
         [MenuItem("GameObject/Import From OBJ")]
-        static void ObjLoadMenu()
+        private static void ObjLoadMenu()
         {
-            string pth =  EditorUtility.OpenFilePanel("Import OBJ", "", "obj");
+            string pth = EditorUtility.OpenFilePanel("Import OBJ", "", "obj");
             if (!string.IsNullOrEmpty(pth))
             {
-                System.Diagnostics.Stopwatch s = new System.Diagnostics.Stopwatch();
+                var s = new Stopwatch();
                 s.Start();
 
                 var loader = new OBJLoader
                 {
-                    SplitMode = SplitMode.Object,
+                    SplitMode = SplitMode.Object
                 };
                 loader.Load(pth);
 
@@ -71,29 +72,23 @@ namespace Dummiesman
 #endif
 
         /// <summary>
-        /// Helper function to load mtllib statements
+        ///     Helper function to load mtllib statements
         /// </summary>
         /// <param name="mtlLibPath"></param>
         private void LoadMaterialLibrary(string mtlLibPath)
         {
             if (_objInfo != null)
-            {
                 if (File.Exists(Path.Combine(_objInfo.Directory.FullName, mtlLibPath)))
                 {
                     Materials = new MTLLoader().Load(Path.Combine(_objInfo.Directory.FullName, mtlLibPath));
                     return;
                 }
-            }
 
-            if (File.Exists(mtlLibPath))
-            {
-                Materials = new MTLLoader().Load(mtlLibPath);
-                return;
-            }
+            if (File.Exists(mtlLibPath)) Materials = new MTLLoader().Load(mtlLibPath);
         }
 
         /// <summary>
-        /// Load an OBJ file from a stream. No materials will be loaded, and will instead be supplemented by a blank white material.
+        ///     Load an OBJ file from a stream. No materials will be loaded, and will instead be supplemented by a blank white material.
         /// </summary>
         /// <param name="input">Input OBJ stream</param>
         /// <returns>Returns a GameObject represeting the OBJ file, with each imported object as a child.</returns>
@@ -102,18 +97,18 @@ namespace Dummiesman
             var reader = new StreamReader(input);
             //var reader = new StringReader(inputReader.ReadToEnd());
 
-            Dictionary<string, OBJObjectBuilder> builderDict = new Dictionary<string, OBJObjectBuilder>();
+            var builderDict = new Dictionary<string, OBJObjectBuilder>();
             OBJObjectBuilder currentBuilder = null;
-            string currentMaterial = "default";
+            var currentMaterial = "default";
 
             //lists for face data
             //prevents excess GC
-            List<int> vertexIndices = new List<int>();
-            List<int> normalIndices = new List<int>();
-            List<int> uvIndices = new List<int>();
+            var vertexIndices = new List<int>();
+            var normalIndices = new List<int>();
+            var uvIndices = new List<int>();
 
             //helper func
-            Action<string> setCurrentObjectFunc = (string objectName) =>
+            Action<string> setCurrentObjectFunc = objectName =>
             {
                 if (!builderDict.TryGetValue(objectName, out currentBuilder))
                 {
@@ -125,68 +120,69 @@ namespace Dummiesman
             //create default object
             setCurrentObjectFunc.Invoke("default");
 
-			//var buffer = new DoubleBuffer(reader, 256 * 1024);
-			var buffer = new CharWordReader(reader, 4 * 1024);
+            //var buffer = new DoubleBuffer(reader, 256 * 1024);
+            var buffer = new CharWordReader(reader, 4 * 1024);
 
-			//do the reading
-			while (true)
+            //do the reading
+            while (true)
             {
-				buffer.SkipWhitespaces();
+                buffer.SkipWhitespaces();
 
-				if (buffer.endReached == true) {
-					break;
-				}
+                if (buffer.endReached) break;
 
-				buffer.ReadUntilWhiteSpace();
-				
+                buffer.ReadUntilWhiteSpace();
+
                 //comment or blank
                 if (buffer.Is("#"))
                 {
-					buffer.SkipUntilNewLine();
+                    buffer.SkipUntilNewLine();
                     continue;
                 }
-				
-				if (Materials == null && buffer.Is("mtllib")) {
-					buffer.SkipWhitespaces();
-					buffer.ReadUntilNewLine();
-					string mtlLibPath = buffer.GetString();
-					LoadMaterialLibrary(mtlLibPath);
-					continue;
-				}
-				
-				if (buffer.Is("v")) {
-					Vertices.Add(buffer.ReadVector());
-					continue;
-				}
 
-				//normal
-				if (buffer.Is("vn")) {
+                if (Materials == null && buffer.Is("mtllib"))
+                {
+                    buffer.SkipWhitespaces();
+                    buffer.ReadUntilNewLine();
+                    string mtlLibPath = buffer.GetString();
+                    LoadMaterialLibrary(mtlLibPath);
+                    continue;
+                }
+
+                if (buffer.Is("v"))
+                {
+                    Vertices.Add(buffer.ReadVector());
+                    continue;
+                }
+
+                //normal
+                if (buffer.Is("vn"))
+                {
                     Normals.Add(buffer.ReadVector());
                     continue;
                 }
 
                 //uv
-				if (buffer.Is("vt")) {
+                if (buffer.Is("vt"))
+                {
                     UVs.Add(buffer.ReadVector());
                     continue;
                 }
 
                 //new material
-				if (buffer.Is("usemtl")) {
-					buffer.SkipWhitespaces();
-					buffer.ReadUntilNewLine();
-					string materialName = buffer.GetString();
+                if (buffer.Is("usemtl"))
+                {
+                    buffer.SkipWhitespaces();
+                    buffer.ReadUntilNewLine();
+                    string materialName = buffer.GetString();
                     currentMaterial = materialName;
 
-                    if(SplitMode == SplitMode.Material)
-                    {
-                        setCurrentObjectFunc.Invoke(materialName);
-                    }
+                    if (SplitMode == SplitMode.Material) setCurrentObjectFunc.Invoke(materialName);
                     continue;
                 }
 
                 //new object
-                if ((buffer.Is("o") || buffer.Is("g")) && SplitMode == SplitMode.Object) {
+                if ((buffer.Is("o") || buffer.Is("g")) && SplitMode == SplitMode.Object)
+                {
                     buffer.ReadUntilNewLine();
                     string objectName = buffer.GetString(1);
                     setCurrentObjectFunc.Invoke(objectName);
@@ -199,46 +195,49 @@ namespace Dummiesman
                     //loop through indices
                     while (true)
                     {
-						bool newLinePassed;
-						buffer.SkipWhitespaces(out newLinePassed);
-						if (newLinePassed == true) {
-							break;
-						}
+                        bool newLinePassed;
+                        buffer.SkipWhitespaces(out newLinePassed);
+                        if (newLinePassed) break;
 
-                        int vertexIndex = int.MinValue;
-                        int normalIndex = int.MinValue;
-                        int uvIndex = int.MinValue;
+                        var vertexIndex = int.MinValue;
+                        var normalIndex = int.MinValue;
+                        var uvIndex = int.MinValue;
 
-						vertexIndex = buffer.ReadInt();
-						if (buffer.currentChar == '/') {
-							buffer.MoveNext();
-							if (buffer.currentChar != '/') {
-								uvIndex = buffer.ReadInt();
-							}
-							if (buffer.currentChar == '/') {
-								buffer.MoveNext();
-								normalIndex = buffer.ReadInt();
-							}
-						}
+                        vertexIndex = buffer.ReadInt();
+                        if (buffer.currentChar == '/')
+                        {
+                            buffer.MoveNext();
+                            if (buffer.currentChar != '/') uvIndex = buffer.ReadInt();
+                            if (buffer.currentChar == '/')
+                            {
+                                buffer.MoveNext();
+                                normalIndex = buffer.ReadInt();
+                            }
+                        }
 
                         //"postprocess" indices
                         if (vertexIndex > int.MinValue)
                         {
                             if (vertexIndex < 0)
-                                vertexIndex = Vertices.Count - vertexIndex;
-                            vertexIndex--;
+                                vertexIndex = Vertices.Count + vertexIndex;
+                            else
+                                vertexIndex--;
                         }
+
                         if (normalIndex > int.MinValue)
                         {
                             if (normalIndex < 0)
-                                normalIndex = Normals.Count - normalIndex;
-                            normalIndex--;
+                                normalIndex = Normals.Count + normalIndex;
+                            else
+                                normalIndex--;
                         }
+
                         if (uvIndex > int.MinValue)
                         {
                             if (uvIndex < 0)
-                                uvIndex = UVs.Count - uvIndex;
-                            uvIndex--;
+                                uvIndex = UVs.Count + uvIndex;
+                            else
+                                uvIndex--;
                         }
 
                         //set array values
@@ -255,23 +254,23 @@ namespace Dummiesman
                     normalIndices.Clear();
                     uvIndices.Clear();
 
-					continue;
+                    continue;
                 }
 
-				buffer.SkipUntilNewLine();
+                buffer.SkipUntilNewLine();
             }
 
             //finally, put it all together
-            GameObject obj = new GameObject(_objInfo != null ? Path.GetFileNameWithoutExtension(_objInfo.Name) : "WavefrontObject");
+            var obj = new GameObject(_objInfo != null ? Path.GetFileNameWithoutExtension(_objInfo.Name) : "WavefrontObject");
             obj.transform.localScale = new Vector3(-1f, 1f, 1f);
 
-            foreach (var builder in builderDict)
+            foreach (KeyValuePair<string, OBJObjectBuilder> builder in builderDict)
             {
                 //empty object
                 if (builder.Value.PushedFaceCount == 0)
                     continue;
 
-                var builtObj = builder.Value.Build();
+                GameObject builtObj = builder.Value.Build();
                 builtObj.transform.SetParent(obj.transform, false);
             }
 
@@ -279,10 +278,11 @@ namespace Dummiesman
         }
 
         /// <summary>
-        /// Load an OBJ and MTL file from a stream.
+        ///     Load an OBJ and MTL file from a stream.
         /// </summary>
         /// <param name="input">Input OBJ stream</param>
-        /// /// <param name="mtlInput">Input MTL stream</param>
+        /// ///
+        /// <param name="mtlInput">Input MTL stream</param>
         /// <returns>Returns a GameObject represeting the OBJ file, with each imported object as a child.</returns>
         public GameObject Load(Stream input, Stream mtlInput)
         {
@@ -293,10 +293,11 @@ namespace Dummiesman
         }
 
         /// <summary>
-        /// Load an OBJ and MTL file from a file path.
+        ///     Load an OBJ and MTL file from a file path.
         /// </summary>
         /// <param name="path">Input OBJ path</param>
-        /// /// <param name="mtlPath">Input MTL path</param>
+        /// ///
+        /// <param name="mtlPath">Input MTL path</param>
         /// <returns>Returns a GameObject represeting the OBJ file, with each imported object as a child.</returns>
         public GameObject Load(string path, string mtlPath)
         {
@@ -311,17 +312,15 @@ namespace Dummiesman
                     return Load(fs);
                 }
             }
-            else
+
+            using (var fs = new FileStream(path, FileMode.Open))
             {
-                using (var fs = new FileStream(path, FileMode.Open))
-                {
-                    return Load(fs);
-                }
+                return Load(fs);
             }
         }
 
         /// <summary>
-        /// Load an OBJ file from a file path. This function will also attempt to load the MTL defined in the OBJ file.
+        ///     Load an OBJ file from a file path. This function will also attempt to load the MTL defined in the OBJ file.
         /// </summary>
         /// <param name="path">Input OBJ path</param>
         /// <returns>Returns a GameObject represeting the OBJ file, with each imported object as a child.</returns>
