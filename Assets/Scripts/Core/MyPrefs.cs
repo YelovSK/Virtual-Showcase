@@ -199,9 +199,13 @@ namespace VirtualVitrine
                 SetDefaultPlayerPrefs();
         }
 
-        public static void ResetPlayerPrefs()
+        public static void ResetPlayerPrefsExceptKeyBinds()
         {
+            // Save binds temporarily.
+            string binds = PlayerPrefs.GetString("rebinds");
             PlayerPrefs.DeleteAll();
+            // Set binds back.
+            PlayerPrefs.SetString("rebinds", binds);
             SetDefaultPlayerPrefs();
         }
 

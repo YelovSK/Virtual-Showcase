@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace VirtualVitrine
@@ -7,8 +8,15 @@ namespace VirtualVitrine
     {
         #region Serialized Fields
 
+        [Header("Input")]
+        [SerializeField] private PlayerInput playerInput;
+        [SerializeField] private InputActionAsset inputActions;
+
+        [Header("Scene objects")]
         [SerializeField] private ShowcaseInitializer showcaseInitializer;
         [SerializeField] private CalibrationManager calibrationManager;
+
+        [Header("Rotation images")]
         [SerializeField] private Image rotationImage;
         [SerializeField] private Sprite[] rotationImages;
 
@@ -19,30 +27,33 @@ namespace VirtualVitrine
         private void Update()
         {
             // Toggle menu/main scene.
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (Keyboard.current.escapeKey.wasPressedThisFrame)
                 SceneSwitcher.SwitchScene();
 
-            if (Input.GetKeyDown("s"))
+            if (!SceneSwitcher.InMainScene)
+                return;
+
+            if (playerInput.actions["Main scene switch"].WasPressedThisFrame())
                 SceneSwitcher.SwitchDifferentMain();
 
             // Toggle webcam preview (ignore if calibration is active).
-            if (Input.GetKeyDown("p") && !calibrationManager.Enabled)
+            if (playerInput.actions["Preview toggle"].WasPressedThisFrame() && !calibrationManager.Enabled)
                 showcaseInitializer.SetCamPreview(true);
 
             // Toggle stereo/mono.
-            if (Input.GetKeyDown(KeyCode.Tab))
+            if (playerInput.actions["Stereo toggle"].WasPressedThisFrame())
                 showcaseInitializer.SetStereo(true);
 
             // Toggle calibration UI.
-            if (Input.GetKeyDown("c"))
+            if (playerInput.actions["Calibration toggle"].WasPressedThisFrame())
                 calibrationManager.ToggleCalibrationUI();
 
             // Go to next calibration state.
-            if (Input.GetKeyDown(KeyCode.Return))
+            if (playerInput.actions["Next calibration"].WasPressedThisFrame())
                 calibrationManager.SetNextState();
 
             // Reset loaded object position.
-            if (Input.GetKeyDown(KeyCode.R))
+            if (playerInput.actions["Reset transform"].WasPressedThisFrame())
                 ModelLoader.ResetTransform();
 
             // Loaded object gets controlled with mouse input.
@@ -52,39 +63,47 @@ namespace VirtualVitrine
 
         #endregion
 
+        public void ResetAllBindings()
+        {
+            foreach (InputActionMap map in inputActions.actionMaps)
+                map.RemoveAllBindingOverrides();
+            PlayerPrefs.DeleteKey("rebinds");
+        }
+
         private void HandleMouseInput()
         {
             if (ModelLoader.Model == null)
                 return;
 
-            float mouseX = Input.GetAxis("Mouse X");
-            float mouseY = Input.GetAxis("Mouse Y");
-            const float mouseFactor = 0.25f;
+            const float moveSens = 0.015f;
+            const float rotationSens = 0.075f;
+            float mouseX = Mouse.current.delta.ReadValue().x;
+            float mouseY = Mouse.current.delta.ReadValue().y;
 
-            // Right mouse button pressed => lower/raise object.
-            if (Input.GetMouseButton(1))
-                ModelLoader.Model.transform.Translate(0, mouseY * mouseFactor, 0, Space.World);
             // Left mouse button pressed => move object.
-            else if (Input.GetMouseButton(0))
-                ModelLoader.Model.transform.Translate(mouseX * mouseFactor, 0, mouseY * mouseFactor, Space.World);
+            if (playerInput.actions["Move on ground"].IsPressed())
+                ModelLoader.Model.transform.Translate(mouseX * moveSens, 0, mouseY * moveSens, Space.World);
+            // Right mouse button pressed => lower/raise object.
+            else if (playerInput.actions["Move vertically"].IsPressed())
+                ModelLoader.Model.transform.Translate(0, mouseY * moveSens, 0, Space.World);
             // X pressed => rotate object around X-axis.
-            else if (Input.GetKey("x"))
+            else if (playerInput.actions["Rotate X"].IsPressed())
             {
-                ModelLoader.Model.transform.Rotate(mouseY, 0, 0, Space.World);
+                ModelLoader.Model.transform.Rotate(mouseY * rotationSens, 0, 0, Space.World);
                 rotationImage.gameObject.SetActive(true);
                 rotationImage.sprite = rotationImages[0];
             }
             // Y pressed => rotate object around Y-axis.
-            else if (Input.GetKey("y"))
+            else if (playerInput.actions["Rotate Y"].IsPressed())
             {
-                ModelLoader.Model.transform.Rotate(0, -mouseX, 0, Space.World);
+                ModelLoader.Model.transform.Rotate(0, -mouseX * rotationSens, 0, Space.World);
                 rotationImage.gameObject.SetActive(true);
                 rotationImage.sprite = rotationImages[1];
             }
             // Z pressed => rotate object around Z-axis.
-            else if (Input.GetKey("z"))
+            else if (playerInput.actions["Rotate Z"].IsPressed())
             {
-                ModelLoader.Model.transform.Rotate(0, 0, -mouseX, Space.World);
+                ModelLoader.Model.transform.Rotate(0, 0, -mouseX * rotationSens, Space.World);
                 rotationImage.gameObject.SetActive(true);
                 rotationImage.sprite = rotationImages[2];
             }
@@ -92,8 +111,9 @@ namespace VirtualVitrine
                 rotationImage.gameObject.SetActive(false);
 
             // Mouse wheel => scale object.
-            if (Input.GetAxis("Mouse ScrollWheel") > 0f) ModelLoader.Model.transform.localScale *= 1.1f;
-            if (Input.GetAxis("Mouse ScrollWheel") < 0f) ModelLoader.Model.transform.localScale *= 0.9f;
+            float scroll = Mouse.current.scroll.ReadValue().y;
+            if (scroll > 0f) ModelLoader.Model.transform.localScale *= 1.1f;
+            if (scroll < 0f) ModelLoader.Model.transform.localScale *= 0.9f;
         }
     }
 }

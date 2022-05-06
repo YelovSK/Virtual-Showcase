@@ -497,8 +497,8 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 49
-  far clip plane: 279
+  near clip plane: 20
+  far clip plane: 250
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -697,8 +697,8 @@ Camera:
     y: 0
     width: 0.5
     height: 1
-  near clip plane: 49
-  far clip plane: 279
+  near clip plane: 20
+  far clip plane: 250
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -1705,6 +1705,7 @@ GameObject:
   - component: {fileID: 1609320792441768600}
   - component: {fileID: 4982659725431650790}
   - component: {fileID: 5166467350296463434}
+  - component: {fileID: 3818405460032700375}
   - component: {fileID: 9000598959384636386}
   m_Layer: 0
   m_Name: '@Scripts'
@@ -1773,6 +1774,36 @@ MonoBehaviour:
   distanceValue: {fileID: 3090288838726205979}
   sizeSlider: {fileID: 8356883620495063217}
   sizeValue: {fileID: 842133718473837232}
+--- !u!114 &3818405460032700375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6042895527340856062}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Actions: {fileID: -944628639613478452, guid: 897f51b0c7ba854479a320fb0ccf7168, type: 3}
+  m_NotificationBehavior: 0
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents: []
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: Default
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
 --- !u!114 &9000598959384636386
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1785,6 +1816,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e806ced1bc24fdeb15efbf371e1da77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerInput: {fileID: 3818405460032700375}
   showcaseInitializer: {fileID: 4982659725431650790}
   calibrationManager: {fileID: 5166467350296463434}
   rotationImage: {fileID: 1786174537506506360}
@@ -1848,8 +1880,8 @@ Camera:
     y: 0
     width: 0.5
     height: 1
-  near clip plane: 49
-  far clip plane: 279
+  near clip plane: 20
+  far clip plane: 250
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -2053,7 +2085,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7901422498606138537}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -79}
+  m_LocalPosition: {x: 0, y: 0, z: -50}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
