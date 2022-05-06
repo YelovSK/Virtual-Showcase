@@ -2,7 +2,7 @@
 
 View-dependent stereo (off-axis projection) running in Unity.
 
-## CONTROLS AND KEY BINDS
+## DEFAULT CONTROLS AND KEY BINDS
 
 -   **ESC** - toggle menu
 -   **TAB** - toggle mono/stereo view
@@ -11,8 +11,8 @@ View-dependent stereo (off-axis projection) running in Unity.
 -   **P** - toggle webcam preview
 -   **R** - reset the position of the loaded object
 -   **X/Y/Z** + **Mouse drag** - rotate object around X/Y/Z-axis
--   **Left Click** - move the loaded object on the ground
--   **Right Click** - move the loaded object up/down
+-   **LMB + Mouse drag** - move the loaded object on the ground
+-   **RMB + Mouse drag** - move the loaded object up/down
 -   **Mouse wheel** - scale the loaded object
 
 ## INFO
