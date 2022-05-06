@@ -4,7 +4,6 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace VirtualVitrine.FaceTracking
@@ -76,7 +75,7 @@ namespace VirtualVitrine.FaceTracking
             bool passed = (float) foundPixelsCount / allPixelsCount > threshold;
 
             // Don't compute overlay if preview is not showing in main scene.
-            if (MyPrefs.PreviewOn == 0 && SceneManager.GetActiveScene().name == "Main")
+            if (MyPrefs.PreviewOn == 0 && SceneSwitcher.InMainScene)
                 return passed;
 
             // Set label text to show number of found pixels.
