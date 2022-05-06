@@ -7,16 +7,6 @@ namespace VirtualVitrine
     {
         public static bool InMainScene => SceneManager.GetActiveScene().name != "Menu";
 
-        #region Event Functions
-
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.Escape))
-                SwitchScene();
-        }
-
-        #endregion
-
         public static void Quit()
         {
             Application.Quit();

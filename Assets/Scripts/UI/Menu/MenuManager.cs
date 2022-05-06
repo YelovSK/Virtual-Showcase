@@ -68,7 +68,7 @@ namespace VirtualVitrine.UI.Menu
         {
             if (ModelLoader.Model != null)
                 Destroy(ModelLoader.Model);
-            MyPrefs.ResetPlayerPrefs();
+            MyPrefs.ResetPlayerPrefsExceptKeyBinds();
             SetElementsToPlayerPrefs();
         }
 
