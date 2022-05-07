@@ -32,8 +32,7 @@ namespace VirtualVitrine
         #endregion
 
         // Camera preview position for setting it to the original transform after calibration.
-        private Vector3 origCameraPreviewPosition;
-        private Vector3 origCameraPreviewScale;
+        private CopyTransform origCameraPreviewTransform;
         private States state = States.OFF;
 
         private static float EyesDistance => (EyeSmoother.LeftEyeSmoothed - EyeSmoother.RightEyeSmoothed).magnitude;
@@ -48,8 +47,7 @@ namespace VirtualVitrine
             calibrationUI.SetActive(false);
 
             // Save the transform of camera preview, to reset it back after calibration.
-            origCameraPreviewPosition = cameraPreviewTransform.position;
-            origCameraPreviewScale = cameraPreviewTransform.localScale;
+            origCameraPreviewTransform = new CopyTransform(cameraPreviewTransform);
 
             // Set sliders to the player prefs.
             distanceSlider.value = MyPrefs.ScreenDistance;
@@ -212,8 +210,7 @@ namespace VirtualVitrine
             GetComponent<ShowcaseInitializer>().SetCamPreview();
 
             // Set back the webcam preview location and size.
-            cameraPreviewTransform.position = origCameraPreviewPosition;
-            cameraPreviewTransform.localScale = origCameraPreviewScale;
+            cameraPreviewTransform.LoadTransform(origCameraPreviewTransform);
         }
 
         private void HighlightEdge()

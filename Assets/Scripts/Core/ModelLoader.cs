@@ -176,7 +176,5 @@ namespace VirtualVitrine
 
             return bounds;
         }
-
-        // [SerializeField] private ImportOptions importOptions;
     }
 }
