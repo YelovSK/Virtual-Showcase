@@ -4,6 +4,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using VirtualVitrine.FaceTracking;
 
 namespace VirtualVitrine.UI.Menu
 {
@@ -39,12 +40,9 @@ namespace VirtualVitrine.UI.Menu
         [SerializeField] private Toggle glassesCheck;
 
         [Header("Face tracking object")]
-        [SerializeField] private GameObject faceTracking;
+        [SerializeField] private WebcamInput faceTracking;
 
         #endregion
-
-
-        private GameObject faceTrackingInstance;
 
         #region Event Functions
 
@@ -53,12 +51,6 @@ namespace VirtualVitrine.UI.Menu
             MyPrefs.CheckPlayerPrefs();
             SetElementsToPlayerPrefs();
             SetDelegates();
-        }
-
-        private void OnDestroy()
-        {
-            if (faceTrackingInstance != null)
-                Destroy(faceTrackingInstance);
         }
 
         #endregion
@@ -185,12 +177,8 @@ namespace VirtualVitrine.UI.Menu
         private void ChangeCamPreview(TMP_Dropdown sender)
         {
             MyPrefs.CameraName = sender.options[sender.value].text;
-
-            // Reset face tracking.
-            if (faceTrackingInstance != null)
-                Destroy(faceTrackingInstance);
-            faceTrackingInstance = Instantiate(faceTracking);
-            faceTrackingInstance.SetActive(true);
+            if (faceTracking.WebCamTexture.deviceName != MyPrefs.CameraName)
+                faceTracking.ChangeWebcam();
         }
 
         private void ChangeSmoothing(TMP_Dropdown sender)

@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace VirtualVitrine.FaceTracking
@@ -11,7 +10,6 @@ namespace VirtualVitrine.FaceTracking
         [SerializeField] private int resolutionWidth;
 
         #endregion
-
 
         public RenderTexture RenderTexture { get; private set; }
         public WebCamTexture WebCamTexture { get; private set; }
@@ -26,8 +24,9 @@ namespace VirtualVitrine.FaceTracking
             WebCamTexture.Play();
 
             // Takes a bit for the webcam to initialize.
-            while (WebCamTexture.width == 16 || WebCamTexture.height == 16)
-                await Task.Yield();
+            // Might not be needed anymore, seems to work without it.
+            // while (WebCamTexture.width == 16 || WebCamTexture.height == 16)
+            //     await Task.Yield();
 
             int smallerDimension = Math.Min(WebCamTexture.width, WebCamTexture.height);
             RenderTexture = new RenderTexture(smallerDimension, smallerDimension, 0);
@@ -44,6 +43,12 @@ namespace VirtualVitrine.FaceTracking
 
         #endregion
 
+        public void ChangeWebcam()
+        {
+            WebCamTexture.Stop();
+            WebCamTexture.deviceName = MyPrefs.CameraName;
+            WebCamTexture.Play();
+        }
 
         public void SetAspectRatio()
         {
