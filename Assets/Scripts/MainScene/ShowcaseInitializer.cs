@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace VirtualVitrine
+namespace VirtualVitrine.MainScene
 {
     public class ShowcaseInitializer : MonoBehaviour
     {

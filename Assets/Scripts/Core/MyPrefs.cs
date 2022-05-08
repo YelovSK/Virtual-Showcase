@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using UnityEngine;
+using VirtualVitrine.MainScene;
 
 namespace VirtualVitrine
 {

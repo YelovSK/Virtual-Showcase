@@ -4,10 +4,13 @@ using UnityEngine.UI;
 using VirtualVitrine.FaceTracking;
 using VirtualVitrine.FaceTracking.Transform;
 
-namespace VirtualVitrine
+namespace VirtualVitrine.MainScene
 {
     public class CalibrationManager : MonoBehaviour
     {
+        // Is set by InputHandler in Awake().
+        public static string NextStateKeybind;
+
         #region Serialized Fields
 
         [Header("UI Elements")]
@@ -170,7 +173,7 @@ namespace VirtualVitrine
                 case States.SLIDERS:
                     MyPrefs.TopCalibration = EyeSmoother.EyeCenter.y;
                     guideText.text =
-                        "Set the sliders and keep your head pointed at the display from the given distance, then press 'Enter'";
+                        $"Set the sliders and keep your head pointed at the display from the given distance, then press '{NextStateKeybind}'";
                     HighlightEdge();
                     break;
                 // Set focal length and hide UI.
@@ -184,7 +187,7 @@ namespace VirtualVitrine
 
         private void SetGuideText(string edgeText)
         {
-            string text = "Align your head with the " + edgeText + " edge of the display and press 'Enter'";
+            var text = $"Align your head with the {edgeText} edge of the display and press '{NextStateKeybind}'";
             guideText.text = text;
         }
 

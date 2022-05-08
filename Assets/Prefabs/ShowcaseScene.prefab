@@ -1817,6 +1817,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerInput: {fileID: 3818405460032700375}
+  inputActions: {fileID: 0}
   showcaseInitializer: {fileID: 4982659725431650790}
   calibrationManager: {fileID: 5166467350296463434}
   rotationImage: {fileID: 1786174537506506360}

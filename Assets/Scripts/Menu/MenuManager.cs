@@ -5,8 +5,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using VirtualVitrine.FaceTracking;
+using VirtualVitrine.MainScene;
 
-namespace VirtualVitrine.UI.Menu
+namespace VirtualVitrine.Menu
 {
     public class MenuManager : MonoBehaviour
     {

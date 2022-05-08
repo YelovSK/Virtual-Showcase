@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityMeshSimplifier;
 using VirtualVitrine.FaceTracking.Transform;
 
-namespace VirtualVitrine
+namespace VirtualVitrine.MainScene
 {
     public class ModelLoader : MonoBehaviour
     {
