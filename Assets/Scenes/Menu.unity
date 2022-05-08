@@ -1920,6 +1920,10 @@ PrefabInstance:
       value: 71a485d2-910c-4396-ace4-a39754c39fa6
       objectReference: {fileID: 0}
     - target: {fileID: 6680292650503350826, guid: f25dcd618d3acd64795bf8bb32edb6c9, type: 3}
+      propertyPath: m_RebindText
+      value: 
+      objectReference: {fileID: 1986874180}
+    - target: {fileID: 6680292650503350826, guid: f25dcd618d3acd64795bf8bb32edb6c9, type: 3}
       propertyPath: m_RebindOverlay
       value: 
       objectReference: {fileID: 375223182}
@@ -2064,6 +2068,10 @@ PrefabInstance:
       propertyPath: m_BindingId
       value: d47b9511-8427-45b6-b14c-e6cbf7ee1c4d
       objectReference: {fileID: 0}
+    - target: {fileID: 6680292650503350826, guid: f25dcd618d3acd64795bf8bb32edb6c9, type: 3}
+      propertyPath: m_RebindText
+      value: 
+      objectReference: {fileID: 1986874180}
     - target: {fileID: 6680292650503350826, guid: f25dcd618d3acd64795bf8bb32edb6c9, type: 3}
       propertyPath: m_RebindOverlay
       value: 
@@ -3354,8 +3362,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: VirtualVitrine.UI.Menu.MenuManager, Assembly-CSharp
+      - m_Target: {fileID: 2147122650}
+        m_TargetAssemblyTypeName: VirtualVitrine.Menu.MenuManager, Assembly-CSharp
         m_MethodName: ResetSettings
         m_Mode: 1
         m_Arguments:
@@ -3749,8 +3757,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1198736958}
   m_HandleRect: {fileID: 1198736957}
   m_Direction: 2
-  m_Value: 1.0000007
-  m_Size: 0.63747317
+  m_Value: 1.0000026
+  m_Size: 0.89758307
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -4742,7 +4750,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1979118088}
         m_TargetAssemblyTypeName: VirtualVitrine.InputHandler, Assembly-CSharp
         m_MethodName: ResetAllBindings
         m_Mode: 1
@@ -5029,6 +5037,10 @@ PrefabInstance:
       propertyPath: m_BindingId
       value: bdb1b08f-0c9a-4961-bdbb-380a190b71f6
       objectReference: {fileID: 0}
+    - target: {fileID: 6680292650503350826, guid: f25dcd618d3acd64795bf8bb32edb6c9, type: 3}
+      propertyPath: m_RebindText
+      value: 
+      objectReference: {fileID: 1986874180}
     - target: {fileID: 6680292650503350826, guid: f25dcd618d3acd64795bf8bb32edb6c9, type: 3}
       propertyPath: m_RebindOverlay
       value: 
@@ -6568,6 +6580,10 @@ PrefabInstance:
       value: a1720048-d4e5-493a-b7a5-437a4b748e8b
       objectReference: {fileID: 0}
     - target: {fileID: 6680292650503350826, guid: f25dcd618d3acd64795bf8bb32edb6c9, type: 3}
+      propertyPath: m_RebindText
+      value: 
+      objectReference: {fileID: 1986874180}
+    - target: {fileID: 6680292650503350826, guid: f25dcd618d3acd64795bf8bb32edb6c9, type: 3}
       propertyPath: m_RebindOverlay
       value: 
       objectReference: {fileID: 375223182}
@@ -7593,6 +7609,10 @@ PrefabInstance:
       value: 5148b7cd-0e27-40cf-80db-a961422cf54c
       objectReference: {fileID: 0}
     - target: {fileID: 6680292650503350826, guid: f25dcd618d3acd64795bf8bb32edb6c9, type: 3}
+      propertyPath: m_RebindText
+      value: 
+      objectReference: {fileID: 1986874180}
+    - target: {fileID: 6680292650503350826, guid: f25dcd618d3acd64795bf8bb32edb6c9, type: 3}
       propertyPath: m_RebindOverlay
       value: 
       objectReference: {fileID: 375223182}
@@ -7909,6 +7929,10 @@ PrefabInstance:
       propertyPath: m_BindingId
       value: d24e332d-79b8-43b6-8e05-f3a07e6771f6
       objectReference: {fileID: 0}
+    - target: {fileID: 6680292650503350826, guid: f25dcd618d3acd64795bf8bb32edb6c9, type: 3}
+      propertyPath: m_RebindText
+      value: 
+      objectReference: {fileID: 1986874180}
     - target: {fileID: 6680292650503350826, guid: f25dcd618d3acd64795bf8bb32edb6c9, type: 3}
       propertyPath: m_RebindOverlay
       value: 
@@ -8309,7 +8333,7 @@ RectTransform:
   m_Father: {fileID: 521292545}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.36252683}
+  m_AnchorMin: {x: 0, y: 0.10241693}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
@@ -9218,6 +9242,10 @@ PrefabInstance:
       propertyPath: m_BindingId
       value: 78edd6e3-ef15-4eb8-9580-29919300604e
       objectReference: {fileID: 0}
+    - target: {fileID: 6680292650503350826, guid: f25dcd618d3acd64795bf8bb32edb6c9, type: 3}
+      propertyPath: m_RebindText
+      value: 
+      objectReference: {fileID: 1986874180}
     - target: {fileID: 6680292650503350826, guid: f25dcd618d3acd64795bf8bb32edb6c9, type: 3}
       propertyPath: m_RebindOverlay
       value: 
@@ -10245,6 +10273,10 @@ PrefabInstance:
       propertyPath: m_BindingId
       value: a46ebd4c-328c-4f9c-95fd-3ffc464d10de
       objectReference: {fileID: 0}
+    - target: {fileID: 6680292650503350826, guid: f25dcd618d3acd64795bf8bb32edb6c9, type: 3}
+      propertyPath: m_RebindText
+      value: 
+      objectReference: {fileID: 1986874180}
     - target: {fileID: 6680292650503350826, guid: f25dcd618d3acd64795bf8bb32edb6c9, type: 3}
       propertyPath: m_RebindOverlay
       value: 
@@ -11412,6 +11444,10 @@ PrefabInstance:
       value: bc58d319-e696-4cfc-a82e-fd7aad468726
       objectReference: {fileID: 0}
     - target: {fileID: 6680292650503350826, guid: f25dcd618d3acd64795bf8bb32edb6c9, type: 3}
+      propertyPath: m_RebindText
+      value: 
+      objectReference: {fileID: 1986874180}
+    - target: {fileID: 6680292650503350826, guid: f25dcd618d3acd64795bf8bb32edb6c9, type: 3}
       propertyPath: m_RebindOverlay
       value: 
       objectReference: {fileID: 375223182}
@@ -11556,6 +11592,10 @@ PrefabInstance:
       propertyPath: m_BindingId
       value: abef33ac-ab98-4755-8fbd-c9a473309a0a
       objectReference: {fileID: 0}
+    - target: {fileID: 6680292650503350826, guid: f25dcd618d3acd64795bf8bb32edb6c9, type: 3}
+      propertyPath: m_RebindText
+      value: 
+      objectReference: {fileID: 1986874180}
     - target: {fileID: 6680292650503350826, guid: f25dcd618d3acd64795bf8bb32edb6c9, type: 3}
       propertyPath: m_RebindOverlay
       value: 
@@ -13138,6 +13178,10 @@ PrefabInstance:
       propertyPath: m_BindingId
       value: 724fc707-23bc-4a2c-8cea-482c8fed928e
       objectReference: {fileID: 0}
+    - target: {fileID: 6680292650503350826, guid: f25dcd618d3acd64795bf8bb32edb6c9, type: 3}
+      propertyPath: m_RebindText
+      value: 
+      objectReference: {fileID: 1986874180}
     - target: {fileID: 6680292650503350826, guid: f25dcd618d3acd64795bf8bb32edb6c9, type: 3}
       propertyPath: m_RebindOverlay
       value: 

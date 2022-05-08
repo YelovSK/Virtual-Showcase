@@ -1,4 +1,6 @@
 #if UNITY_EDITOR
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -47,6 +49,23 @@ namespace VirtualVitrine.Menu
             SceneView.duringSceneGui -= OnSceneGUI;
         }
 
+        private static void SetActive(bool mainActive, bool optionsActive, bool rebindActive)
+        {
+            main.SetActive(mainActive);
+            options.SetActive(optionsActive);
+            rebind.SetActive(rebindActive);
+            // If all selected, don't expand.
+            if (mainActive && optionsActive && rebindActive)
+            {
+                mainActive = false;
+                optionsActive = false;
+                rebindActive = false;
+            }
+            SceneHierarchyUtility.SetExpanded(main, mainActive);
+            SceneHierarchyUtility.SetExpanded(options, optionsActive);
+            SceneHierarchyUtility.SetExpanded(rebind, rebindActive);
+        }
+
         private static void OnSceneGUI(SceneView sceneview)
         {
             Handles.BeginGUI();
@@ -54,34 +73,106 @@ namespace VirtualVitrine.Menu
 
             if (GUILayout.Button("All"))
             {
-                main.SetActive(true);
-                options.SetActive(true);
-                rebind.SetActive(true);
+                SetActive(true, true, true);
             }
 
             if (GUILayout.Button("Main"))
             {
-                main.SetActive(true);
-                options.SetActive(false);
-                rebind.SetActive(false);
+                SetActive(true, false, false);
             }
 
             if (GUILayout.Button("Options"))
             {
-                main.SetActive(false);
-                options.SetActive(true);
-                rebind.SetActive(false);
+                SetActive(false, true, false);
             }
 
             if (GUILayout.Button("Rebind"))
             {
-                main.SetActive(false);
-                options.SetActive(false);
-                rebind.SetActive(true);
+                SetActive(false, false, true);
             }
 
             GUILayout.EndHorizontal();
             Handles.EndGUI();
+        }
+        
+    }
+    
+    /// <summary>
+    /// https://github.com/sandolkakos/unity-utilities/blob/main/Scripts/Editor/SceneHierarchyUtility.cs
+    /// Editor functionalities from internal SceneHierarchyWindow and SceneHierarchy classes. 
+    /// For that we are using reflection.
+    /// </summary>
+    public static class SceneHierarchyUtility
+    {
+        /// <summary>
+        /// Check if the target GameObject is expanded (aka unfolded) in the Hierarchy view.
+        /// </summary>
+        public static bool IsExpanded(GameObject go)
+        {
+            return GetExpandedGameObjects().Contains(go);
+        }
+
+        /// <summary>
+        /// Get a list of all GameObjects which are expanded (aka unfolded) in the Hierarchy view.
+        /// </summary>
+        public static List<GameObject> GetExpandedGameObjects()
+        {
+            object sceneHierarchy = GetSceneHierarchy();
+
+            MethodInfo methodInfo = sceneHierarchy
+                .GetType()
+                .GetMethod("GetExpandedGameObjects");
+
+            object result = methodInfo.Invoke(sceneHierarchy, new object[0]);
+
+            return (List<GameObject>)result;
+        }
+
+        /// <summary>
+        /// Set the target GameObject as expanded (aka unfolded) in the Hierarchy view.
+        /// </summary>
+        public static void SetExpanded(GameObject go, bool expand)
+        {
+            object sceneHierarchy = GetSceneHierarchy();
+
+            MethodInfo methodInfo = sceneHierarchy
+                .GetType()
+                .GetMethod("ExpandTreeViewItem", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            methodInfo.Invoke(sceneHierarchy, new object[] { go.GetInstanceID(), expand });
+        }
+
+        /// <summary>
+        /// Set the target GameObject and all children as expanded (aka unfolded) in the Hierarchy view.
+        /// </summary>
+        public static void SetExpandedRecursive(GameObject go, bool expand)
+        {
+            object sceneHierarchy = GetSceneHierarchy();
+
+            MethodInfo methodInfo = sceneHierarchy
+                .GetType()
+                .GetMethod("SetExpandedRecursive", BindingFlags.Public | BindingFlags.Instance);
+
+            methodInfo.Invoke(sceneHierarchy, new object[] { go.GetInstanceID(), expand });
+        }
+
+        private static object GetSceneHierarchy()
+        {
+            EditorWindow window = GetHierarchyWindow();
+
+            object sceneHierarchy = typeof(EditorWindow).Assembly
+                .GetType("UnityEditor.SceneHierarchyWindow")
+                .GetProperty("sceneHierarchy")
+                ?.GetValue(window);
+
+            return sceneHierarchy;
+        }
+
+        private static EditorWindow GetHierarchyWindow()
+        {
+            // For it to open, so that it the current focused window.
+            EditorApplication.ExecuteMenuItem("Window/General/Hierarchy");
+            return EditorWindow.focusedWindow;
         }
     }
 }
