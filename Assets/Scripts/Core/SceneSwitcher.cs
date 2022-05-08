@@ -1,20 +1,42 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VirtualVitrine.MainScene;
 
 namespace VirtualVitrine
 {
     public class SceneSwitcher : MonoBehaviour
     {
-        public static bool InMainScene => SceneManager.GetActiveScene().name != "Menu";
+        private static SceneSwitcher instance;
+
+        #region Serialized Fields
+
+        [SerializeField] private GameObject loadingScreen;
+
+        #endregion
+
+        public static bool InMainScene => !InMenu;
+        public static bool InMenu => SceneManager.GetActiveScene().name == "Menu";
+
+        #region Event Functions
+
+        private void Awake()
+        {
+            instance = this;
+        }
+
+        #endregion
 
         public static void Quit()
         {
             Application.Quit();
         }
 
-        public static void SwitchScene()
+        public static void ToggleMenu()
         {
-            SceneManager.LoadScene(InMainScene ? "Menu" : MyPrefs.MainScene);
+            // Show loading screen if model is going to load.
+            if (InMenu && ModelLoader.Model == null)
+                instance.loadingScreen.SetActive(true);
+            SceneManager.LoadSceneAsync(InMainScene ? "Menu" : MyPrefs.MainScene);
         }
 
         public static void SwitchDifferentMain()

@@ -34,9 +34,9 @@ namespace VirtualVitrine
         {
             // Toggle menu/main scene.
             if (Keyboard.current.escapeKey.wasPressedThisFrame)
-                SceneSwitcher.SwitchScene();
+                SceneSwitcher.ToggleMenu();
 
-            if (!SceneSwitcher.InMainScene)
+            if (SceneSwitcher.InMenu)
                 return;
 
             if (playerInput.actions["Main scene switch"].WasPressedThisFrame())
