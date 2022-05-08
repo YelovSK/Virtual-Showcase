@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using VirtualVitrine.MainScene;
 
 namespace VirtualVitrine
 {
@@ -23,6 +24,11 @@ namespace VirtualVitrine
         #endregion
 
         #region Event Functions
+
+        private void Awake()
+        {
+            CalibrationManager.NextStateKeybind = playerInput.actions["Next calibration"].GetBindingDisplayString();
+        }
 
         private void Update()
         {

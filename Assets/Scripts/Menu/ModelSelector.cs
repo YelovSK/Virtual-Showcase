@@ -3,8 +3,9 @@ using System.Linq;
 using SimpleFileBrowser;
 using TMPro;
 using UnityEngine;
+using VirtualVitrine.MainScene;
 
-namespace VirtualVitrine.UI.Menu
+namespace VirtualVitrine.Menu
 {
     public class ModelSelector : MonoBehaviour
     {

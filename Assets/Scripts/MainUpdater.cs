@@ -5,8 +5,10 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using VirtualVitrine.FaceTracking;
+using VirtualVitrine.FaceTracking.GlassesCheck;
 using VirtualVitrine.FaceTracking.Marker;
 using VirtualVitrine.FaceTracking.Transform;
+using VirtualVitrine.MainScene;
 
 namespace VirtualVitrine
 {
