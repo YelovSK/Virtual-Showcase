@@ -49,12 +49,22 @@ namespace VirtualVitrine.Menu
 
         private void Start()
         {
+            // I sometimes disable menu objects in editor because they overlap.
+            EnableCanvasObjects();
             MyPrefs.CheckPlayerPrefs();
             SetElementsToPlayerPrefs();
             SetDelegates();
         }
 
         #endregion
+
+        private static void EnableCanvasObjects()
+        {
+            GameObject canvas = GameObject.Find("Canvas");
+            canvas.transform.Find("Main menu").gameObject.SetActive(true);
+            canvas.transform.Find("Options menu").gameObject.SetActive(true);
+            canvas.transform.Find("Rebind menu").gameObject.SetActive(true);
+        }
 
 
         public void ResetSettings()
