@@ -19,10 +19,27 @@ namespace VirtualVitrine.Menu
 
         static EditorButtons()
         {
+            SetPlayModeStartScene();
+
             // When scene changes in the editor, enable/disable depending on the scene.
-            if (EditorSceneManager.GetActiveScene().name == "Menu")
-                Enable();
+            // delayCall because sceneOpened doesn't get called on startup.
+            EditorApplication.delayCall += () =>
+            {
+                if (SceneManager.GetActiveScene().name == "Menu")
+                    Enable();
+            };
+
             EditorSceneManager.sceneOpened += CheckScene;
+        }
+
+        private static void SetPlayModeStartScene()
+        {
+            const string scenePath = "Assets/Scenes/Menu.unity";
+            var myWantedStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(scenePath);
+            if (myWantedStartScene != null)
+                EditorSceneManager.playModeStartScene = myWantedStartScene;
+            else
+                Debug.Log("Could not find Scene " + scenePath);
         }
 
         private static void CheckScene(Scene scene, OpenSceneMode mode)
@@ -61,6 +78,7 @@ namespace VirtualVitrine.Menu
                 optionsActive = false;
                 rebindActive = false;
             }
+
             SceneHierarchyUtility.SetExpanded(main, mainActive);
             SceneHierarchyUtility.SetExpanded(options, optionsActive);
             SceneHierarchyUtility.SetExpanded(rebind, rebindActive);
@@ -71,41 +89,28 @@ namespace VirtualVitrine.Menu
             Handles.BeginGUI();
             GUILayout.BeginHorizontal("box");
 
-            if (GUILayout.Button("All"))
-            {
-                SetActive(true, true, true);
-            }
+            if (GUILayout.Button("All")) SetActive(true, true, true);
 
-            if (GUILayout.Button("Main"))
-            {
-                SetActive(true, false, false);
-            }
+            if (GUILayout.Button("Main")) SetActive(true, false, false);
 
-            if (GUILayout.Button("Options"))
-            {
-                SetActive(false, true, false);
-            }
+            if (GUILayout.Button("Options")) SetActive(false, true, false);
 
-            if (GUILayout.Button("Rebind"))
-            {
-                SetActive(false, false, true);
-            }
+            if (GUILayout.Button("Rebind")) SetActive(false, false, true);
 
             GUILayout.EndHorizontal();
             Handles.EndGUI();
         }
-        
     }
-    
+
     /// <summary>
-    /// https://github.com/sandolkakos/unity-utilities/blob/main/Scripts/Editor/SceneHierarchyUtility.cs
-    /// Editor functionalities from internal SceneHierarchyWindow and SceneHierarchy classes. 
-    /// For that we are using reflection.
+    ///     https://github.com/sandolkakos/unity-utilities/blob/main/Scripts/Editor/SceneHierarchyUtility.cs
+    ///     Editor functionalities from internal SceneHierarchyWindow and SceneHierarchy classes.
+    ///     For that we are using reflection.
     /// </summary>
     public static class SceneHierarchyUtility
     {
         /// <summary>
-        /// Check if the target GameObject is expanded (aka unfolded) in the Hierarchy view.
+        ///     Check if the target GameObject is expanded (aka unfolded) in the Hierarchy view.
         /// </summary>
         public static bool IsExpanded(GameObject go)
         {
@@ -113,7 +118,7 @@ namespace VirtualVitrine.Menu
         }
 
         /// <summary>
-        /// Get a list of all GameObjects which are expanded (aka unfolded) in the Hierarchy view.
+        ///     Get a list of all GameObjects which are expanded (aka unfolded) in the Hierarchy view.
         /// </summary>
         public static List<GameObject> GetExpandedGameObjects()
         {
@@ -125,11 +130,11 @@ namespace VirtualVitrine.Menu
 
             object result = methodInfo.Invoke(sceneHierarchy, new object[0]);
 
-            return (List<GameObject>)result;
+            return (List<GameObject>) result;
         }
 
         /// <summary>
-        /// Set the target GameObject as expanded (aka unfolded) in the Hierarchy view.
+        ///     Set the target GameObject as expanded (aka unfolded) in the Hierarchy view.
         /// </summary>
         public static void SetExpanded(GameObject go, bool expand)
         {
@@ -139,11 +144,11 @@ namespace VirtualVitrine.Menu
                 .GetType()
                 .GetMethod("ExpandTreeViewItem", BindingFlags.NonPublic | BindingFlags.Instance);
 
-            methodInfo.Invoke(sceneHierarchy, new object[] { go.GetInstanceID(), expand });
+            methodInfo.Invoke(sceneHierarchy, new object[] {go.GetInstanceID(), expand});
         }
 
         /// <summary>
-        /// Set the target GameObject and all children as expanded (aka unfolded) in the Hierarchy view.
+        ///     Set the target GameObject and all children as expanded (aka unfolded) in the Hierarchy view.
         /// </summary>
         public static void SetExpandedRecursive(GameObject go, bool expand)
         {
@@ -153,7 +158,7 @@ namespace VirtualVitrine.Menu
                 .GetType()
                 .GetMethod("SetExpandedRecursive", BindingFlags.Public | BindingFlags.Instance);
 
-            methodInfo.Invoke(sceneHierarchy, new object[] { go.GetInstanceID(), expand });
+            methodInfo.Invoke(sceneHierarchy, new object[] {go.GetInstanceID(), expand});
         }
 
         private static object GetSceneHierarchy()

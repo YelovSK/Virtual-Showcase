@@ -34,7 +34,7 @@ namespace VirtualVitrine
         public static void ToggleMenu()
         {
             // Show loading screen if model is going to load.
-            if (InMenu && ModelLoader.Model == null)
+            if (InMenu && ModelLoader.Model == null && MyPrefs.ModelPath != "")
                 instance.loadingScreen.SetActive(true);
             SceneManager.LoadSceneAsync(InMainScene ? "Menu" : MyPrefs.MainScene);
         }
