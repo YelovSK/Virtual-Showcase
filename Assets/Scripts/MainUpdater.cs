@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using MediaPipe.BlazeFace;
 using TMPro;
@@ -121,7 +122,8 @@ namespace VirtualVitrine
             detector.ProcessImage(input, MyPrefs.DetectionThreshold);
 
             // Check if any detections were found.
-            bool faceFound = detector.Detections.Any();
+            List<FaceDetector.Detection> detections = detector.Detections.ToList();
+            bool faceFound = detections.Any();
 
             // Activate/Deactivate marker if face was/wasn't found.
             keyPointsUpdater.gameObject.SetActive(faceFound);
@@ -129,7 +131,7 @@ namespace VirtualVitrine
             if (faceFound)
             {
                 // Get detection with largest bounding box.
-                FaceDetector.Detection largestFace = detector.Detections
+                FaceDetector.Detection largestFace = detections
                     .OrderByDescending(x => x.extent.magnitude)
                     .First();
                 KeyPointsUpdater.Detection = largestFace;
