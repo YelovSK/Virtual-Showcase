@@ -100,10 +100,6 @@ namespace VirtualVitrine.MainScene
             // Vertex count of all meshes.
             int vertexCount = meshFilters.Sum(x => x.mesh.vertexCount);
 
-            // Simplify only if vertex count is at least 25% more than the max vertex count.
-            if (vertexCount < maxVertexCount * 1.25f)
-                return;
-
             // Quality is the percentage of vertices to keep. In our case we want maxVertexCount vertices.
             float quality = (float) maxVertexCount / vertexCount;
             int percentReduction = Mathf.RoundToInt((1.0f - quality) * 100);
@@ -128,8 +124,15 @@ namespace VirtualVitrine.MainScene
             // Runs asynchronously.
             await Task.Run(() => meshSimplifier.SimplifyMesh(quality));
 
-            // Create our final mesh and apply it back to our mesh filter.
-            meshFilter.sharedMesh = meshSimplifier.ToMesh();
+            // Get simplified mesh.
+            var finalMesh = meshSimplifier.ToMesh();
+
+            // Optimize mesh.
+            finalMesh.Optimize();
+            finalMesh.name = "Optimized mesh";
+
+            // Set the simplified mesh to the mesh filter.
+            meshFilter.sharedMesh = finalMesh;
 
             // If all tasks are done, update status text.
             runningTasks[meshFilter] = false;

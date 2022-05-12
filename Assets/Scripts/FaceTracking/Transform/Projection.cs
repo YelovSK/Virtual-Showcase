@@ -133,10 +133,10 @@ namespace VirtualVitrine.FaceTracking.Transform
             // Cache variables.
             float width = ScreenWidth;
             float height = ScreenHeight;
-            UnityEngine.Transform screen = virtualWindow.transform;
 
             // Screen position relative to the head (camera).
-            Vector3 screenPos = cam.transform.InverseTransformPoint(screen.position);
+            Vector3 screenPos = transform.localPosition * -1;
+            // Vector3 screenPos = cam.transform.InverseTransformPoint(virtualWindow.transform.position);
 
             // Coordinates of the frustum's sides at screen distance.
             float screenLeftX = screenPos.x - width / 2;
