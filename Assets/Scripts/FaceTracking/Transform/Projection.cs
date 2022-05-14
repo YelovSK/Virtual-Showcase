@@ -15,10 +15,9 @@ namespace VirtualVitrine.FaceTracking.Transform
 
         [SerializeField] private bool drawGizmos;
         [SerializeField] private Camera[] cameras;
+        [SerializeField] private GameObject virtualWindow;
 
         #endregion
-
-        private GameObject virtualWindow;
 
 
         public int ScreenDistance
@@ -49,7 +48,7 @@ namespace VirtualVitrine.FaceTracking.Transform
 
         private void Awake()
         {
-            virtualWindow = transform.parent.gameObject;
+            UpdateCameraProjection();
         }
 
         private void Start()
@@ -120,7 +119,9 @@ namespace VirtualVitrine.FaceTracking.Transform
                 cam.nearClipPlane = Math.Max(headDistance - 30f, 0.1f);
                 cam.farClipPlane = headDistance + 200;
             }
-            UpdateCameraProjection();
+
+            // Update camera view to avoid flicker while using the sliders.
+            GetComponent<CameraTransform>().Transform();
         }
 
         public void UpdateCameraProjection()

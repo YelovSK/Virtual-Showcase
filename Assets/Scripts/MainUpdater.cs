@@ -21,10 +21,10 @@ namespace VirtualVitrine
         [SerializeField] private ResourceSet resources;
         [SerializeField] private Texture2D defaultCamTexture;
         [SerializeField] private KeyPointsUpdater keyPointsUpdater;
+        [SerializeField] private CameraTransform cameraTransform;
 
         #endregion
 
-        private CameraTransform cameraTransform;
         private ColourChecker colourChecker;
 
         // Barracuda face detector
@@ -44,7 +44,6 @@ namespace VirtualVitrine
             webcamInput = GetComponent<WebcamInput>();
             colourChecker = GetComponent<ColourChecker>();
             eyeSmoother = GetComponent<EyeSmoother>();
-            cameraTransform = GetComponent<CameraTransform>();
             distanceText = previewUI.GetComponentInChildren<TMP_Text>();
         }
 

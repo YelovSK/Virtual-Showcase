@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
@@ -86,6 +85,9 @@ namespace VirtualVitrine.Menu
 
         private static void OnSceneGUI(SceneView sceneview)
         {
+            if (SceneManager.GetActiveScene().name != "Menu")
+                Disable();
+
             Handles.BeginGUI();
             GUILayout.BeginHorizontal("box");
 
@@ -181,4 +183,3 @@ namespace VirtualVitrine.Menu
         }
     }
 }
-#endif
