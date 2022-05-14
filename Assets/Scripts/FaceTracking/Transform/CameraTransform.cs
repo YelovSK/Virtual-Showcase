@@ -6,7 +6,7 @@ namespace VirtualVitrine.FaceTracking.Transform
     {
         #region Serialized Fields
 
-        [SerializeField] private Projection head;
+        [SerializeField] private Projection projection;
 
         #endregion
 
@@ -14,7 +14,7 @@ namespace VirtualVitrine.FaceTracking.Transform
 
         private void Start()
         {
-            head.UpdateCameraProjection();
+            projection.UpdateCameraProjection();
         }
 
         #endregion
@@ -47,8 +47,8 @@ namespace VirtualVitrine.FaceTracking.Transform
             float y = (centerY - 0.5f) * Projection.ScreenHeight;
 
             // Update the position of the head.
-            head.transform.localPosition = new Vector3(x, y, head.transform.localPosition.z);
-            head.UpdateCameraProjection();
+            transform.localPosition = new Vector3(x, y, transform.localPosition.z);
+            projection.UpdateCameraProjection();
         }
     }
 }

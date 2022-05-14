@@ -2052,6 +2052,30 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 737725884875882689, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -26.565622
+      objectReference: {fileID: 0}
+    - target: {fileID: 737725884875882689, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -14.943162
+      objectReference: {fileID: 0}
+    - target: {fileID: 737725884875882689, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -72
+      objectReference: {fileID: 0}
+    - target: {fileID: 1096265926849961742, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: cameraTransform
+      value: 
+      objectReference: {fileID: 780572477}
+    - target: {fileID: 2702192816293590792, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: far clip plane
+      value: 272
+      objectReference: {fileID: 0}
+    - target: {fileID: 2702192816293590792, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: near clip plane
+      value: 42
+      objectReference: {fileID: 0}
     - target: {fileID: 4735200000332096641, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
       propertyPath: m_Name
       value: ShowcaseScene
@@ -2099,6 +2123,30 @@ PrefabInstance:
     - target: {fileID: 4802749613396756881, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4911283685943948716, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: far clip plane
+      value: 272
+      objectReference: {fileID: 0}
+    - target: {fileID: 4911283685943948716, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: near clip plane
+      value: 42
+      objectReference: {fileID: 0}
+    - target: {fileID: 5939306072400790220, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: far clip plane
+      value: 272
+      objectReference: {fileID: 0}
+    - target: {fileID: 5939306072400790220, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: near clip plane
+      value: 42
+      objectReference: {fileID: 0}
+    - target: {fileID: 8435314309311949007, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -3
+      objectReference: {fileID: 0}
+    - target: {fileID: 9103602234443187511, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
@@ -2185,6 +2233,17 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 770821564}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &780572477 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6102471510307375560, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+  m_PrefabInstance: {fileID: 755758389}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72d5ec8cff1149c4db37c032d0b7e125, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &785328416
 GameObject:
   m_ObjectHideFlags: 0
