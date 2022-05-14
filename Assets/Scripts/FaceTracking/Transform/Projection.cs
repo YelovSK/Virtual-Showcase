@@ -120,6 +120,7 @@ namespace VirtualVitrine.FaceTracking.Transform
                 cam.nearClipPlane = Math.Max(headDistance - 30f, 0.1f);
                 cam.farClipPlane = headDistance + 200;
             }
+            UpdateCameraProjection();
         }
 
         public void UpdateCameraProjection()
@@ -135,8 +136,7 @@ namespace VirtualVitrine.FaceTracking.Transform
             float height = ScreenHeight;
 
             // Screen position relative to the head (camera).
-            Vector3 screenPos = transform.localPosition * -1;
-            // Vector3 screenPos = cam.transform.InverseTransformPoint(virtualWindow.transform.position);
+            Vector3 screenPos = cam.transform.InverseTransformPoint(virtualWindow.transform.position);
 
             // Coordinates of the frustum's sides at screen distance.
             float screenLeftX = screenPos.x - width / 2;
