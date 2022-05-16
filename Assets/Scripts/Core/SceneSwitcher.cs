@@ -36,7 +36,11 @@ namespace VirtualVitrine
             // Show loading screen if model is going to load.
             if (InMenu && ModelLoader.Model == null && MyPrefs.ModelPath != "")
                 instance.loadingScreen.SetActive(true);
-            SceneManager.LoadSceneAsync(InMainScene ? "Menu" : MyPrefs.MainScene);
+
+            // Cursor visible in menu, invisible in main scene. Set before switching scene, thus reverse.
+            Cursor.visible = InMainScene;
+
+            SceneManager.LoadScene(InMainScene ? "Menu" : MyPrefs.MainScene);
         }
 
         public static void SwitchDifferentMain()
