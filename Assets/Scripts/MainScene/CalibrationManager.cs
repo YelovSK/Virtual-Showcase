@@ -103,12 +103,14 @@ namespace VirtualVitrine.MainScene
             // If UI is disabled, go to the first state.
             if (state == States.OFF)
             {
+                Cursor.visible = true;
                 state = state.Next();
                 UpdateState();
             }
             // Else disable UI.
             else
             {
+                Cursor.visible = false;
                 state = States.OFF;
                 TurnOffPreview();
             }

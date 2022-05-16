@@ -78,12 +78,12 @@ namespace VirtualVitrine.FaceTracking
 
             // Calculate new average.
             LeftEyeSmoothed = new Vector2(
-                leftEyeHistory.Average(x => x[0]),
-                leftEyeHistory.Average(x => x[1])
+                leftEyeHistory.Average(eye => eye.x),
+                leftEyeHistory.Average(eye => eye.y)
             );
             RightEyeSmoothed = new Vector2(
-                rightEyeHistory.Average(x => x[0]),
-                rightEyeHistory.Average(x => x[1])
+                rightEyeHistory.Average(eye => eye.x),
+                rightEyeHistory.Average(eye => eye.y)
             );
         }
     }
