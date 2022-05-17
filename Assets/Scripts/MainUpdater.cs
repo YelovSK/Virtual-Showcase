@@ -158,6 +158,7 @@ namespace VirtualVitrine
             float size = distanceText.fontSize / 2.2f;
             distanceText.text =
                 $"<color={color}>{difference}</color> <size={size}>(<color={color}>{currentDistance}cm</color> vs {calibratedDistance}cm)</size>";
+            distanceText.ForceMeshUpdate();
         }
     }
 }

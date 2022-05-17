@@ -2589,7 +2589,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   header: Quality
-  tooltip: Set lower quality for better performance.
+  tooltip: 'High: high res shadows, 8x MSAA
+
+    Medium: low res shadows, 2x MSAA
+
+    Low:
+    no shadows, 0.77x render scale'
 --- !u!114 &327821819
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3476,7 +3481,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   header: Model
-  tooltip: File that gets loaded in the main scene.
+  tooltip: File that gets loaded when switching to the main scene for the first time.
 --- !u!1 &419963614
 GameObject:
   m_ObjectHideFlags: 0
@@ -4611,8 +4616,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1198736958}
   m_HandleRect: {fileID: 1198736957}
   m_Direction: 2
-  m_Value: 1.000001
-  m_Size: 0.63784975
+  m_Value: 1.0000007
+  m_Size: 0.63731056
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -6585,7 +6590,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ccf3077ed8c55f4b92714956ae7d372, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  header: 
+  header: Hue threshold
   tooltip: Range in degrees for the chosen colour.
 --- !u!1 &885008738
 GameObject:
@@ -7967,15 +7972,15 @@ RectTransform:
   m_GameObject: {fileID: 997684523}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.0025, y: 2.0025, z: 2.0025}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1774765269}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: 75}
+  m_AnchoredPosition: {x: 0, y: 118}
   m_SizeDelta: {x: 140, y: 35}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &997684525
@@ -9938,7 +9943,7 @@ RectTransform:
   m_Father: {fileID: 521292545}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.36215025}
+  m_AnchorMin: {x: 0, y: 0.36268944}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
@@ -14295,11 +14300,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ccf3077ed8c55f4b92714956ae7d372, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  header: Glasses
-  tooltip: 'If checked, transform camera only if glasses found.
+  header: Glasses check
+  tooltip: 'On: transforms camera if pixel count threshold of the set hue passed.
 
-    Else transform
-    always.'
+    Off:
+    always transforms camera.'
 --- !u!1 &1726277694
 GameObject:
   m_ObjectHideFlags: 0
@@ -14765,8 +14770,8 @@ RectTransform:
   m_GameObject: {fileID: 1762262107}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1989531991}
   - {fileID: 768943977}
@@ -14776,7 +14781,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: -75}
+  m_AnchoredPosition: {x: 0, y: -113}
   m_SizeDelta: {x: 449.6653, y: 67.44989}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1762262109
@@ -17337,10 +17342,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ccf3077ed8c55f4b92714956ae7d372, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  header: Smoothing
-  tooltip: 'Smoothing of eye keypoints.
-
-    Works best with higher framerate cameras.'
+  header: Eye keypoints smoothing
+  tooltip: Works best with higher framerate cameras.
 --- !u!1 &2147122648
 GameObject:
   m_ObjectHideFlags: 0
@@ -17473,11 +17476,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1303517708724736024, guid: 22e2d045c3aa3d8488266b60b1a28f44, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 592.1843
+      value: 1000
       objectReference: {fileID: 0}
     - target: {fileID: 1303517708724736024, guid: 22e2d045c3aa3d8488266b60b1a28f44, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 592.1843
+      value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 1303517708724736024, guid: 22e2d045c3aa3d8488266b60b1a28f44, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1303517708724736024, guid: 22e2d045c3aa3d8488266b60b1a28f44, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1303517708724736024, guid: 22e2d045c3aa3d8488266b60b1a28f44, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 1303517708724736024, guid: 22e2d045c3aa3d8488266b60b1a28f44, type: 3}
       propertyPath: m_LocalPosition.x
@@ -17509,11 +17524,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1303517708724736024, guid: 22e2d045c3aa3d8488266b60b1a28f44, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 200
+      value: 176
       objectReference: {fileID: 0}
     - target: {fileID: 1303517708724736024, guid: 22e2d045c3aa3d8488266b60b1a28f44, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: 21
       objectReference: {fileID: 0}
     - target: {fileID: 1303517708724736024, guid: 22e2d045c3aa3d8488266b60b1a28f44, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -17526,6 +17541,10 @@ PrefabInstance:
     - target: {fileID: 1303517708724736024, guid: 22e2d045c3aa3d8488266b60b1a28f44, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1303517708724736024, guid: 22e2d045c3aa3d8488266b60b1a28f44, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 22e2d045c3aa3d8488266b60b1a28f44, type: 3}
