@@ -24,7 +24,6 @@ namespace VirtualVitrine.MainScene
 
         private void Awake()
         {
-            QualitySettings.SetQualityLevel(MyPrefs.QualityIndex, true);
             MyPrefs.CheckPlayerPrefs();
         }
 

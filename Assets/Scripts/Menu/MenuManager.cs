@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web.WebPages;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -106,7 +105,7 @@ namespace VirtualVitrine.Menu
                 resolutionDropdown.AddOptions(options);
             }
 
-            if (resolution.IsEmpty())
+            if (string.IsNullOrEmpty(resolution))
             {
                 Resolution res = resolutions.First();
                 Screen.SetResolution(res.width, res.height, FullScreenMode.ExclusiveFullScreen);

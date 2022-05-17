@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace VirtualVitrine.FaceTracking
@@ -18,16 +19,15 @@ namespace VirtualVitrine.FaceTracking
 
         #region Event Functions
 
-        private void Awake()
+        private async void Awake()
         {
-            QualitySettings.SetQualityLevel(0);
             WebCamTexture = new WebCamTexture(MyPrefs.CameraName, resolutionWidth, resolutionWidth);
             WebCamTexture.Play();
 
             // Takes a bit for the webcam to initialize.
             // Might not be needed anymore, seems to work without it.
-            // while (WebCamTexture.width == 16 || WebCamTexture.height == 16)
-            //     await Task.Yield();
+            while (WebCamTexture.width == 16 || WebCamTexture.height == 16)
+                await Task.Yield();
 
             int smallerDimension = Math.Min(WebCamTexture.width, WebCamTexture.height);
             RenderTexture = new RenderTexture(smallerDimension, smallerDimension, 0);

@@ -12,8 +12,7 @@ namespace VirtualVitrine.Menu.Tooltip
         #region Serialized Fields
 
         [SerializeField] private string header;
-        [Multiline]
-        [SerializeField] private string tooltip;
+        [Multiline] [SerializeField] private string tooltip;
 
         #endregion
 
@@ -56,7 +55,7 @@ namespace VirtualVitrine.Menu.Tooltip
             Tooltip.Show(tooltip, header);
             // The size of the rect doesn't update immediately, waiting for a frame.
             Tooltip.UpdatePosition(Mouse.current.position.ReadValue());
-            yield return new WaitForEndOfFrame();
+            yield return null;
             Tooltip.UpdatePosition(Mouse.current.position.ReadValue());
         }
     }
