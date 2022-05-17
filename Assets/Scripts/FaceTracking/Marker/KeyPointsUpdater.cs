@@ -11,11 +11,10 @@ namespace VirtualVitrine.FaceTracking.Marker
         #region Serialized Fields
 
         [SerializeField] private RectTransform[] keyPoints;
+        [SerializeField] private TMP_Text confidenceText;
 
         #endregion
 
-
-        private TMP_Text label;
         private RectTransform parent;
         private RectTransform xform;
 
@@ -25,7 +24,6 @@ namespace VirtualVitrine.FaceTracking.Marker
         {
             xform = GetComponent<RectTransform>();
             parent = (RectTransform) xform.parent;
-            label = GetComponentInChildren<TMP_Text>();
         }
 
         #endregion
@@ -52,7 +50,7 @@ namespace VirtualVitrine.FaceTracking.Marker
             // SetKeyPoint(keyPoints[5], Detection.rightEar);
 
             // Label.
-            label.text = $"{(int) (Detection.score * 100)}%";
+            confidenceText.text = $"{(int) (Detection.score * 100)}%";
         }
 
 
