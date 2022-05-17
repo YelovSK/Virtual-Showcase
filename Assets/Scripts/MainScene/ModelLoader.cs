@@ -6,6 +6,7 @@ using Dummiesman;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityMeshSimplifier;
 using VirtualVitrine.FaceTracking.Transform;
 
@@ -86,7 +87,7 @@ namespace VirtualVitrine.MainScene
             SimplifyObject(Model);
 
             // Change shader of material for URP compatibility.
-            MaterialsToURP(Model);
+            ConvertMaterialsToURP(Model);
 
             // Set layers.
             foreach (Transform child in Model.transform)
@@ -95,16 +96,25 @@ namespace VirtualVitrine.MainScene
             ResetTransform();
         }
 
-        private static void MaterialsToURP(GameObject model)
+        private static void ConvertMaterialsToURP(GameObject model)
         {
-            Material[] materials = model.GetComponentInChildren<Renderer>().sharedMaterials;
+            // Get all materials of Renderers in children.
+            Renderer[] renderers = model.GetComponentsInChildren<Renderer>();
+            IEnumerable<Material> materials = renderers.SelectMany(renderer => renderer.materials);
+
+            // Change every material to URP.
             foreach (Material mat in materials)
             {
+                // Save original texture, since on shader change it gets lost.
                 Texture tex = mat.mainTexture;
+                // Default URP shader.
                 mat.shader = Shader.Find("Universal Render Pipeline/Lit");
+                // Set back the texture.
                 mat.mainTexture = tex;
                 // Metallic to specular.
                 mat.EnableKeyword("_SPECULAR_SETUP");
+                // Render both sides.
+                mat.SetFloat("_Cull", (float) CullMode.Off);
             }
         }
 
