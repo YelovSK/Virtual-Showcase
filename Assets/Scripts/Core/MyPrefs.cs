@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Web.WebPages;
 using UnityEngine;
 using VirtualVitrine.MainScene;
 
@@ -219,7 +218,7 @@ namespace VirtualVitrine
         {
             get
             {
-                if (Resolution.IsEmpty())
+                if (string.IsNullOrEmpty(Resolution))
                     return new Resolution();
                 List<string> split = Resolution.Split('x').ToList();
                 var output = new Resolution();
