@@ -84,7 +84,7 @@ namespace VirtualVitrine.MainScene
             Model = new OBJLoader().Load(MyPrefs.ModelPath, mtlFilePath);
 
             // Simplify mesh.
-            // SimplifyObject(Model);
+            SimplifyObject(Model);
 
             // Change shader of material for URP compatibility.
             ConvertMaterialsToURP(Model);
