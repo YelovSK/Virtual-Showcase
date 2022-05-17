@@ -103,12 +103,13 @@ namespace VirtualVitrine.MainScene
             IEnumerable<Material> materials = renderers.SelectMany(renderer => renderer.materials);
 
             // Change every material to URP.
+            Shader shader = Shader.Find("Universal Render Pipeline/Lit");
             foreach (Material mat in materials)
             {
                 // Save original texture, since on shader change it gets lost.
                 Texture tex = mat.mainTexture;
                 // Default URP shader.
-                mat.shader = Shader.Find("Universal Render Pipeline/Lit");
+                mat.shader = shader;
                 // Set back the texture.
                 mat.mainTexture = tex;
                 // Metallic to specular.
