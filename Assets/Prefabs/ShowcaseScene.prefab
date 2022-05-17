@@ -497,8 +497,8 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 56
-  far clip plane: 286
+  near clip plane: 57
+  far clip plane: 287
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -670,8 +670,8 @@ Camera:
     y: 0
     width: 0.5
     height: 1
-  near clip plane: 56
-  far clip plane: 286
+  near clip plane: 57
+  far clip plane: 287
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -1854,8 +1854,8 @@ Camera:
     y: 0
     width: 0.5
     height: 1
-  near clip plane: 56
-  far clip plane: 286
+  near clip plane: 57
+  far clip plane: 287
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -2060,7 +2060,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7901422498606138537}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -50}
+  m_LocalPosition: {x: 33.789257, y: -32.821785, z: -87}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2798,6 +2798,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1552452559245692901 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1038130037518504078, guid: 22e2d045c3aa3d8488266b60b1a28f44, type: 3}
+  m_PrefabInstance: {fileID: 2009527530142850923}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1647649331146054410 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 954454098136433761, guid: 22e2d045c3aa3d8488266b60b1a28f44, type: 3}
@@ -2829,6 +2840,10 @@ PrefabInstance:
       propertyPath: colorBox
       value: 
       objectReference: {fileID: 717269533928368070}
+    - target: {fileID: 5428982965342325994, guid: 041dbee215611b140bb0135128062967, type: 3}
+      propertyPath: pixelCountText
+      value: 
+      objectReference: {fileID: 1552452559245692901}
     - target: {fileID: 6938027245835659937, guid: 041dbee215611b140bb0135128062967, type: 3}
       propertyPath: m_RootOrder
       value: 1

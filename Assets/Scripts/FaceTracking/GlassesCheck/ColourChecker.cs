@@ -13,21 +13,11 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
         #region Serialized Fields
 
         [SerializeField] private RawImage colorBox;
+        [SerializeField] private TMP_Text pixelCountText;
 
         #endregion
 
         private Texture2D colOverlayTexture;
-        private TMP_Text pixelCountText;
-
-        #region Event Functions
-
-        private void Awake()
-        {
-            pixelCountText = colorBox.GetComponentInChildren<TMP_Text>();
-        }
-
-        #endregion
-
 
         /// <summary>
         ///     Checks pixels in the color box and updates the text to show the number of pixels
@@ -82,7 +72,6 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
             pixelCountText.color = passed ? Color.green : Color.red;
             pixelCountText.text = foundPixelsCount + " / " + allPixelsCount;
 
-
             var cBox = (RectTransform) colorBox.transform;
             var cBoxParent = (RectTransform) cBox.parent;
             Rect cBoxParentRect = cBoxParent.rect;
@@ -111,7 +100,6 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
             colOverlayTexture.Apply();
             colorBox.texture = colOverlayTexture;
 
-
             return passed;
         }
 
@@ -119,7 +107,6 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
         {
             colorBox.gameObject.SetActive(false);
         }
-
 
         private static void CalculateColourBoxSize(int resolution, Vector2 leftEye, Vector2 rightEye, out int startX,
             out int endX, out int startY, out int endY)
