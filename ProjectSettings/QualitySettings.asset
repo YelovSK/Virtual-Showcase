@@ -41,7 +41,8 @@ QualitySettings:
     asyncUploadPersistentBuffer: 1
     resolutionScalingFixedDPIFactor: 1
     customRenderPipeline: {fileID: 11400000, guid: 4343ca6aafd37b340ba36a510b686991, type: 2}
-    excludedTargetPlatforms: []
+    excludedTargetPlatforms:
+    - Standalone
   - serializedVersion: 2
     name: Medium
     pixelLightCount: 1
@@ -77,7 +78,8 @@ QualitySettings:
     asyncUploadPersistentBuffer: 1
     resolutionScalingFixedDPIFactor: 1
     customRenderPipeline: {fileID: 11400000, guid: e666ebad20d895c468c1478a1ff26941, type: 2}
-    excludedTargetPlatforms: []
+    excludedTargetPlatforms:
+    - Standalone
   - serializedVersion: 2
     name: High
     pixelLightCount: 4
@@ -121,7 +123,7 @@ QualitySettings:
     Nintendo Switch: 2
     PS4: 2
     PSP2: 1
-    Server: 0
+    Server: 2
     Stadia: 2
     Standalone: 2
     WebGL: 1
