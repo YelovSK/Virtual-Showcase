@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web.WebPages;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,6 +14,8 @@ namespace VirtualVitrine.Menu
     {
         #region Serialized Fields
 
+        [SerializeField] private TMP_Dropdown qualityDropdown;
+        [SerializeField] private TMP_Dropdown resolutionDropdown;
         [SerializeField] private TMP_Dropdown webcamDropdown;
         [SerializeField] private TMP_Text currentModelText;
 
@@ -82,12 +85,39 @@ namespace VirtualVitrine.Menu
             SetCamName(MyPrefs.CameraName);
             SetSmoothingOption(MyPrefs.SmoothingType);
             SetAvgSliderAndText(MyPrefs.FramesSmoothed);
+            SetResolution(MyPrefs.Resolution);
             qSlider.value = MyPrefs.KalmanQ;
             rSlider.value = MyPrefs.KalmanR;
             thresholdSlider.value = MyPrefs.DetectionThreshold;
             hueSlider.value = MyPrefs.Hue;
             hueThreshSlider.value = MyPrefs.HueThreshold;
             glassesCheck.isOn = MyPrefs.GlassesCheck == 1;
+            qualityDropdown.value = MyPrefs.QualityIndex;
+        }
+
+        private void SetResolution(string resolution)
+        {
+            Resolution[] resolutions = Screen.resolutions.Reverse().ToArray();
+            if (resolutionDropdown.options.Count == 0)
+            {
+                List<TMP_Dropdown.OptionData> options = resolutions
+                    .Select(res => new TMP_Dropdown.OptionData(res.ToString()))
+                    .ToList();
+                resolutionDropdown.AddOptions(options);
+            }
+
+            if (resolution.IsEmpty())
+            {
+                Resolution res = resolutions.First();
+                Screen.SetResolution(res.width, res.height, true);
+            }
+            else
+            {
+                Resolution res = MyPrefs.ResolutionParsed;
+                Screen.SetResolution(res.width, res.height, FullScreenMode.ExclusiveFullScreen, res.refreshRate);
+                int ix = resolutionDropdown.options.FindIndex(x => x.text == $"{res.width} x {res.height} @ {res.refreshRate}Hz");
+                resolutionDropdown.value = ix;
+            }
         }
 
         private void SetAvgSliderAndText(int framesSmoothed)
@@ -143,6 +173,27 @@ namespace VirtualVitrine.Menu
 
             ChangeGlassesCheck(glassesCheck);
             glassesCheck.onValueChanged.AddListener(delegate { ChangeGlassesCheck(glassesCheck); });
+
+            ChangeQuality(qualityDropdown);
+            qualityDropdown.onValueChanged.AddListener(delegate { ChangeQuality(qualityDropdown); });
+
+            ChangeResolution(resolutionDropdown);
+            resolutionDropdown.onValueChanged.AddListener(delegate { ChangeResolution(resolutionDropdown); });
+        }
+
+        private void ChangeResolution(TMP_Dropdown sender)
+        {
+            Resolution[] resolutions = Screen.resolutions.Reverse().ToArray();
+            Resolution chosenRes = resolutions[sender.value];
+            Screen.SetResolution(chosenRes.width, chosenRes.height, true, chosenRes.refreshRate);
+            MyPrefs.Resolution = $"{chosenRes.width}x{chosenRes.height}x{chosenRes.refreshRate}";
+        }
+
+        private static void ChangeQuality(TMP_Dropdown sender)
+        {
+            QualitySettings.SetQualityLevel(sender.value, true);
+            MyPrefs.QualityIndex = sender.value;
+            print(QualitySettings.GetQualityLevel());
         }
 
         private void ChangeThreshold(Slider sender)

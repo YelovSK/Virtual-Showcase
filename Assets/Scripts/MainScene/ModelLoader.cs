@@ -85,6 +85,9 @@ namespace VirtualVitrine.MainScene
             // Simplify mesh.
             SimplifyObject(Model);
 
+            // Change shader of material for URP compatibility.
+            MaterialsToURP(Model);
+
             // Set layers.
             foreach (Transform child in Model.transform)
                 child.gameObject.layer = 3;
@@ -92,9 +95,22 @@ namespace VirtualVitrine.MainScene
             ResetTransform();
         }
 
+        private static void MaterialsToURP(GameObject model)
+        {
+            Material[] materials = model.GetComponentInChildren<Renderer>().sharedMaterials;
+            foreach (Material mat in materials)
+            {
+                Texture tex = mat.mainTexture;
+                mat.shader = Shader.Find("Universal Render Pipeline/Lit");
+                mat.mainTexture = tex;
+                // Metallic to specular.
+                mat.EnableKeyword("_SPECULAR_SETUP");
+            }
+        }
+
         private void SimplifyObject(GameObject obj)
         {
-            const int maxVertexCount = 100_000;
+            const int maxVertexCount = 200_000;
             MeshFilter[] meshFilters = obj.GetComponentsInChildren<MeshFilter>();
 
             // Vertex count of all meshes.

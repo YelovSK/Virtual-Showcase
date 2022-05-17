@@ -18,8 +18,9 @@ namespace VirtualVitrine.FaceTracking
 
         #region Event Functions
 
-        private async void Awake()
+        private void Awake()
         {
+            QualitySettings.SetQualityLevel(0);
             WebCamTexture = new WebCamTexture(MyPrefs.CameraName, resolutionWidth, resolutionWidth);
             WebCamTexture.Play();
 

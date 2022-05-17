@@ -1,5 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Web.WebPages;
 using UnityEngine;
 using VirtualVitrine.MainScene;
 
@@ -191,6 +194,42 @@ namespace VirtualVitrine
             set => PlayerPrefs.SetFloat("focalLength", value);
         }
 
+        public static int QualityIndex
+        {
+            get => PlayerPrefs.GetInt("qualityIndex");
+            set
+            {
+                if (value >= 0 && value <= 2)
+                    PlayerPrefs.SetInt("qualityIndex", value);
+            }
+        }
+
+        public static string Resolution
+        {
+            get => PlayerPrefs.GetString("resolution");
+            set
+            {
+                // Expects (width)x(height)x(refresh)
+                if (value.Split('x').ToList().Count == 3)
+                    PlayerPrefs.SetString("resolution", value);
+            }
+        }
+
+        public static Resolution ResolutionParsed
+        {
+            get
+            {
+                if (Resolution.IsEmpty())
+                    return new Resolution();
+                List<string> split = Resolution.Split('x').ToList();
+                var output = new Resolution();
+                output.width = Convert.ToInt16(split[0]);
+                output.height = Convert.ToInt16(split[1]);
+                output.refreshRate = Convert.ToInt16(split[2]);
+                return output;
+            }
+        }
+
         private static bool PrefsLoaded => PlayerPrefs.HasKey("SmoothingType");
 
 
@@ -254,6 +293,9 @@ namespace VirtualVitrine
 
             // Focal length for face distance.
             FocalLength = CalibrationManager.GetFocalLength(ScreenDistance);
+
+            // Default quality of 2 is the highest.
+            QualityIndex = 2;
         }
 
         #region Nested type: SmoothingTypeEnum
