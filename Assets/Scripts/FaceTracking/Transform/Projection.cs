@@ -19,7 +19,6 @@ namespace VirtualVitrine.FaceTracking.Transform
 
         #endregion
 
-
         public int ScreenDistance
         {
             get => MyPrefs.ScreenDistance;
@@ -45,11 +44,6 @@ namespace VirtualVitrine.FaceTracking.Transform
         private IEnumerable<Camera> ActiveCameras => cameras.Where(x => x.isActiveAndEnabled);
 
         #region Event Functions
-
-        private void Awake()
-        {
-            UpdateCameraProjection();
-        }
 
         private void Start()
         {
@@ -126,7 +120,7 @@ namespace VirtualVitrine.FaceTracking.Transform
 
         public void UpdateCameraProjection()
         {
-            foreach (Camera cam in ActiveCameras)
+            foreach (Camera cam in cameras)
                 SetCameraFrustum(cam);
         }
 
