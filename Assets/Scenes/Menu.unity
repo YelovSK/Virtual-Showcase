@@ -2588,10 +2588,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ccf3077ed8c55f4b92714956ae7d372, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  header: Smoothing
-  tooltip: 'Smoothing of eye keypoints.
-
-    Works best with higher framerate cameras.'
+  header: Quality
+  tooltip: Set lower quality for better performance.
 --- !u!114 &327821819
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15964,10 +15962,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ccf3077ed8c55f4b92714956ae7d372, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  header: Smoothing
-  tooltip: 'Smoothing of eye keypoints.
-
-    Works best with higher framerate cameras.'
+  header: Resolution
+  tooltip: Resolution and refresh rate of the display.
 --- !u!114 &1977274965
 MonoBehaviour:
   m_ObjectHideFlags: 0

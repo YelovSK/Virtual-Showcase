@@ -109,7 +109,7 @@ namespace VirtualVitrine.Menu
             if (resolution.IsEmpty())
             {
                 Resolution res = resolutions.First();
-                Screen.SetResolution(res.width, res.height, true);
+                Screen.SetResolution(res.width, res.height, FullScreenMode.ExclusiveFullScreen);
             }
             else
             {
@@ -185,7 +185,7 @@ namespace VirtualVitrine.Menu
         {
             Resolution[] resolutions = Screen.resolutions.Reverse().ToArray();
             Resolution chosenRes = resolutions[sender.value];
-            Screen.SetResolution(chosenRes.width, chosenRes.height, true, chosenRes.refreshRate);
+            Screen.SetResolution(chosenRes.width, chosenRes.height, FullScreenMode.ExclusiveFullScreen, chosenRes.refreshRate);
             MyPrefs.Resolution = $"{chosenRes.width}x{chosenRes.height}x{chosenRes.refreshRate}";
         }
 
@@ -193,7 +193,6 @@ namespace VirtualVitrine.Menu
         {
             QualitySettings.SetQualityLevel(sender.value, true);
             MyPrefs.QualityIndex = sender.value;
-            print(QualitySettings.GetQualityLevel());
         }
 
         private void ChangeThreshold(Slider sender)
