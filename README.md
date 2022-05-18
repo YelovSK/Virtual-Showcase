@@ -15,12 +15,6 @@ View-dependent stereo (off-axis projection) running in Unity.
 -   **RMB + Mouse drag** - move the loaded object up/down
 -   **Mouse wheel** - scale the loaded object
 
-## INFO
-
-Website - http://www.st.fmph.uniba.sk/~hampel1/bak/index.html
-
-Bachelor's thesis (SK) - https://www.overleaf.com/read/jstzfmshnmnv
-
 ## USED CODE SOURCES
 
 [BlazeFaceBarracuda](https://github.com/keijiro/BlazeFaceBarracuda) for running BlazeFace model via Barracuda (_jp.keijiro.mediapipe.blazeface_ package).
