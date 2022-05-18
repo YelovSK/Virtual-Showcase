@@ -26,7 +26,7 @@ namespace VirtualVitrine
             get => PlayerPrefs.GetInt("framesSmoothed");
             set
             {
-                if (value < 2 || value > 200) return;
+                if (value is < 2 or > 200) return;
                 PlayerPrefs.SetInt("framesSmoothed", value);
             }
         }
@@ -36,8 +36,8 @@ namespace VirtualVitrine
             get => PlayerPrefs.GetFloat("kalmanQ");
             set
             {
-                if (value < 0.00000001f || value > 0.01f) return;
-                PlayerPrefs.SetFloat("kalmanQ", value);
+                if (value is >= 0.00000001f and <= 0.01f)
+                    PlayerPrefs.SetFloat("kalmanQ", value);
             }
         }
 
@@ -46,8 +46,8 @@ namespace VirtualVitrine
             get => PlayerPrefs.GetFloat("kalmanR");
             set
             {
-                if (value < 0.0001f || value > 0.5f) return;
-                PlayerPrefs.SetFloat("kalmanR", value);
+                if (value is >= 0.0001f and <= 0.5f)
+                    PlayerPrefs.SetFloat("kalmanR", value);
             }
         }
 
@@ -62,8 +62,8 @@ namespace VirtualVitrine
             get => PlayerPrefs.GetFloat("threshold");
             set
             {
-                if (value < 0.0f || value > 1.0f) return;
-                PlayerPrefs.SetFloat("threshold", value);
+                if (value is >= 0.0f and <= 1.0f)
+                    PlayerPrefs.SetFloat("threshold", value);
             }
         }
 
@@ -72,8 +72,8 @@ namespace VirtualVitrine
             get => PlayerPrefs.GetInt("hue");
             set
             {
-                if (value < 0 || value > 360) return;
-                PlayerPrefs.SetInt("hue", value);
+                if (value is >= 0 and <= 360)
+                    PlayerPrefs.SetInt("hue", value);
             }
         }
 
@@ -82,8 +82,8 @@ namespace VirtualVitrine
             get => PlayerPrefs.GetInt("hueThresh");
             set
             {
-                if (value < 1 || value > 100) return;
-                PlayerPrefs.SetInt("hueThresh", value);
+                if (value is >= 1 and <= 100)
+                    PlayerPrefs.SetInt("hueThresh", value);
             }
         }
 
@@ -102,7 +102,7 @@ namespace VirtualVitrine
             get => PlayerPrefs.GetInt("previewOn");
             set
             {
-                if (value == 0 || value == 1)
+                if (value is 0 or 1)
                     PlayerPrefs.SetInt("previewOn", value);
             }
         }
@@ -112,7 +112,7 @@ namespace VirtualVitrine
             get => PlayerPrefs.GetInt("stereoOn");
             set
             {
-                if (value == 0 || value == 1)
+                if (value is 0 or 1)
                     PlayerPrefs.SetInt("stereoOn", value);
             }
         }
@@ -122,7 +122,7 @@ namespace VirtualVitrine
             get => PlayerPrefs.GetInt("glassesCheck");
             set
             {
-                if (value == 0 || value == 1)
+                if (value is 0 or 1)
                     PlayerPrefs.SetInt("glassesCheck", value);
             }
         }
@@ -132,8 +132,8 @@ namespace VirtualVitrine
             get => PlayerPrefs.GetFloat("BottomCalibration");
             set
             {
-                if (value < 0.0f || value > 1.0f) return;
-                PlayerPrefs.SetFloat("BottomCalibration", value);
+                if (value is >= 0.0f and <= 1.0f)
+                    PlayerPrefs.SetFloat("BottomCalibration", value);
             }
         }
 
@@ -142,8 +142,8 @@ namespace VirtualVitrine
             get => PlayerPrefs.GetFloat("TopCalibration");
             set
             {
-                if (value < 0.0f || value > 1.0f) return;
-                PlayerPrefs.SetFloat("TopCalibration", value);
+                if (value is >= 0.0f and <= 1.0f)
+                    PlayerPrefs.SetFloat("TopCalibration", value);
             }
         }
 
@@ -152,8 +152,8 @@ namespace VirtualVitrine
             get => PlayerPrefs.GetFloat("LeftCalibration");
             set
             {
-                if (value < 0.0f || value > 1.0f) return;
-                PlayerPrefs.SetFloat("LeftCalibration", value);
+                if (value is >= 0.0f and <= 1.0f)
+                    PlayerPrefs.SetFloat("LeftCalibration", value);
             }
         }
 
@@ -162,8 +162,8 @@ namespace VirtualVitrine
             get => PlayerPrefs.GetFloat("RightCalibration");
             set
             {
-                if (value < 0.0f || value > 1.0f) return;
-                PlayerPrefs.SetFloat("RightCalibration", value);
+                if (value is >= 0.0f and <= 1.0f)
+                    PlayerPrefs.SetFloat("RightCalibration", value);
             }
         }
 
@@ -221,10 +221,12 @@ namespace VirtualVitrine
                 if (string.IsNullOrEmpty(Resolution))
                     return new Resolution();
                 List<string> split = Resolution.Split('x').ToList();
-                var output = new Resolution();
-                output.width = Convert.ToInt16(split[0]);
-                output.height = Convert.ToInt16(split[1]);
-                output.refreshRate = Convert.ToInt16(split[2]);
+                var output = new Resolution
+                {
+                    width = Convert.ToInt16(split[0]),
+                    height = Convert.ToInt16(split[1]),
+                    refreshRate = Convert.ToInt16(split[2])
+                };
                 return output;
             }
         }

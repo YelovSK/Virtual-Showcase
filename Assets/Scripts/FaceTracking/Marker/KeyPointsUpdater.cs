@@ -54,10 +54,9 @@ namespace VirtualVitrine.FaceTracking.Marker
         }
 
 
-        private void SetKeyPoint(RectTransform xform, Vector2 point)
+        private void SetKeyPoint(RectTransform form, Vector2 point)
         {
-            xform.anchoredPosition =
-                point * parent.rect.size - this.xform.anchoredPosition;
+            form.anchoredPosition = point * parent.rect.size - xform.anchoredPosition;
         }
     }
 }

@@ -97,6 +97,7 @@ namespace VirtualVitrine.Menu
         private void SetResolution(string resolution)
         {
             Resolution[] resolutions = Screen.resolutions.Reverse().ToArray();
+            // If resolutions weren't added to the dropdown yet, add them.
             if (resolutionDropdown.options.Count == 0)
             {
                 List<TMP_Dropdown.OptionData> options = resolutions
@@ -105,11 +106,13 @@ namespace VirtualVitrine.Menu
                 resolutionDropdown.AddOptions(options);
             }
 
+            // Resolution wasn't set yet, set it to the first one.
             if (string.IsNullOrEmpty(resolution))
             {
                 Resolution res = resolutions.First();
                 Screen.SetResolution(res.width, res.height, FullScreenMode.ExclusiveFullScreen);
             }
+            // Find given resolution in the given dropdown and set it. If not found, sets to the first one.
             else
             {
                 Resolution res = MyPrefs.ResolutionParsed;
@@ -180,7 +183,7 @@ namespace VirtualVitrine.Menu
             resolutionDropdown.onValueChanged.AddListener(delegate { ChangeResolution(resolutionDropdown); });
         }
 
-        private void ChangeResolution(TMP_Dropdown sender)
+        private static void ChangeResolution(TMP_Dropdown sender)
         {
             Resolution[] resolutions = Screen.resolutions.Reverse().ToArray();
             Resolution chosenRes = resolutions[sender.value];
@@ -217,7 +220,7 @@ namespace VirtualVitrine.Menu
             MyPrefs.HueThreshold = thresh;
         }
 
-        private void ChangeGlassesCheck(Toggle sender)
+        private static void ChangeGlassesCheck(Toggle sender)
         {
             MyPrefs.GlassesCheck = sender.isOn ? 1 : 0;
         }

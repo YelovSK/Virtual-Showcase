@@ -191,7 +191,7 @@ namespace VirtualVitrine.FaceTracking.Transform
             Gizmos.color = Color.grey;
         }
 
-        private void DrawCameraGizmos(Camera cam)
+        private void DrawCameraGizmos(Component cam)
         {
             Gizmos.color = Color.yellow;
             Gizmos.DrawSphere(cam.transform.position, 1f);
