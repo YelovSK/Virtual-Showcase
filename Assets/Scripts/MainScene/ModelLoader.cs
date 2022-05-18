@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityMeshSimplifier;
 using VirtualVitrine.FaceTracking.Transform;
+using VirtualVitrine.Menu;
 
 namespace VirtualVitrine.MainScene
 {
@@ -121,14 +123,25 @@ namespace VirtualVitrine.MainScene
 
         private void SimplifyObject(GameObject obj)
         {
-            const int maxVertexCount = 200_000;
+            // Set max triangle count depending on the selected quality.
+            int maxTriCount = MenuManager.Quality switch
+            {
+                MenuManager.QualityEnum.Low => 50_000,
+                MenuManager.QualityEnum.Medium => 100_000,
+                MenuManager.QualityEnum.High => 250_000,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+            // Triangle count of all meshes.
             MeshFilter[] meshFilters = obj.GetComponentsInChildren<MeshFilter>();
+            int triCount = meshFilters.Sum(x => x.sharedMesh.triangles.Length) / 3;
 
-            // Vertex count of all meshes.
-            int vertexCount = meshFilters.Sum(x => x.mesh.vertexCount);
+            // Nothing to simplify if current triangle count is lower than max triangle count.
+            if (triCount < maxTriCount)
+                return;
 
-            // Quality is the percentage of vertices to keep. In our case we want maxVertexCount vertices.
-            float quality = (float) maxVertexCount / vertexCount;
+            // Quality is the percentage of triangles to keep. In our case we want maxTriCount vertices.
+            float quality = (float) maxTriCount / triCount;
             int percentReduction = Mathf.RoundToInt((1.0f - quality) * 100);
             statusText.text = $"Simplifying mesh ({percentReduction}% reduction)...";
 
@@ -150,6 +163,13 @@ namespace VirtualVitrine.MainScene
             // Simplify mesh with the given quality.
             // Runs asynchronously.
             await Task.Run(() => meshSimplifier.SimplifyMesh(quality));
+
+            // Model was deleted while simplifying.
+            if (meshFilter == null)
+            {
+                statusText.text = "";
+                return;
+            }
 
             // Get simplified mesh.
             var finalMesh = meshSimplifier.ToMesh();

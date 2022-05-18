@@ -2573,7 +2573,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -709.84, y: 405.00003}
+  m_AnchoredPosition: {x: -658, y: 405.00003}
   m_SizeDelta: {x: 26.0622, y: -74.3742}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &327821818
@@ -2589,12 +2589,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   header: Quality
-  tooltip: 'High: high res shadows, 8x MSAA
+  tooltip: 'High: high res shadows, 8x MSAA, 250k tri count
 
-    Medium: low res shadows, 2x MSAA
+    Medium: low res
+    shadows, 2x MSAA, 100k tri count
 
-    Low:
-    no shadows, 0.77x render scale'
+    Low: no shadows, 0.77x render scale, 50k
+    tri count
+
+
+    Model gets reloaded on quality change!'
 --- !u!114 &327821819
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2678,7 +2682,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: -0.8443146, z: -0.81338114, w: -1.1267433}
+  m_margin: {x: 0, y: -0.8443146, z: 21.905155, w: -1.1267433}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -3481,7 +3485,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   header: Model
-  tooltip: File that gets loaded when switching to the main scene for the first time.
+  tooltip: File that gets loaded when switching to the main scene for the first time
+    or quality changed.
 --- !u!1 &419963614
 GameObject:
   m_ObjectHideFlags: 0
