@@ -106,6 +106,7 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
         public void HideUI()
         {
             colorBox.gameObject.SetActive(false);
+            pixelCountText.text = "";
         }
 
         private static void CalculateColourBoxSize(int resolution, Vector2 leftEye, Vector2 rightEye, out int startX,
