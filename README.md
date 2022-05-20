@@ -1,6 +1,32 @@
 # Virtual Showcase
 
-View-dependent stereo (off-axis projection) running in Unity.
+View-dependent stereo running in Unity. The main use is to view imported .obj files with motion paralax. Off-axis projection is used to achieve proper camera perspective.
+
+## DEPENDENCIES FOR USAGE IN THE EDITOR
+
+1. Download the project: `git clone --recurse-submodules https://github.com/YelovSK/Virtual-Showcase.git`. [UnityMeshSimplifier](https://github.com/Whinarn/UnityMeshSimplifier) should get downloaded if you clone with `--resurse-submodules` flag.
+
+---
+
+2. Import these assets from the Unity Asset Store:
+
+-   [Runtime OBJ Importer](https://assetstore.unity.com/packages/tools/modeling/runtime-obj-importer-49547) for loading .obj files at runtime.
+
+-   [Runtime File Browser](https://assetstore.unity.com/packages/tools/gui/runtime-file-browser-113006) for browsing and selecting .obj files. To get it working with the new input system, look in the README in the GitHub [repository](https://github.com/yasirkula/UnitySimpleFileBrowser).
+
+-   [Big Furniture Pack](https://assetstore.unity.com/packages/3d/props/furniture/big-furniture-pack-7717) for the room decoration. To change the materials to be URP compatible, select the materials in `BigFurniturePack/Models/Materials` and go to _Edit_ → _Rendering_ → _Materials_ → _Convert Selected Built-in Materials to URP_.
+
+---
+
+3. Go to [BlazeFaceBarracuda](https://github.com/keijiro/BlazeFaceBarracuda) repository and download [jp.keijiro.mediapipe.blazeface](https://github.com/keijiro/BlazeFaceBarracuda/tree/main/Packages/jp.keijiro.mediapipe.blazeface) package and put it into `Packages`.
+
+---
+
+4. Download this .fbx [model](https://free3d.com/3d-model/pc-monitor-69557.html) and put it in `Assets/Objects`.
+
+---
+
+5. You should be asked to import TextMeshPro after the first run.
 
 ## DEFAULT CONTROLS AND KEY BINDS
 
@@ -17,18 +43,6 @@ View-dependent stereo (off-axis projection) running in Unity.
 
 ## USED CODE SOURCES
 
-[BlazeFaceBarracuda](https://github.com/keijiro/BlazeFaceBarracuda) for running BlazeFace model via Barracuda (_jp.keijiro.mediapipe.blazeface_ package).
-
 [NativeCounter](https://coffeebraingames.wordpress.com/2021/10/24/some-dots-utilities-nativecounter-and-nativesum/) for keeping count of pixels inside of a job.
 
 [KalmanFilter](https://gist.github.com/davidfoster/48acce6c13e5f7f247dc5d5909dce349) for smoothing eye keypoints.
-
-[UnityMeshSimplifier](https://github.com/Whinarn/UnityMeshSimplifier) for reducing object vertex count.
-
-## UNITY ASSETS
-
-[Runtime OBJ Importer](https://assetstore.unity.com/packages/tools/modeling/runtime-obj-importer-49547) for loading .obj files at runtime.
-
-[Runtime File Browser](https://assetstore.unity.com/packages/tools/gui/runtime-file-browser-113006) for browsing and selecting .obj files.
-
-[Big Furniture Pack](https://assetstore.unity.com/packages/3d/props/furniture/big-furniture-pack-7717) for the room decoration.
