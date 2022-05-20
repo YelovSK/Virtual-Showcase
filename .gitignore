@@ -11,8 +11,7 @@ Assets/Plugins/*
 !Assets/Plugins/UnityMeshSimplifier
 !Assets/Plugins/*.meta
 Assets/Objects/*
-!Assets/Objects/Materials
-!Assets/Objects/Materials.meta
+!Assets/Objects/PcMonitor.fbx.meta
 
 # Visual Studio cache directory
 .vs/
