@@ -34,6 +34,7 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
             }
 
             colorBox.gameObject.SetActive(true);
+
             // Resolution of the 1:1 texture.
             int resolution = Math.Min(tex.width, tex.height);
 
@@ -154,7 +155,7 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
             {
                 TextureColours = textureColoursNative,
                 FoundPixelsArr = new NativeArray<Color32>(textureColours.Length, Allocator.TempJob),
-                counter = foundPixelsCounter,
+                Counter = foundPixelsCounter,
                 HueThresh = MyPrefs.HueThreshold,
                 TargetHue = MyPrefs.Hue
             };
@@ -179,7 +180,7 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
     {
         [ReadOnly] public NativeArray<Color> TextureColours;
         [WriteOnly] public NativeArray<Color32> FoundPixelsArr;
-        public NativeCounter.ParallelWriter counter;
+        public NativeCounter.ParallelWriter Counter;
         [ReadOnly] public int HueThresh;
         [ReadOnly] public int TargetHue;
         [ReadOnly] private static readonly Color32 Colour = Color.white;
@@ -190,7 +191,7 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
             if (PixelInThreshold(pixel, HueThresh, TargetHue))
             {
                 FoundPixelsArr[index] = Colour;
-                counter.Increment();
+                Counter.Increment();
             }
         }
 

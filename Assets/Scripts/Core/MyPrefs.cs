@@ -245,6 +245,7 @@ namespace VirtualVitrine
             // Save binds temporarily.
             string binds = PlayerPrefs.GetString("rebinds");
             PlayerPrefs.DeleteAll();
+
             // Set binds back.
             PlayerPrefs.SetString("rebinds", binds);
             SetDefaultPlayerPrefs();

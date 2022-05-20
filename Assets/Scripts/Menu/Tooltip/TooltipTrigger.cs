@@ -53,6 +53,7 @@ namespace VirtualVitrine.Menu.Tooltip
             yield return new WaitForSeconds(delay_seconds);
             mouseOver = true;
             Tooltip.Show(tooltip, header);
+
             // The size of the rect doesn't update immediately, waiting for a frame.
             Tooltip.UpdatePosition(Mouse.current.position.ReadValue());
             yield return null;

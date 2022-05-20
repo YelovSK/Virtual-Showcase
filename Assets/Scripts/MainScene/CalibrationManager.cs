@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -107,6 +108,7 @@ namespace VirtualVitrine.MainScene
                 state = state.Next();
                 UpdateState();
             }
+
             // Else disable UI.
             else
             {
@@ -153,24 +155,28 @@ namespace VirtualVitrine.MainScene
                     SetGuideText("left");
                     HighlightEdge();
                     break;
+
                 // Set left edge, highlight right edge.
                 case States.Right:
                     MyPrefs.LeftCalibration = EyeSmoother.EyeCenter.x;
                     SetGuideText("right");
                     HighlightEdge();
                     break;
+
                 // Set right edge, highlight bottom edge.
                 case States.Bottom:
                     MyPrefs.RightCalibration = EyeSmoother.EyeCenter.x;
                     SetGuideText("bottom");
                     HighlightEdge();
                     break;
+
                 // Set bottom edge, highlight top edge.
                 case States.Top:
                     MyPrefs.BottomCalibration = EyeSmoother.EyeCenter.y;
                     SetGuideText("top");
                     HighlightEdge();
                     break;
+
                 // Set top edge, highlight middle.
                 case States.Sliders:
                     MyPrefs.TopCalibration = EyeSmoother.EyeCenter.y;
@@ -178,12 +184,15 @@ namespace VirtualVitrine.MainScene
                         $"Set the sliders and keep your head pointed at the display from the given distance, then press '{NextStateKeybind}'";
                     HighlightEdge();
                     break;
+
                 // Set focal length and hide UI.
                 case States.Reset:
                     MyPrefs.FocalLength = GetFocalLength(distanceSlider.value);
                     TurnOffPreview();
                     state = 0;
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 

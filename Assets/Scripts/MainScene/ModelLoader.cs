@@ -110,12 +110,16 @@ namespace VirtualVitrine.MainScene
             {
                 // Save original texture, since on shader change it gets lost.
                 Texture tex = mat.mainTexture;
+
                 // Default URP shader.
                 mat.shader = shader;
+
                 // Set back the texture.
                 mat.mainTexture = tex;
+
                 // Metallic to specular.
                 mat.EnableKeyword("_SPECULAR_SETUP");
+
                 // Render both sides.
                 mat.SetFloat("_Cull", (float) CullMode.Off);
             }
@@ -126,10 +130,10 @@ namespace VirtualVitrine.MainScene
             // Set max triangle count depending on the selected quality.
             int maxTriCount = MenuManager.Quality switch
             {
-                MenuManager.QualityEnum.Low => 50_000,
+                MenuManager.QualityEnum.Low    => 50_000,
                 MenuManager.QualityEnum.Medium => 100_000,
-                MenuManager.QualityEnum.High => 250_000,
-                _ => throw new ArgumentOutOfRangeException()
+                MenuManager.QualityEnum.High   => 250_000,
+                _                              => throw new ArgumentOutOfRangeException()
             };
 
             // Triangle count of all meshes.

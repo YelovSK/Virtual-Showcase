@@ -20,9 +20,11 @@ namespace VirtualVitrine.Menu
 
         [Header("Smoothing elements")]
         [SerializeField] private TMP_Dropdown smoothingDropdown;
+
         // average
         [SerializeField] private Slider averageSlider;
         [SerializeField] private TMP_Text averageValue;
+
         // kalman
         [SerializeField] private Slider qSlider;
         [SerializeField] private Slider rSlider;
@@ -106,6 +108,7 @@ namespace VirtualVitrine.Menu
         private void SetResolution(string resolution)
         {
             Resolution[] resolutions = Screen.resolutions.Reverse().ToArray();
+
             // If resolutions weren't added to the dropdown yet, add them.
             if (resolutionDropdown.options.Count == 0)
             {
@@ -121,6 +124,7 @@ namespace VirtualVitrine.Menu
                 Resolution res = resolutions.First();
                 Screen.SetResolution(res.width, res.height, FullScreenMode.ExclusiveFullScreen);
             }
+
             // Find given resolution in the given dropdown and set it. If not found, sets to the first one.
             else
             {
@@ -205,6 +209,7 @@ namespace VirtualVitrine.Menu
             QualitySettings.SetQualityLevel(sender.value, true);
             if (MyPrefs.QualityIndex == sender.value) return;
             MyPrefs.QualityIndex = sender.value;
+
             // If quality changed, destroy model to load it again with updated max triangle count.
             Destroy(ModelLoader.Model);
         }
@@ -220,6 +225,7 @@ namespace VirtualVitrine.Menu
             var hue = (int) sender.value;
             hueText.text = hue.ToString();
             Color rgBcolor = Color.HSVToRGB((float) hue / 360, 1, 1);
+
             // Fill hueSlider with given colour.
             hueSlider.GetComponentInChildren<Image>().color = rgBcolor;
             MyPrefs.Hue = hue;
