@@ -12,6 +12,7 @@ Assets/Plugins/*
 !Assets/Plugins/*.meta
 Assets/Objects/*
 !Assets/Objects/PcMonitor.fbx.meta
+Packages/jp.keijiro.mediapipe.blazeface
 
 # Visual Studio cache directory
 .vs/

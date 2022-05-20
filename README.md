@@ -22,7 +22,7 @@ View-dependent stereo running in Unity. The main use is to view imported .obj fi
 
 ---
 
-4. Download this .fbx [model](https://free3d.com/3d-model/pc-monitor-69557.html) and put it in `Assets/Objects`.
+4. Download this .fbx [model](https://free3d.com/3d-model/pc-monitor-69557.html) and put it in `Assets/Objects` via the file explorer, **not dragging into Unity** (the .meta file with guid gets rewritten if dragged inside the Unity window).
 
 ---
 
