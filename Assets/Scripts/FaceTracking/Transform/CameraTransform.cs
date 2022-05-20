@@ -29,10 +29,7 @@ namespace VirtualVitrine.FaceTracking.Transform
         /// <param name="start2">Start of the target range</param>
         /// <param name="stop2">End of the target range</param>
         /// <returns>Mapped value</returns>
-        public static float Map(float n, float start1, float stop1, float start2, float stop2)
-        {
-            return (n - start1) / (stop1 - start1) * (stop2 - start2) + start2;
-        }
+        public static float Map(float n, float start1, float stop1, float start2, float stop2) => (n - start1) / (stop1 - start1) * (stop2 - start2) + start2;
 
 
         public void Transform()

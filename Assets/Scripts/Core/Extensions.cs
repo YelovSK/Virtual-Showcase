@@ -22,14 +22,11 @@ namespace VirtualVitrine
 
             var arr = (T[]) Enum.GetValues(src.GetType());
             int j = Array.IndexOf(arr, src) - 1;
-            return -1 == j ? arr[arr.Length - 1] : arr[j];
+            return -1 == j ? arr[^1] : arr[j];
         }
 
         // String to enum.
-        public static T ParseEnum<T>(string value)
-        {
-            return (T) Enum.Parse(typeof(T), value, true);
-        }
+        public static T ParseEnum<T>(string value) => (T) Enum.Parse(typeof(T), value, true);
 
         // Load saved transform.
         public static void LoadTransform(this Transform original, CopyTransform savedCopy)
