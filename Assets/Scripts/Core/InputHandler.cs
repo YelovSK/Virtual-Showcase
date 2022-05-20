@@ -81,35 +81,35 @@ namespace VirtualVitrine
             if (ModelLoader.Model == null)
                 return;
 
-            const float moveSens = 0.015f;
-            const float rotationSens = 0.075f;
+            const float move_sens = 0.015f;
+            const float rotation_sens = 0.075f;
             float mouseX = Mouse.current.delta.ReadValue().x;
             float mouseY = Mouse.current.delta.ReadValue().y;
 
             // Left mouse button pressed => move object.
             if (playerInput.actions["Move on ground"].IsPressed())
-                ModelLoader.Model.transform.Translate(mouseX * moveSens, 0, mouseY * moveSens, Space.World);
+                ModelLoader.Model.transform.Translate(mouseX * move_sens, 0, mouseY * move_sens, Space.World);
             // Right mouse button pressed => lower/raise object.
             else if (playerInput.actions["Move vertically"].IsPressed())
-                ModelLoader.Model.transform.Translate(0, mouseY * moveSens, 0, Space.World);
+                ModelLoader.Model.transform.Translate(0, mouseY * move_sens, 0, Space.World);
             // X pressed => rotate object around X-axis.
             else if (playerInput.actions["Rotate X"].IsPressed())
             {
-                ModelLoader.Model.transform.Rotate(mouseY * rotationSens, 0, 0, Space.World);
+                ModelLoader.Model.transform.Rotate(mouseY * rotation_sens, 0, 0, Space.World);
                 rotationImage.gameObject.SetActive(true);
                 rotationImage.sprite = rotationImages[0];
             }
             // Y pressed => rotate object around Y-axis.
             else if (playerInput.actions["Rotate Y"].IsPressed())
             {
-                ModelLoader.Model.transform.Rotate(0, -mouseX * rotationSens, 0, Space.World);
+                ModelLoader.Model.transform.Rotate(0, -mouseX * rotation_sens, 0, Space.World);
                 rotationImage.gameObject.SetActive(true);
                 rotationImage.sprite = rotationImages[1];
             }
             // Z pressed => rotate object around Z-axis.
             else if (playerInput.actions["Rotate Z"].IsPressed())
             {
-                ModelLoader.Model.transform.Rotate(0, 0, -mouseX * rotationSens, Space.World);
+                ModelLoader.Model.transform.Rotate(0, 0, -mouseX * rotation_sens, Space.World);
                 rotationImage.gameObject.SetActive(true);
                 rotationImage.sprite = rotationImages[2];
             }

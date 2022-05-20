@@ -89,7 +89,7 @@ namespace VirtualVitrine.MainScene
             SimplifyObject(Model);
 
             // Change shader of material for URP compatibility.
-            ConvertMaterialsToURP(Model);
+            ConvertMaterialsToUrp(Model);
 
             // Set layers.
             foreach (Transform child in Model.transform)
@@ -98,7 +98,7 @@ namespace VirtualVitrine.MainScene
             ResetTransform();
         }
 
-        private static void ConvertMaterialsToURP(GameObject model)
+        private static void ConvertMaterialsToUrp(GameObject model)
         {
             // Get all materials of Renderers in children.
             Renderer[] renderers = model.GetComponentsInChildren<Renderer>();

@@ -8,8 +8,8 @@ namespace VirtualVitrine.FaceTracking.Transform
     [ExecuteInEditMode]
     public sealed class Projection : MonoBehaviour
     {
-        private const int BaseScreenDiagonal = 24;
-        private const float AspectRatio = 16 / 9f;
+        private const int base_screen_diagonal = 24;
+        private const float aspect_ratio = 16 / 9f;
 
         #region Serialized Fields
 
@@ -39,8 +39,8 @@ namespace VirtualVitrine.FaceTracking.Transform
             }
         }
 
-        public static float ScreenWidth => DiagonalToWidthAndHeight(BaseScreenDiagonal, AspectRatio).x;
-        public static float ScreenHeight => DiagonalToWidthAndHeight(BaseScreenDiagonal, AspectRatio).y;
+        public static float ScreenWidth => DiagonalToWidthAndHeight(base_screen_diagonal, aspect_ratio).x;
+        public static float ScreenHeight => DiagonalToWidthAndHeight(base_screen_diagonal, aspect_ratio).y;
         private IEnumerable<Camera> ActiveCameras => cameras.Where(x => x.isActiveAndEnabled);
 
         #region Event Functions
@@ -86,10 +86,10 @@ namespace VirtualVitrine.FaceTracking.Transform
         /// <returns></returns>
         public static Vector2 DiagonalToWidthAndHeight(int diagonalInches, float aspectRatio)
         {
-            const float cmsInInch = 2.54f;
+            const float cms_in_inch = 2.54f;
             double height = diagonalInches / Math.Sqrt(aspectRatio * aspectRatio + 1);
             double width = aspectRatio * height;
-            return new Vector2((float) (width * cmsInInch), (float) (height * cmsInInch));
+            return new Vector2((float) (width * cms_in_inch), (float) (height * cms_in_inch));
         }
 
         private void SetCameraDistance()
@@ -98,7 +98,7 @@ namespace VirtualVitrine.FaceTracking.Transform
             // and scaling the scene according to the screen size, the screen size stays
             // the same and only the head distance changes. The field of view is the same
             // as if the scene/screen got scaled to the new size.
-            float sizeRatio = (float) BaseScreenDiagonal / ScreenSize;
+            float sizeRatio = (float) base_screen_diagonal / ScreenSize;
             float headDistance = ScreenDistance * sizeRatio;
             transform.localPosition = new Vector3(0, 0, -headDistance);
 

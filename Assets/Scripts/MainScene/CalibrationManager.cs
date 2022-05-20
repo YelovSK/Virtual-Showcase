@@ -36,11 +36,11 @@ namespace VirtualVitrine.MainScene
 
         // Camera preview position for setting it to the original transform after calibration.
         private CopyTransform origCameraPreviewTransform;
-        private States state = States.OFF;
+        private States state = States.Off;
 
         private static float EyesDistance => (EyeSmoother.LeftEyeSmoothed - EyeSmoother.RightEyeSmoothed).magnitude;
 
-        public bool Enabled => state != States.OFF;
+        public bool Enabled => state != States.Off;
 
         #region Event Functions
 
@@ -68,20 +68,20 @@ namespace VirtualVitrine.MainScene
 
         private enum States
         {
-            OFF,
-            LEFT,
-            RIGHT,
-            BOTTOM,
-            TOP,
-            SLIDERS,
-            RESET
+            Off,
+            Left,
+            Right,
+            Bottom,
+            Top,
+            Sliders,
+            Reset
         }
 
         public static float GetRealHeadDistance()
         {
             // https://www.youtube.com/watch?v=jsoe1M2AjFk
-            const int realEyesDistance = 6;
-            float realDistance = realEyesDistance * MyPrefs.FocalLength / EyesDistance;
+            const int real_eyes_distance = 6;
+            float realDistance = real_eyes_distance * MyPrefs.FocalLength / EyesDistance;
             return realDistance;
         }
 
@@ -91,17 +91,17 @@ namespace VirtualVitrine.MainScene
             float eyesDistance = EyesDistance;
 
             // Real life distance of eyes in cm.
-            const int realEyesDistance = 6;
+            const int real_eyes_distance = 6;
 
             // Calculate focal length.
-            float focal = eyesDistance * distanceFromScreen / realEyesDistance;
+            float focal = eyesDistance * distanceFromScreen / real_eyes_distance;
             return focal;
         }
 
         public void ToggleCalibrationUI()
         {
             // If UI is disabled, go to the first state.
-            if (state == States.OFF)
+            if (state == States.Off)
             {
                 Cursor.visible = true;
                 state = state.Next();
@@ -111,7 +111,7 @@ namespace VirtualVitrine.MainScene
             else
             {
                 Cursor.visible = false;
-                state = States.OFF;
+                state = States.Off;
                 TurnOffPreview();
             }
         }
@@ -119,7 +119,7 @@ namespace VirtualVitrine.MainScene
         public void SetNextState()
         {
             // If UI is disabled, don't continue.
-            if (state == States.OFF)
+            if (state == States.Off)
                 return;
 
             state = state.Next();
@@ -148,38 +148,38 @@ namespace VirtualVitrine.MainScene
             switch (state)
             {
                 // Highlight left edge.
-                case States.LEFT:
+                case States.Left:
                     TurnOnPreview();
                     SetGuideText("left");
                     HighlightEdge();
                     break;
                 // Set left edge, highlight right edge.
-                case States.RIGHT:
+                case States.Right:
                     MyPrefs.LeftCalibration = EyeSmoother.EyeCenter.x;
                     SetGuideText("right");
                     HighlightEdge();
                     break;
                 // Set right edge, highlight bottom edge.
-                case States.BOTTOM:
+                case States.Bottom:
                     MyPrefs.RightCalibration = EyeSmoother.EyeCenter.x;
                     SetGuideText("bottom");
                     HighlightEdge();
                     break;
                 // Set bottom edge, highlight top edge.
-                case States.TOP:
+                case States.Top:
                     MyPrefs.BottomCalibration = EyeSmoother.EyeCenter.y;
                     SetGuideText("top");
                     HighlightEdge();
                     break;
                 // Set top edge, highlight middle.
-                case States.SLIDERS:
+                case States.Sliders:
                     MyPrefs.TopCalibration = EyeSmoother.EyeCenter.y;
                     guideText.text =
                         $"Set the sliders and keep your head pointed at the display from the given distance, then press '{NextStateKeybind}'";
                     HighlightEdge();
                     break;
                 // Set focal length and hide UI.
-                case States.RESET:
+                case States.Reset:
                     MyPrefs.FocalLength = GetFocalLength(distanceSlider.value);
                     TurnOffPreview();
                     state = 0;

@@ -152,22 +152,22 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
             // Create a job that goes through all pixels in the box.
             var job = new ColourCheckJob
             {
-                textureColours = textureColoursNative,
-                foundPixelsArr = new NativeArray<Color32>(textureColours.Length, Allocator.TempJob),
+                TextureColours = textureColoursNative,
+                FoundPixelsArr = new NativeArray<Color32>(textureColours.Length, Allocator.TempJob),
                 counter = foundPixelsCounter,
-                hueThresh = MyPrefs.HueThreshold,
-                targetHue = MyPrefs.Hue
+                HueThresh = MyPrefs.HueThreshold,
+                TargetHue = MyPrefs.Hue
             };
             JobHandle jobHandle = job.Schedule(textureColours.Length, 250);
             jobHandle.Complete();
 
             // Get outputs from job.
             int foundPixelsCount = foundPixelsCounter.Count;
-            Color32[] foundPixelsArr = job.foundPixelsArr.ToArray();
+            Color32[] foundPixelsArr = job.FoundPixelsArr.ToArray();
 
             // Dispose of NativeArrays.
-            job.textureColours.Dispose();
-            job.foundPixelsArr.Dispose();
+            job.TextureColours.Dispose();
+            job.FoundPixelsArr.Dispose();
             foundPixelsCounter.Dispose();
 
             return Tuple.Create(foundPixelsArr, foundPixelsCount);
@@ -177,19 +177,19 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
     [BurstCompile]
     public struct ColourCheckJob : IJobParallelFor
     {
-        [ReadOnly] public NativeArray<Color> textureColours;
-        [WriteOnly] public NativeArray<Color32> foundPixelsArr;
+        [ReadOnly] public NativeArray<Color> TextureColours;
+        [WriteOnly] public NativeArray<Color32> FoundPixelsArr;
         public NativeCounter.ParallelWriter counter;
-        [ReadOnly] public int hueThresh;
-        [ReadOnly] public int targetHue;
+        [ReadOnly] public int HueThresh;
+        [ReadOnly] public int TargetHue;
         [ReadOnly] private static readonly Color32 Colour = Color.white;
 
         public void Execute(int index)
         {
-            Color pixel = textureColours[index];
-            if (PixelInThreshold(pixel, hueThresh, targetHue))
+            Color pixel = TextureColours[index];
+            if (PixelInThreshold(pixel, HueThresh, TargetHue))
             {
-                foundPixelsArr[index] = Colour;
+                FoundPixelsArr[index] = Colour;
                 counter.Increment();
             }
         }

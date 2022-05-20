@@ -7,7 +7,7 @@ namespace VirtualVitrine.Menu.Tooltip
 {
     public class TooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerMoveHandler
     {
-        private const float DelaySeconds = 0.3f;
+        private const float delay_seconds = 0.3f;
 
         #region Serialized Fields
 
@@ -50,7 +50,7 @@ namespace VirtualVitrine.Menu.Tooltip
 
         private IEnumerator StartTimer()
         {
-            yield return new WaitForSeconds(DelaySeconds);
+            yield return new WaitForSeconds(delay_seconds);
             mouseOver = true;
             Tooltip.Show(tooltip, header);
             // The size of the rect doesn't update immediately, waiting for a frame.

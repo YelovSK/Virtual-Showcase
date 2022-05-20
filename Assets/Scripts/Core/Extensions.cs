@@ -34,30 +34,30 @@ namespace VirtualVitrine
         // Load saved transform.
         public static void LoadTransform(this Transform original, CopyTransform savedCopy)
         {
-            original.position = savedCopy.position;
-            original.rotation = savedCopy.rotation;
-            original.localScale = savedCopy.localScale;
+            original.position = savedCopy.Position;
+            original.rotation = savedCopy.Rotation;
+            original.localScale = savedCopy.LocalScale;
             var rect = original.GetComponent<RectTransform>();
             if (rect != null)
-                rect.sizeDelta = savedCopy.size;
+                rect.sizeDelta = savedCopy.Size;
         }
     }
 
     public class CopyTransform
     {
-        public Vector3 localScale;
-        public Vector3 position;
-        public Quaternion rotation;
-        public Vector2 size;
+        public Vector3 LocalScale;
+        public Vector3 Position;
+        public Quaternion Rotation;
+        public Vector2 Size;
 
         public CopyTransform(Transform trans)
         {
-            position = trans.position;
-            rotation = trans.rotation;
-            localScale = trans.localScale;
+            Position = trans.position;
+            Rotation = trans.rotation;
+            LocalScale = trans.localScale;
             var rect = trans.GetComponent<RectTransform>();
             if (rect != null)
-                size = rect.sizeDelta;
+                Size = rect.sizeDelta;
         }
     }
 }
