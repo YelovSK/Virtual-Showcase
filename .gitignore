@@ -7,9 +7,11 @@
 [Uu]ser[Ss]ettings/
 Assets/AssetStoreTools*
 Models
+
 Assets/Plugins/*
 !Assets/Plugins/UnityMeshSimplifier
-!Assets/Plugins/*.meta
+!Assets/Plugins/UnityMeshSimplifier.meta
+
 Assets/Objects/*
 !Assets/Objects/PcMonitor.fbx.meta
 Packages/jp.keijiro.mediapipe.blazeface
