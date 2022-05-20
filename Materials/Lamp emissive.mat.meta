@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Animations/Canvas.controller.meta
+guid: 7f87bb6297099e54c90c946ea3fc57cc
+========
+guid: d5c24cec10c078c42af8c7b081c48f2f
+>>>>>>>> 0c60a0412d1e7ff589d4774d3578be0b00fa1b09:Assets/Objects/Materials/Lamp emissive.mat.meta
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
