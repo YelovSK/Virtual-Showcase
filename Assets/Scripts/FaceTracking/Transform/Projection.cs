@@ -99,7 +99,6 @@ namespace VirtualVitrine.FaceTracking.Transform
             // the same and only the head distance changes. The field of view is the same
             // as if the scene/screen got scaled to the new size.
             float sizeRatio = (float) base_screen_diagonal / ScreenSize;
-            print(sizeRatio);
             float headDistance = ScreenDistance * sizeRatio;
             transform.localPosition = new Vector3(0, 0, -headDistance);
 

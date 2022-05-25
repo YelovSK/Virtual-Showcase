@@ -15,6 +15,8 @@ namespace VirtualVitrine
 {
     public sealed class MainUpdater : MonoBehaviour
     {
+        private static bool initialized;
+
         #region Serialized Fields
 
         [SerializeField] private RawImage previewUI;
@@ -41,6 +43,13 @@ namespace VirtualVitrine
             colourChecker = GetComponent<ColourChecker>();
             eyeSmoother = GetComponent<EyeSmoother>();
             distanceText = previewUI.GetComponentInChildren<TMP_Text>();
+
+            // Spawn webcam input object at start.
+            if (initialized) return;
+            initialized = true;
+            var webcamInputObject = new GameObject("WebcamInput");
+            webcamInputObject.AddComponent<WebcamInput>();
+            DontDestroyOnLoad(webcamInputObject);
         }
 
         private void Start()

@@ -10,7 +10,7 @@ namespace VirtualVitrine.FaceTracking
 
         #region Serialized Fields
 
-        [SerializeField] private int resolutionWidth;
+        [SerializeField] private int resolutionWidth = 1280;
 
         #endregion
 
@@ -24,23 +24,31 @@ namespace VirtualVitrine.FaceTracking
         private async void Awake()
         {
             // Singleton stuff.
-            if (instance == null)
-            {
-                instance = this;
-                DontDestroyOnLoad(gameObject);
+            // if (instance == null)
+            // {
+            //     instance = this;
+            //     DontDestroyOnLoad(gameObject);
+            //
+            // }
+            // else if (instance != this) Destroy(gameObject);
+            WebCamTexture = new WebCamTexture(MyPrefs.CameraName, resolutionWidth, resolutionWidth);
+            WebCamTexture.Play();
 
-                WebCamTexture = new WebCamTexture(MyPrefs.CameraName, resolutionWidth, resolutionWidth);
-                WebCamTexture.Play();
+            // Takes a bit for the webcam to initialize.
+            // Might not be needed anymore, seems to work without it.
+            while (WebCamTexture.width == 16 || WebCamTexture.height == 16)
+                await Task.Yield();
 
-                // Takes a bit for the webcam to initialize.
-                // Might not be needed anymore, seems to work without it.
-                while (WebCamTexture.width == 16 || WebCamTexture.height == 16)
-                    await Task.Yield();
+            int smallerDimension = Math.Min(WebCamTexture.width, WebCamTexture.height);
+            RenderTexture = new RenderTexture(smallerDimension, smallerDimension, 0);
+        }
 
-                int smallerDimension = Math.Min(WebCamTexture.width, WebCamTexture.height);
-                RenderTexture = new RenderTexture(smallerDimension, smallerDimension, 0);
-            }
-            else if (instance != this) Destroy(gameObject);
+        private void OnDestroy()
+        {
+            WebCamTexture.Stop();
+            RenderTexture.Release();
+            Destroy(WebCamTexture);
+            Destroy(RenderTexture);
         }
 
         #endregion
