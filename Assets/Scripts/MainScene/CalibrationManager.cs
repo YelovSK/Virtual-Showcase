@@ -63,6 +63,9 @@ namespace VirtualVitrine.MainScene
 
             ChangeSizeValue(sizeSlider);
             sizeSlider.onValueChanged.AddListener(delegate { ChangeSizeValue(sizeSlider); });
+
+            // Disable distance slider if distance is set to update automatically.
+            distanceSlider.transform.parent.gameObject.SetActive(MyPrefs.UpdateHeadDistance == 0);
         }
 
         #endregion
@@ -179,6 +182,8 @@ namespace VirtualVitrine.MainScene
 
                 // Set top edge, highlight middle.
                 case States.Sliders:
+                    // Show slider even if distance is set to update automatically.
+                    distanceSlider.transform.parent.gameObject.SetActive(true);
                     MyPrefs.TopCalibration = EyeSmoother.EyeCenter.y;
                     guideText.text =
                         $"Set the sliders and keep your head pointed at the display from the given distance, then press '{NextStateKeybind}'";
@@ -187,6 +192,7 @@ namespace VirtualVitrine.MainScene
 
                 // Set focal length and hide UI.
                 case States.Reset:
+                    distanceSlider.transform.parent.gameObject.SetActive(MyPrefs.UpdateHeadDistance == 0);
                     MyPrefs.FocalLength = GetFocalLength(distanceSlider.value);
                     TurnOffPreview();
                     state = 0;

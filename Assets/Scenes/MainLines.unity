@@ -2316,29 +2316,69 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 108103874812663803, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 108103874812663803, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 108103874812663803, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 737725884875882689, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.4546402
+      value: 11.2951765
       objectReference: {fileID: 0}
     - target: {fileID: 737725884875882689, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 8.598392
+      value: 0.049317054
       objectReference: {fileID: 0}
     - target: {fileID: 737725884875882689, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -87
+      value: -50
       objectReference: {fileID: 0}
     - target: {fileID: 1096265926849961742, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
       propertyPath: cameraTransform
       value: 
       objectReference: {fileID: 780572477}
+    - target: {fileID: 1732843974555651914, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1732843974555651914, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1732843974555651914, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2096723808755756002, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2096723808755756002, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2702192816293590792, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
       propertyPath: far clip plane
-      value: 287
+      value: 250
       objectReference: {fileID: 0}
     - target: {fileID: 2702192816293590792, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
       propertyPath: near clip plane
-      value: 57
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 3600735312572969710, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3600735312572969710, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4735200000332096641, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
       propertyPath: m_Name
@@ -2390,19 +2430,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4911283685943948716, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
       propertyPath: far clip plane
-      value: 287
+      value: 250
       objectReference: {fileID: 0}
     - target: {fileID: 4911283685943948716, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
       propertyPath: near clip plane
-      value: 57
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 5939306072400790220, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
       propertyPath: far clip plane
-      value: 287
+      value: 250
       objectReference: {fileID: 0}
     - target: {fileID: 5939306072400790220, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
       propertyPath: near clip plane
-      value: 57
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 8435314309311949007, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
       propertyPath: m_LocalPosition.x

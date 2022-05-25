@@ -92,13 +92,14 @@ namespace VirtualVitrine.FaceTracking.Transform
             return new Vector2((float) (width * cms_in_inch), (float) (height * cms_in_inch));
         }
 
-        private void SetCameraDistance()
+        public void SetCameraDistance(bool updateTransform = true)
         {
             // Instead of setting the camera distance to the exact value set in the prefs
             // and scaling the scene according to the screen size, the screen size stays
             // the same and only the head distance changes. The field of view is the same
             // as if the scene/screen got scaled to the new size.
             float sizeRatio = (float) base_screen_diagonal / ScreenSize;
+            print(sizeRatio);
             float headDistance = ScreenDistance * sizeRatio;
             transform.localPosition = new Vector3(0, 0, -headDistance);
 
@@ -115,7 +116,8 @@ namespace VirtualVitrine.FaceTracking.Transform
             }
 
             // Update camera view to avoid flicker while using the sliders.
-            GetComponent<CameraTransform>().Transform();
+            if (updateTransform)
+                GetComponent<CameraTransform>().Transform();
         }
 
         public void UpdateCameraProjection()
@@ -157,6 +159,7 @@ namespace VirtualVitrine.FaceTracking.Transform
             UnityEngine.Transform window = virtualWindow.transform;
             Gizmos.color = Color.magenta;
             Gizmos.DrawIcon(transform.position, "head.png");
+
             // Gizmos.DrawSphere(transform.position, 5f);
 
             // Draw a line towards camera.

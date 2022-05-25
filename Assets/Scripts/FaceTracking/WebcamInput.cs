@@ -27,6 +27,8 @@ namespace VirtualVitrine.FaceTracking
             if (instance == null)
             {
                 instance = this;
+                DontDestroyOnLoad(gameObject);
+
                 WebCamTexture = new WebCamTexture(MyPrefs.CameraName, resolutionWidth, resolutionWidth);
                 WebCamTexture.Play();
 
@@ -37,7 +39,6 @@ namespace VirtualVitrine.FaceTracking
 
                 int smallerDimension = Math.Min(WebCamTexture.width, WebCamTexture.height);
                 RenderTexture = new RenderTexture(smallerDimension, smallerDimension, 0);
-                DontDestroyOnLoad(gameObject);
             }
             else if (instance != this) Destroy(gameObject);
         }
@@ -53,9 +54,6 @@ namespace VirtualVitrine.FaceTracking
 
         public static void SetAspectRatio()
         {
-            if (!WebCamTexture.didUpdateThisFrame)
-                return;
-
             float aspect = (float) WebCamTexture.width / WebCamTexture.height;
             float gap = 1 / aspect;
             bool vflip = WebCamTexture.videoVerticallyMirrored;

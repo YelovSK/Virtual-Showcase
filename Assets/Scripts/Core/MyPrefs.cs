@@ -203,6 +203,16 @@ namespace VirtualVitrine
             }
         }
 
+        public static int UpdateHeadDistance
+        {
+            get => PlayerPrefs.GetInt("updateHeadDistance");
+            set
+            {
+                if (value is 0 or 1)
+                    PlayerPrefs.SetInt("updateHeadDistance", value);
+            }
+        }
+
         public static string Resolution
         {
             get => PlayerPrefs.GetString("resolution");
@@ -281,7 +291,8 @@ namespace VirtualVitrine
             // Checks.
             PreviewOn = 0;
             StereoOn = 0;
-            GlassesCheck = 1;
+            UpdateHeadDistance = 0;
+            GlassesCheck = 0;
 
             // Calibration screen edge values.
             BottomCalibration = 0.0f;
