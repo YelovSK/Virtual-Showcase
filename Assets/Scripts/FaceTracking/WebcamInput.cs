@@ -6,52 +6,52 @@ namespace VirtualVitrine.FaceTracking
 {
     public sealed class WebcamInput : MonoBehaviour
     {
+        private static WebcamInput instance;
+
         #region Serialized Fields
 
         [SerializeField] private int resolutionWidth;
 
         #endregion
 
-        public RenderTexture RenderTexture { get; private set; }
-        public WebCamTexture WebCamTexture { get; private set; }
-        public bool IsCameraRunning => RenderTexture != null && WebCamTexture.isPlaying;
-        public bool CameraUpdated => RenderTexture != null && WebCamTexture.didUpdateThisFrame;
+        public static RenderTexture RenderTexture { get; private set; }
+        public static WebCamTexture WebCamTexture { get; private set; }
+        public static bool IsCameraRunning => RenderTexture != null && WebCamTexture.isPlaying;
+        public static bool CameraUpdated => RenderTexture != null && WebCamTexture.didUpdateThisFrame;
 
         #region Event Functions
 
         private async void Awake()
         {
-            WebCamTexture = new WebCamTexture(MyPrefs.CameraName, resolutionWidth, resolutionWidth);
-            WebCamTexture.Play();
+            // Singleton stuff.
+            if (instance == null)
+            {
+                instance = this;
+                WebCamTexture = new WebCamTexture(MyPrefs.CameraName, resolutionWidth, resolutionWidth);
+                WebCamTexture.Play();
 
-            // Takes a bit for the webcam to initialize.
-            // Might not be needed anymore, seems to work without it.
-            while (WebCamTexture.width == 16 || WebCamTexture.height == 16)
-                await Task.Yield();
+                // Takes a bit for the webcam to initialize.
+                // Might not be needed anymore, seems to work without it.
+                while (WebCamTexture.width == 16 || WebCamTexture.height == 16)
+                    await Task.Yield();
 
-            int smallerDimension = Math.Min(WebCamTexture.width, WebCamTexture.height);
-            RenderTexture = new RenderTexture(smallerDimension, smallerDimension, 0);
-        }
-
-        private void OnDestroy()
-        {
-            if (WebCamTexture == null)
-                return;
-            WebCamTexture.Stop();
-            Destroy(WebCamTexture);
-            Destroy(RenderTexture);
+                int smallerDimension = Math.Min(WebCamTexture.width, WebCamTexture.height);
+                RenderTexture = new RenderTexture(smallerDimension, smallerDimension, 0);
+                DontDestroyOnLoad(gameObject);
+            }
+            else if (instance != this) Destroy(gameObject);
         }
 
         #endregion
 
-        public void ChangeWebcam()
+        public static void ChangeWebcam()
         {
             WebCamTexture.Stop();
             WebCamTexture.deviceName = MyPrefs.CameraName;
             WebCamTexture.Play();
         }
 
-        public void SetAspectRatio()
+        public static void SetAspectRatio()
         {
             if (!WebCamTexture.didUpdateThisFrame)
                 return;

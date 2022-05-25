@@ -34,14 +34,10 @@ namespace VirtualVitrine
         private TMP_Text distanceText;
         private EyeSmoother eyeSmoother;
 
-        // face tracking scripts
-        private WebcamInput webcamInput;
-
         #region Event Functions
 
         private void Awake()
         {
-            webcamInput = GetComponent<WebcamInput>();
             colourChecker = GetComponent<ColourChecker>();
             eyeSmoother = GetComponent<EyeSmoother>();
             distanceText = previewUI.GetComponentInChildren<TMP_Text>();
@@ -49,14 +45,12 @@ namespace VirtualVitrine
 
         private void Start()
         {
-            // Broken webcam, image set to "NO WEBCAM SHOWING".
-            if (!webcamInput.IsCameraRunning)
-            {
-                previewUI.texture = defaultCamTexture;
-                return;
-            }
-
             detector = new FaceDetector(resources);
+            WebcamInput.WebCamTexture.Play();
+
+            // Broken webcam, image set to "NO WEBCAM SHOWING".
+            if (!WebcamInput.IsCameraRunning)
+                previewUI.texture = defaultCamTexture;
         }
 
         /// <summary>
@@ -65,17 +59,17 @@ namespace VirtualVitrine
         private void Update()
         {
             // Check if camera got new frame.
-            if (!webcamInput.CameraUpdated)
+            if (!WebcamInput.CameraUpdated)
                 return;
 
             // Set aspect ratio of camera to 1:1.
-            webcamInput.SetAspectRatio();
+            WebcamInput.SetAspectRatio();
 
             // Update camera preview.
-            previewUI.texture = webcamInput.RenderTexture;
+            previewUI.texture = WebcamInput.RenderTexture;
 
             // Run detection and update marker in UI.
-            bool faceFound = RunDetector(webcamInput.RenderTexture);
+            bool faceFound = RunDetector(WebcamInput.RenderTexture);
 
             // If face not found, hide UI and return.
             if (!faceFound)
@@ -92,7 +86,7 @@ namespace VirtualVitrine
             keyPointsUpdater.UpdateKeyPoints();
 
             // Check colour around eyes.
-            bool glassesOn = colourChecker.CheckGlassesOn(webcamInput.WebCamTexture);
+            bool glassesOn = colourChecker.CheckGlassesOn(WebcamInput.WebCamTexture);
 
             UpdateHeadDistanceInUI();
 

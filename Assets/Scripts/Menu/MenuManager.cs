@@ -44,14 +44,18 @@ namespace VirtualVitrine.Menu
         [Header("Glasses")]
         [SerializeField] private Toggle glassesCheck;
 
-        [Header("Face tracking object")]
-        [SerializeField] private WebcamInput faceTracking;
-
         #endregion
+
+        private WebcamInput webcamInput;
 
         public static QualityEnum Quality => (QualityEnum) QualitySettings.GetQualityLevel();
 
         #region Event Functions
+
+        private void Awake()
+        {
+            webcamInput = GameObject.Find("WebcamInput").GetComponent<WebcamInput>();
+        }
 
         private void Start()
         {
@@ -258,8 +262,8 @@ namespace VirtualVitrine.Menu
         private void ChangeCamPreview(TMP_Dropdown sender)
         {
             MyPrefs.CameraName = sender.options[sender.value].text;
-            if (faceTracking.WebCamTexture.deviceName != MyPrefs.CameraName)
-                faceTracking.ChangeWebcam();
+            if (WebcamInput.WebCamTexture.deviceName != MyPrefs.CameraName)
+                WebcamInput.ChangeWebcam();
         }
 
         private void ChangeSmoothing(TMP_Dropdown sender)

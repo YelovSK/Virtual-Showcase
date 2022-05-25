@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6938027245835659937}
-  - component: {fileID: 15344502680058632}
   - component: {fileID: 6106036576034832082}
   - component: {fileID: 5428982965342325994}
   - component: {fileID: 7398908018952484068}
@@ -35,19 +34,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &15344502680058632
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 178426139709489057}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d46f6d48364029e4097a90fc41ae48f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  resolutionWidth: 1280
 --- !u!114 &6106036576034832082
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73,6 +59,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   colorBox: {fileID: 0}
+  pixelCountText: {fileID: 0}
 --- !u!114 &7398908018952484068
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -89,3 +76,4 @@ MonoBehaviour:
   resources: {fileID: 11400000, guid: 5594fd2934aca864980b90fe058f4161, type: 2}
   defaultCamTexture: {fileID: 2800000, guid: 206ba24cdf772b24e979bf09f3ec3461, type: 3}
   keyPointsUpdater: {fileID: 0}
+  cameraTransform: {fileID: 0}
