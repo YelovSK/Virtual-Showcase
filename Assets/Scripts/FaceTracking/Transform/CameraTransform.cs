@@ -1,5 +1,4 @@
 using UnityEngine;
-using VirtualVitrine.MainScene;
 
 namespace VirtualVitrine.FaceTracking.Transform
 {
@@ -43,13 +42,6 @@ namespace VirtualVitrine.FaceTracking.Transform
             // Get local x, y coordinates of the head.
             float x = (centerX - 0.5f) * Projection.ScreenWidth;
             float y = (centerY - 0.5f) * Projection.ScreenHeight;
-
-            // If checked in settings, head distance gets set according to the eyes distance.
-            if (MyPrefs.UpdateHeadDistance == 1)
-            {
-                MyPrefs.ScreenDistance = (int) CalibrationManager.GetRealHeadDistance();
-                projection.SetCameraDistance(false);
-            }
 
             // Update the position of the head.
             transform.localPosition = new Vector3(x, y, transform.localPosition.z);

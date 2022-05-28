@@ -43,7 +43,6 @@ namespace VirtualVitrine.Menu
 
         [Header("Checks")]
         [SerializeField] private Toggle glassesCheck;
-        [SerializeField] private Toggle updateDistanceCheck;
 
         #endregion
 
@@ -100,7 +99,6 @@ namespace VirtualVitrine.Menu
             hueSlider.value = MyPrefs.Hue;
             hueThreshSlider.value = MyPrefs.HueThreshold;
             glassesCheck.isOn = MyPrefs.GlassesCheck == 1;
-            updateDistanceCheck.isOn = MyPrefs.UpdateHeadDistance == 1;
             qualityDropdown.value = MyPrefs.QualityIndex;
         }
 
@@ -188,9 +186,6 @@ namespace VirtualVitrine.Menu
             ChangeGlassesCheck(glassesCheck);
             glassesCheck.onValueChanged.AddListener(delegate { ChangeGlassesCheck(glassesCheck); });
 
-            ChangeUpdateDistanceCheck(updateDistanceCheck);
-            updateDistanceCheck.onValueChanged.AddListener(delegate { ChangeUpdateDistanceCheck(updateDistanceCheck); });
-
             ChangeQuality(qualityDropdown);
             qualityDropdown.onValueChanged.AddListener(delegate { ChangeQuality(qualityDropdown); });
 
@@ -243,11 +238,6 @@ namespace VirtualVitrine.Menu
         private static void ChangeGlassesCheck(Toggle sender)
         {
             MyPrefs.GlassesCheck = sender.isOn ? 1 : 0;
-        }
-
-        private static void ChangeUpdateDistanceCheck(Toggle sender)
-        {
-            MyPrefs.UpdateHeadDistance = sender.isOn ? 1 : 0;
         }
 
         private void ChangeRslider(Slider slider)

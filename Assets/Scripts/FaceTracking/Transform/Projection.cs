@@ -92,7 +92,7 @@ namespace VirtualVitrine.FaceTracking.Transform
             return new Vector2((float) (width * cms_in_inch), (float) (height * cms_in_inch));
         }
 
-        public void SetCameraDistance(bool updateTransform = true)
+        public void SetCameraDistance()
         {
             // Instead of setting the camera distance to the exact value set in the prefs
             // and scaling the scene according to the screen size, the screen size stays
@@ -115,8 +115,7 @@ namespace VirtualVitrine.FaceTracking.Transform
             }
 
             // Update camera view to avoid flicker while using the sliders.
-            if (updateTransform)
-                GetComponent<CameraTransform>().Transform();
+            GetComponent<CameraTransform>().Transform();
         }
 
         public void UpdateCameraProjection()
