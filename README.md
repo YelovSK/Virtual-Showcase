@@ -4,7 +4,7 @@ View-dependent stereo running in Unity. The main use is to view imported .obj fi
 
 ## DEPENDENCIES FOR USAGE IN THE EDITOR
 
-1. Download the project: `git clone --recurse-submodules https://github.com/YelovSK/Virtual-Showcase.git`. [UnityMeshSimplifier](https://github.com/Whinarn/UnityMeshSimplifier) should get downloaded if you clone with `--resurse-submodules` flag.
+1. Download the project: `git clone --recurse-submodules https://github.com/YelovSK/Virtual-Showcase.git`. [UnityMeshSimplifier](https://github.com/Whinarn/UnityMeshSimplifier) should get downloaded if you clone with `--recurse-submodules` flag.
 
 ---
 
