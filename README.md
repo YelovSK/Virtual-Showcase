@@ -26,7 +26,11 @@ View-dependent stereo running in Unity. The main use is to view imported .obj fi
 
 ---
 
-5. You should be asked to import TextMeshPro after the first run.
+5. Download this .fbx [pack](https://www.cgtrader.com/free-3d-models/electronics/video/photography-studio-objects) and put the downloaded `uploads_files_873805_studio_objs.fbx` file into `Packages/Objects` the same way as the above model.
+
+---
+
+6. You should be asked to import TextMeshPro after the first run.
 
 ## DEFAULT CONTROLS AND KEY BINDS
 

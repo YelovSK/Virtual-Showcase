@@ -14,6 +14,8 @@ Assets/Plugins/*
 
 Assets/Objects/*
 !Assets/Objects/PcMonitor.fbx.meta
+!Assets/Objects/studio.obj
+!Assets/Objects/studio.obj.meta
 Packages/jp.keijiro.mediapipe.blazeface
 
 # Visual Studio cache directory

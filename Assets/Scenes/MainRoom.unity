@@ -793,15 +793,23 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 737725884875882689, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.4546402
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 737725884875882689, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 8.598392
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 737725884875882689, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -87
+      value: -80
+      objectReference: {fileID: 0}
+    - target: {fileID: 2702192816293590792, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: far clip plane
+      value: 280
+      objectReference: {fileID: 0}
+    - target: {fileID: 2702192816293590792, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: near clip plane
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 4735200000332096641, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
       propertyPath: m_Name
@@ -850,6 +858,30 @@ PrefabInstance:
     - target: {fileID: 4802749613396756881, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4911283685943948716, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: far clip plane
+      value: 280
+      objectReference: {fileID: 0}
+    - target: {fileID: 4911283685943948716, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: near clip plane
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 5939306072400790220, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: far clip plane
+      value: 280
+      objectReference: {fileID: 0}
+    - target: {fileID: 5939306072400790220, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: near clip plane
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 8435314309311949007, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -3
+      objectReference: {fileID: 0}
+    - target: {fileID: 9103602234443187511, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5cc76807adcae6a4ba6b4522ff1ae677, type: 3}

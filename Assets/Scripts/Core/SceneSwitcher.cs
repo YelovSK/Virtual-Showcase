@@ -53,7 +53,8 @@ namespace VirtualVitrine
         public enum MainScenes
         {
             MainRoom,
-            MainLines
+            MainLines,
+            MainWhite
         }
     }
 }
