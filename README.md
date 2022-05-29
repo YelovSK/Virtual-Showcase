@@ -1,6 +1,6 @@
 # Virtual Showcase
 
-View-dependent stereo running in Unity. The main use is to view imported .obj files with motion paralax. Off-axis projection is used to achieve proper camera perspective.
+View-dependent stereo running in Unity. The main use is to view imported .obj files with motion parallax. Off-axis projection is used to achieve proper camera perspective.
 
 ## DEPENDENCIES FOR USAGE IN THE EDITOR
 
