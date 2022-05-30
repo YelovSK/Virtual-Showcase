@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -6,7 +7,7 @@ namespace VirtualVitrine.FaceTracking
 {
     public sealed class WebcamInput : MonoBehaviour
     {
-        private static WebcamInput instance;
+        public static bool Mirrored;
 
         #region Serialized Fields
 
@@ -15,39 +16,35 @@ namespace VirtualVitrine.FaceTracking
         #endregion
 
         public static RenderTexture RenderTexture { get; private set; }
-        public static WebCamTexture WebCamTexture { get; private set; }
-        public static bool IsCameraRunning => RenderTexture != null && WebCamTexture.isPlaying;
-        public static bool CameraUpdated => RenderTexture != null && WebCamTexture.didUpdateThisFrame;
+        public static WebCamTexture WebcamTexture { get; private set; }
+        public static bool IsCameraRunning => RenderTexture != null && WebcamTexture.isPlaying;
+        public static bool CameraUpdated => RenderTexture != null && WebcamTexture.didUpdateThisFrame;
 
         #region Event Functions
 
         private async void Awake()
         {
-            // Singleton stuff.
-            // if (instance == null)
-            // {
-            //     instance = this;
-            //     DontDestroyOnLoad(gameObject);
-            //
-            // }
-            // else if (instance != this) Destroy(gameObject);
-            WebCamTexture = new WebCamTexture(MyPrefs.CameraName, resolutionWidth, resolutionWidth);
-            WebCamTexture.Play();
+            WebcamTexture = new WebCamTexture(MyPrefs.CameraName, resolutionWidth, resolutionWidth);
+            WebcamTexture.Play();
 
             // Takes a bit for the webcam to initialize.
             // Might not be needed anymore, seems to work without it.
-            while (WebCamTexture.width == 16 || WebCamTexture.height == 16)
+            while (WebcamTexture.width == 16 || WebcamTexture.height == 16)
                 await Task.Yield();
 
-            int smallerDimension = Math.Min(WebCamTexture.width, WebCamTexture.height);
-            RenderTexture = new RenderTexture(smallerDimension, smallerDimension, 0);
+            int smallerDimension = Math.Min(WebcamTexture.width, WebcamTexture.height);
+            int largerDimension = Math.Max(WebcamTexture.width, WebcamTexture.height);
+            RenderTexture = new RenderTexture(largerDimension, largerDimension, 0);
+            Mirrored = WebCamTexture.devices.FirstOrDefault(x => x.name == WebcamTexture.deviceName).isFrontFacing;
+            print($"Webcam resolution: {WebcamTexture.width}x{WebcamTexture.height}");
+            print($"Webcam is mirrored: {Mirrored}");
         }
 
         private void OnDestroy()
         {
-            WebCamTexture.Stop();
+            WebcamTexture.Stop();
             RenderTexture.Release();
-            Destroy(WebCamTexture);
+            Destroy(WebcamTexture);
             Destroy(RenderTexture);
         }
 
@@ -55,21 +52,20 @@ namespace VirtualVitrine.FaceTracking
 
         public static void ChangeWebcam()
         {
-            WebCamTexture.Stop();
-            WebCamTexture.deviceName = MyPrefs.CameraName;
-            WebCamTexture.Play();
+            WebcamTexture.Stop();
+            WebcamTexture.deviceName = MyPrefs.CameraName;
+            WebcamTexture.Play();
+            Mirrored = WebCamTexture.devices.FirstOrDefault(x => x.name == WebcamTexture.deviceName).isFrontFacing;
         }
 
         public static void SetAspectRatio()
         {
-            float aspect = (float) WebCamTexture.width / WebCamTexture.height;
-            float gap = 1 / aspect;
-            bool vflip = WebCamTexture.videoVerticallyMirrored;
-            var scale = new Vector2(gap, vflip ? -1 : 1);
-            var offset = new Vector2((1 - gap) / 2, vflip ? 1 : 0);
+            float aspect = (float) WebcamTexture.width / WebcamTexture.height;
+            var scale = new Vector2(Mirrored ? -1 : 1, aspect);
+            var offset = new Vector2(Mirrored ? 1 : 0, (1 - aspect) / 2);
 
             // Put 1:1 WebCamTexture into RenderTexture.
-            Graphics.Blit(WebCamTexture, RenderTexture, scale, offset);
+            Graphics.Blit(WebcamTexture, RenderTexture, scale, offset);
         }
     }
 }

@@ -55,7 +55,7 @@ namespace VirtualVitrine
         private void Start()
         {
             detector = new FaceDetector(resources);
-            WebcamInput.WebCamTexture.Play();
+            WebcamInput.WebcamTexture.Play();
 
             // Broken webcam, image set to "NO WEBCAM SHOWING".
             if (!WebcamInput.IsCameraRunning)
@@ -95,7 +95,7 @@ namespace VirtualVitrine
             keyPointsUpdater.UpdateKeyPoints();
 
             // Check colour around eyes.
-            bool glassesOn = colourChecker.CheckGlassesOn(WebcamInput.WebCamTexture);
+            bool glassesOn = colourChecker.CheckGlassesOn();
 
             UpdateHeadDistanceInUI();
 
@@ -148,6 +148,13 @@ namespace VirtualVitrine
             const int threshold = 10;
             var currentDistance = (int) CalibrationManager.GetRealHeadDistance();
             int calibratedDistance = MyPrefs.ScreenDistance;
+
+            // Uncalibrated.
+            if (currentDistance == 0)
+            {
+                distanceText.text = "<size=50><color=red>Uncalibrated</color></size>";
+                return;
+            }
 
             // Green text if within threshold, else red.
             string color = Math.Abs(currentDistance - calibratedDistance) <= threshold ? "green" : "red";

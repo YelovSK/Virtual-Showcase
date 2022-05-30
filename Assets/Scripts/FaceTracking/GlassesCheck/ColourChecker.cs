@@ -12,6 +12,9 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
     {
         #region Serialized Fields
 
+        [SerializeField] private float offsetTest;
+        [SerializeField] private int offsetTestX;
+        [SerializeField] private int offsetTestY;
         [SerializeField] private RawImage colorBox;
         [SerializeField] private TMP_Text pixelCountText;
 
@@ -22,9 +25,8 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
         /// <summary>
         ///     Checks pixels in the color box and updates the text to show the number of pixels
         /// </summary>
-        /// <param name="tex">Source texture</param>
         /// <returns>True if threshold passed</returns>
-        public bool CheckGlassesOn(WebCamTexture tex)
+        public bool CheckGlassesOn()
         {
             // If glasses check is off, don't display overlay and set to true to transform anyway.
             if (MyPrefs.GlassesCheck == 0)
@@ -33,18 +35,22 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
                 return true;
             }
 
+            WebCamTexture tex = WebcamInput.WebcamTexture;
             colorBox.gameObject.SetActive(true);
 
-            // Resolution of the 1:1 texture.
-            int resolution = Math.Min(tex.width, tex.height);
+            // Webcam resolution.
+            var resolution = new Vector2(tex.width, tex.height);
+
+            // RenderTexture resolution.
+            int rectSize = Math.Max(tex.width, tex.height);
 
             // Map coords from 0.0 - 1.0 to width and height of WebcamTexture.
             var leftEye = new Vector2(
-                EyeSmoother.LeftEyeSmoothed.x * resolution,
-                EyeSmoother.LeftEyeSmoothed.y * resolution);
+                EyeSmoother.LeftEyeSmoothed.x * resolution.x,
+                EyeSmoother.LeftEyeSmoothed.y * resolution.y);
             var rightEye = new Vector2(
-                EyeSmoother.RightEyeSmoothed.x * resolution,
-                EyeSmoother.RightEyeSmoothed.y * resolution);
+                EyeSmoother.RightEyeSmoothed.x * resolution.x,
+                EyeSmoother.RightEyeSmoothed.y * resolution.y);
             Vector2 center = (leftEye + rightEye) / 2;
 
             // Look from (startX, startY) to (endX, endY).
@@ -53,13 +59,8 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
             int boxHeight = endY - startY;
             int allPixelsCount = boxWidth * boxHeight;
 
-            // Tex has original aspect ratio, but the texture in UI is square
-            // so we have to offset the starting position to get pixels of the inner square
-            // e.g. if tex is 1280x720, then the inner square is 720x720 and starting X=(1280-720) / 2.
-            int offset = Math.Abs(tex.width - tex.height) / 2;
-
             // Look at the pixels in the box.
-            (Color32[] foundPixelsArr, int foundPixelsCount) = FindPixels(tex, offset, startX, startY, boxWidth, boxHeight);
+            (Color32[] foundPixelsArr, int foundPixelsCount) = FindPixels(tex, startX, startY, boxWidth, boxHeight);
 
             // Check if threshold was passed.
             const float threshold = 0.05f;
@@ -78,12 +79,12 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
             Rect cBoxParentRect = cBoxParent.rect;
 
             // Center mapped to 0.0-1.0.
-            var centerFloat = new Vector2(center.x / resolution, center.y / resolution);
+            var centerFloat = new Vector2(center.x / resolution.x, center.y / resolution.y);
             cBox.anchoredPosition = centerFloat * cBoxParentRect.size;
 
             // Box size.
-            float width = (float) boxWidth / resolution;
-            float height = (float) boxHeight / resolution;
+            float width = (float) boxWidth / rectSize;
+            float height = (float) boxHeight / rectSize;
             Vector2 size = new Vector2(width, height) * cBoxParentRect.size;
             cBox.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
             cBox.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
@@ -100,6 +101,8 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
             // Apply and set the texture.
             colOverlayTexture.Apply();
             colorBox.texture = colOverlayTexture;
+            if (WebcamInput.Mirrored)
+                colorBox.uvRect = new Rect(0, 0, -1, 1);
 
             return passed;
         }
@@ -110,12 +113,19 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
             pixelCountText.text = "";
         }
 
-        private static void CalculateColourBoxSize(int resolution, Vector2 leftEye, Vector2 rightEye, out int startX,
+        private static void CalculateColourBoxSize(Vector2 resolution, Vector2 leftEye, Vector2 rightEye, out int startX,
             out int endX, out int startY, out int endY)
         {
+            // Update y position. Basically original is of height resolution.x, but we have resolution.y height.
+            // Confusing, I know.
+            float middleY = resolution.y / 2f;
+            float aspect = resolution.x / resolution.y;
+            leftEye.y = middleY + (leftEye.y - middleY) * aspect;
+            rightEye.y = middleY + (rightEye.y - middleY) * aspect;
+
             // Size of the box.
-            float xRadius = (int) rightEye.x - leftEye.x;
-            float yRadius = (int) Math.Abs(leftEye.y - rightEye.y) + xRadius / 3;
+            float xRadius = (int) (rightEye.x - leftEye.x) * 0.9f;
+            float yRadius = (int) Math.Abs(leftEye.y - rightEye.y) + xRadius / 2.5f;
 
             // Start and end points of the box.
             startX = (int) (leftEye.x - xRadius);
@@ -125,25 +135,27 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
 
             // If out of bounds, set to min/max.
             startX = Math.Max(0, startX);
-            endX = Math.Min(resolution, endX);
+            endX = Math.Min((int) resolution.x, endX);
             startY = Math.Max(0, startY);
-            endY = Math.Min(resolution, endY);
+            endY = Math.Min((int) resolution.y, endY);
         }
 
         /// <summary>
         ///     Goes through pixels in a box and finds those that are in colour threshold
         /// </summary>
         /// <param name="tex">Input texture</param>
-        /// <param name="offset">Offset from the original texture (because of different aspect ratio)</param>
         /// <param name="startX">Left X coordinate of box</param>
         /// <param name="startY">Upper Y coordinate of box</param>
         /// <param name="boxWidth">Width of the box</param>
         /// <param name="boxHeight">Height of the box</param>
         /// <returns>Tuple: Color array for filling the texture and the number of pixels found in threshold</returns>
-        private Tuple<Color32[], int> FindPixels(WebCamTexture tex, int offset, int startX, int startY, int boxWidth, int boxHeight)
+        private Tuple<Color32[], int> FindPixels(WebCamTexture tex, int startX, int startY, int boxWidth, int boxHeight)
         {
+            if (WebcamInput.Mirrored)
+                startX = tex.width - startX - boxWidth;
+
             // Get pixels in range <(startX, startY), (endX, endY)>.
-            Color[] textureColours = tex.GetPixels(startX + offset, startY, boxWidth, boxHeight);
+            Color[] textureColours = tex.GetPixels(startX + offsetTestX, startY + offsetTestY, boxWidth, boxHeight);
             var textureColoursNative = new NativeArray<Color>(textureColours.Length, Allocator.TempJob);
             textureColoursNative.CopyFrom(textureColours);
 

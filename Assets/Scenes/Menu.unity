@@ -17435,7 +17435,6 @@ MonoBehaviour:
   hueThreshSlider: {fileID: 1170988337}
   hueThreshText: {fileID: 255733675}
   glassesCheck: {fileID: 177176270}
-  updateDistanceCheck: {fileID: 0}
 --- !u!4 &2147122652
 Transform:
   m_ObjectHideFlags: 0

@@ -255,7 +255,7 @@ namespace VirtualVitrine.Menu
         private void ChangeCamPreview(TMP_Dropdown sender)
         {
             MyPrefs.CameraName = sender.options[sender.value].text;
-            if (WebcamInput.WebCamTexture.deviceName != MyPrefs.CameraName)
+            if (WebcamInput.WebcamTexture.deviceName != MyPrefs.CameraName)
                 WebcamInput.ChangeWebcam();
         }
 
