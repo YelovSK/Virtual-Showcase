@@ -67,7 +67,7 @@ namespace VirtualVitrine.MainScene
 
         #endregion
 
-        private enum States
+        public enum States
         {
             Off,
             Left,
@@ -128,6 +128,12 @@ namespace VirtualVitrine.MainScene
             UpdateState();
         }
 
+        public void SetState(States s)
+        {
+            state = s;
+            UpdateState(false);
+        }
+
         private void ChangeDistanceValue(Slider sender)
         {
             distanceValue.text = sender.value + "cm";
@@ -145,7 +151,7 @@ namespace VirtualVitrine.MainScene
             head.ScreenSize = screenSize;
         }
 
-        private void UpdateState()
+        private void UpdateState(bool updatePrefs = true)
         {
             switch (state)
             {
@@ -158,29 +164,28 @@ namespace VirtualVitrine.MainScene
 
                 // Set left edge, highlight right edge.
                 case States.Right:
-                    MyPrefs.LeftCalibration = EyeSmoother.EyeCenter.x;
+                    if (updatePrefs) MyPrefs.LeftCalibration = EyeSmoother.EyeCenter.x;
                     SetGuideText("right");
                     HighlightEdge();
                     break;
 
                 // Set right edge, highlight bottom edge.
                 case States.Bottom:
-                    MyPrefs.RightCalibration = EyeSmoother.EyeCenter.x;
+                    if (updatePrefs) MyPrefs.RightCalibration = EyeSmoother.EyeCenter.x;
                     SetGuideText("bottom");
                     HighlightEdge();
                     break;
 
                 // Set bottom edge, highlight top edge.
                 case States.Top:
-                    MyPrefs.BottomCalibration = EyeSmoother.EyeCenter.y;
+                    if (updatePrefs) MyPrefs.BottomCalibration = EyeSmoother.EyeCenter.y;
                     SetGuideText("top");
                     HighlightEdge();
                     break;
 
                 // Set top edge, highlight middle.
                 case States.Sliders:
-                    distanceSlider.transform.parent.gameObject.SetActive(true);
-                    MyPrefs.TopCalibration = EyeSmoother.EyeCenter.y;
+                    if (updatePrefs) MyPrefs.TopCalibration = EyeSmoother.EyeCenter.y;
                     guideText.text =
                         $"Set the sliders and keep your head pointed at the display from the given distance, then press '{NextStateKeybind}'";
                     HighlightEdge();

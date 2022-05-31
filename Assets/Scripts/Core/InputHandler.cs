@@ -58,6 +58,18 @@ namespace VirtualVitrine
             if (playerInput.actions["Next calibration"].WasPressedThisFrame())
                 calibrationManager.SetNextState();
 
+            // Go to specific calibration step. Arrow keys for edge and spacebar for the center.
+            if (Keyboard.current.leftArrowKey.wasPressedThisFrame)
+                calibrationManager.SetState(CalibrationManager.States.Left);
+            else if (Keyboard.current.rightArrowKey.wasPressedThisFrame)
+                calibrationManager.SetState(CalibrationManager.States.Right);
+            else if (Keyboard.current.upArrowKey.wasPressedThisFrame)
+                calibrationManager.SetState(CalibrationManager.States.Top);
+            else if (Keyboard.current.downArrowKey.wasPressedThisFrame)
+                calibrationManager.SetState(CalibrationManager.States.Bottom);
+            else if (Keyboard.current.spaceKey.wasPressedThisFrame)
+                calibrationManager.SetState(CalibrationManager.States.Sliders);
+
             // Reset loaded object position.
             if (playerInput.actions["Reset transform"].WasPressedThisFrame())
                 ModelLoader.ResetTransform();
