@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MediaPipe.BlazeFace;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,19 +17,14 @@ namespace VirtualVitrine
         #region Serialized Fields
 
         [SerializeField] private RawImage previewUI;
-        [SerializeField] private ResourceSet resources;
         [SerializeField] private Texture2D defaultCamTexture;
-        [SerializeField] private KeyPointsUpdater keyPointsUpdater;
         [SerializeField] private CameraTransform cameraTransform;
+        [SerializeField] private KeyPointsUpdater keyPointsUpdater;
 
         #endregion
 
         private ColourChecker colourChecker;
-
-        // Barracuda face detector
-        private FaceDetector detector;
-
-        // text showing the face distance from the camera
+        private Detector detector;
         private TMP_Text distanceText;
         private EyeSmoother eyeSmoother;
 
@@ -42,6 +34,7 @@ namespace VirtualVitrine
         {
             colourChecker = GetComponent<ColourChecker>();
             eyeSmoother = GetComponent<EyeSmoother>();
+            detector = GetComponent<Detector>();
             distanceText = previewUI.GetComponentInChildren<TMP_Text>();
 
             // Spawn webcam input object at start.
@@ -54,7 +47,6 @@ namespace VirtualVitrine
 
         private void Start()
         {
-            detector = new FaceDetector(resources);
             WebcamInput.WebcamTexture.Play();
 
             // Broken webcam, image set to "NO WEBCAM SHOWING".
@@ -72,7 +64,7 @@ namespace VirtualVitrine
 
             WebcamInput.SetAspectRatio();
             previewUI.texture = WebcamInput.RenderTexture;
-            bool faceFound = RunDetector(WebcamInput.RenderTexture);
+            bool faceFound = detector.RunDetector(WebcamInput.RenderTexture);
 
             if (!faceFound)
             {
@@ -89,42 +81,7 @@ namespace VirtualVitrine
                 cameraTransform.Transform();
         }
 
-        private void OnDestroy()
-        {
-            detector?.Dispose();
-        }
-
         #endregion
-
-
-        /// <summary>
-        ///     Runs detection and returns true if face was found
-        /// </summary>
-        /// <param name="input">Texture to detect from</param>
-        /// <returns>True if face was found, False if wasn't found</returns>
-        private bool RunDetector(Texture input)
-        {
-            // Face detection.
-            detector.ProcessImage(input, MyPrefs.DetectionThreshold);
-
-            // Check if any detections were found.
-            List<FaceDetector.Detection> detections = detector.Detections.ToList();
-            bool faceFound = detections.Any();
-
-            // Activate/Deactivate marker if face was/wasn't found.
-            keyPointsUpdater.gameObject.SetActive(faceFound);
-
-            if (faceFound)
-            {
-                // Get detection with largest bounding box.
-                FaceDetector.Detection largestFace = detections
-                    .OrderByDescending(x => x.extent.magnitude)
-                    .First();
-                KeyPointsUpdater.Detection = largestFace;
-            }
-
-            return faceFound;
-        }
 
         private void UpdateHeadDistanceInUI()
         {

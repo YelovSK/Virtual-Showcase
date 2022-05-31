@@ -12376,6 +12376,10 @@ PrefabInstance:
       propertyPath: keyPointsUpdater
       value: 
       objectReference: {fileID: 1308604628}
+    - target: {fileID: 7812021950053757122, guid: 041dbee215611b140bb0135128062967, type: 3}
+      propertyPath: keyPointsUpdater
+      value: 
+      objectReference: {fileID: 1308604628}
     m_RemovedComponents:
     - {fileID: 15344502680058632, guid: 041dbee215611b140bb0135128062967, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 041dbee215611b140bb0135128062967, type: 3}

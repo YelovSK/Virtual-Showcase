@@ -497,8 +497,8 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 50
-  far clip plane: 280
+  near clip plane: 20
+  far clip plane: 250
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -670,8 +670,8 @@ Camera:
     y: 0
     width: 0.5
     height: 1
-  near clip plane: 50
-  far clip plane: 280
+  near clip plane: 20
+  far clip plane: 250
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -1854,8 +1854,8 @@ Camera:
     y: 0
     width: 0.5
     height: 1
-  near clip plane: 50
-  far clip plane: 280
+  near clip plane: 20
+  far clip plane: 250
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -2060,7 +2060,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7901422498606138537}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -80}
+  m_LocalPosition: {x: -2.1053946, y: -0.8277463, z: -50}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2897,6 +2897,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 6102471510307375560}
     - target: {fileID: 7398908018952484068, guid: 041dbee215611b140bb0135128062967, type: 3}
+      propertyPath: keyPointsUpdater
+      value: 
+      objectReference: {fileID: 1647649331146054410}
+    - target: {fileID: 7812021950053757122, guid: 041dbee215611b140bb0135128062967, type: 3}
       propertyPath: keyPointsUpdater
       value: 
       objectReference: {fileID: 1647649331146054410}
