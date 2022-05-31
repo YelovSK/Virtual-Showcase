@@ -67,20 +67,13 @@ namespace VirtualVitrine
         /// </summary>
         private void Update()
         {
-            // Check if camera got new frame.
             if (!WebcamInput.CameraUpdated)
                 return;
 
-            // Set aspect ratio of camera to 1:1.
             WebcamInput.SetAspectRatio();
-
-            // Update camera preview.
             previewUI.texture = WebcamInput.RenderTexture;
-
-            // Run detection and update marker in UI.
             bool faceFound = RunDetector(WebcamInput.RenderTexture);
 
-            // If face not found, hide UI and return.
             if (!faceFound)
             {
                 distanceText.text = "";
@@ -88,18 +81,10 @@ namespace VirtualVitrine
                 return;
             }
 
-            // Smooth left and right eye key points.
             eyeSmoother.SmoothEyes();
-
-            // Update key points in UI.
             keyPointsUpdater.UpdateKeyPoints();
-
-            // Check colour around eyes.
             bool glassesOn = colourChecker.CheckGlassesOn();
-
             UpdateHeadDistanceInUI();
-
-            // If glasses found and in main scene, transform camera.
             if (glassesOn && SceneSwitcher.InMainScene)
                 cameraTransform.Transform();
         }
@@ -107,7 +92,6 @@ namespace VirtualVitrine
         private void OnDestroy()
         {
             detector?.Dispose();
-            distanceText.text = "";
         }
 
         #endregion

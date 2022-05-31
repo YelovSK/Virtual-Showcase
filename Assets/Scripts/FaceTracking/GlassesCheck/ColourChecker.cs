@@ -89,7 +89,6 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
             cBox.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
             cBox.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
 
-
             // Create an empty texture.
             if (colOverlayTexture != null)
                 Destroy(colOverlayTexture);
@@ -101,8 +100,10 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
             // Apply and set the texture.
             colOverlayTexture.Apply();
             colorBox.texture = colOverlayTexture;
-            if (WebcamInput.Mirrored)
-                colorBox.uvRect = new Rect(0, 0, -1, 1);
+
+            // Flip texture if mirrored.
+            int rectW = WebcamInput.Mirrored ? -1 : 1;
+            colorBox.uvRect = new Rect(0, 0, rectW, 1);
 
             return passed;
         }
