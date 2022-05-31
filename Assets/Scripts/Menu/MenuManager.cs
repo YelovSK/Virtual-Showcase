@@ -155,7 +155,7 @@ namespace VirtualVitrine.Menu
         private void SetSmoothingOption(string smoothingOption)
         {
             if (smoothingDropdown.options.Count == 0)
-                smoothingDropdown.AddOptions(Enum.GetNames(typeof(MyPrefs.SmoothingTypeEnum)).ToList());
+                smoothingDropdown.AddOptions(Enum.GetNames(typeof(MyPrefs.SmoothingTypeEnum)).Reverse().ToList());
             smoothingDropdown.value = smoothingDropdown.options.FindIndex(option => option.text == smoothingOption);
         }
 
