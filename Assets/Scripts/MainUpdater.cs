@@ -63,8 +63,8 @@ namespace VirtualVitrine
                 return;
 
             WebcamInput.SetAspectRatio();
-            previewUI.texture = WebcamInput.RenderTexture;
-            bool faceFound = detector.RunDetector(WebcamInput.RenderTexture);
+            previewUI.texture = WebcamInput.FinalTexture;
+            bool faceFound = detector.RunDetector(WebcamInput.FinalTexture);
 
             if (!faceFound)
             {

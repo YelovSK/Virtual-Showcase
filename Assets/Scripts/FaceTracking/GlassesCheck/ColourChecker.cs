@@ -12,15 +12,21 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
     {
         #region Serialized Fields
 
-        [SerializeField] private float offsetTest;
-        [SerializeField] private int offsetTestX;
-        [SerializeField] private int offsetTestY;
         [SerializeField] private RawImage colorBox;
         [SerializeField] private TMP_Text pixelCountText;
 
         #endregion
 
         private Texture2D colOverlayTexture;
+
+        #region Event Functions
+
+        private void Start()
+        {
+            colOverlayTexture = new Texture2D(1, 1);
+        }
+
+        #endregion
 
         /// <summary>
         ///     Checks pixels in the color box and updates the text to show the number of pixels
@@ -35,14 +41,9 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
                 return true;
             }
 
-            WebCamTexture tex = WebcamInput.WebcamTexture;
+            Texture2D tex = WebcamInput.FinalTexture;
             colorBox.gameObject.SetActive(true);
-
-            // Webcam resolution.
             var resolution = new Vector2(tex.width, tex.height);
-
-            // RenderTexture resolution.
-            int rectSize = Math.Max(tex.width, tex.height);
 
             // Map coords from 0.0 - 1.0 to width and height of WebcamTexture.
             var leftEye = new Vector2(
@@ -83,16 +84,14 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
             cBox.anchoredPosition = centerFloat * cBoxParentRect.size;
 
             // Box size.
-            float width = (float) boxWidth / rectSize;
-            float height = (float) boxHeight / rectSize;
+            float width = boxWidth / resolution.x;
+            float height = boxHeight / resolution.y;
             Vector2 size = new Vector2(width, height) * cBoxParentRect.size;
             cBox.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
             cBox.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
 
-            // Create an empty texture.
-            if (colOverlayTexture != null)
-                Destroy(colOverlayTexture);
-            colOverlayTexture = new Texture2D(boxWidth, boxHeight);
+            // Resize texture.
+            colOverlayTexture.Reinitialize(boxWidth, boxHeight);
 
             // Set found pixels to white (from FindPixels method).
             colOverlayTexture.SetPixels32(foundPixelsArr);
@@ -100,10 +99,6 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
             // Apply and set the texture.
             colOverlayTexture.Apply();
             colorBox.texture = colOverlayTexture;
-
-            // Flip texture if mirrored.
-            int rectW = WebcamInput.Mirrored ? -1 : 1;
-            colorBox.uvRect = new Rect(0, 0, rectW, 1);
 
             return passed;
         }
@@ -117,13 +112,6 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
         private static void CalculateColourBoxSize(Vector2 resolution, Vector2 leftEye, Vector2 rightEye, out int startX,
             out int endX, out int startY, out int endY)
         {
-            // Update y position. Basically original is of height resolution.x, but we have resolution.y height.
-            // Confusing, I know.
-            float middleY = resolution.y / 2f;
-            float aspect = resolution.x / resolution.y;
-            leftEye.y = middleY + (leftEye.y - middleY) * aspect;
-            rightEye.y = middleY + (rightEye.y - middleY) * aspect;
-
             // Size of the box.
             float xRadius = (int) (rightEye.x - leftEye.x) * 0.9f;
             float yRadius = (int) Math.Abs(leftEye.y - rightEye.y) + xRadius / 2.5f;
@@ -150,13 +138,10 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
         /// <param name="boxWidth">Width of the box</param>
         /// <param name="boxHeight">Height of the box</param>
         /// <returns>Tuple: Color array for filling the texture and the number of pixels found in threshold</returns>
-        private Tuple<Color32[], int> FindPixels(WebCamTexture tex, int startX, int startY, int boxWidth, int boxHeight)
+        private Tuple<Color32[], int> FindPixels(Texture2D tex, int startX, int startY, int boxWidth, int boxHeight)
         {
-            if (WebcamInput.Mirrored)
-                startX = tex.width - startX - boxWidth;
-
             // Get pixels in range <(startX, startY), (endX, endY)>.
-            Color[] textureColours = tex.GetPixels(startX + offsetTestX, startY + offsetTestY, boxWidth, boxHeight);
+            Color[] textureColours = tex.GetPixels(startX, startY, boxWidth, boxHeight);
             var textureColoursNative = new NativeArray<Color>(textureColours.Length, Allocator.TempJob);
             textureColoursNative.CopyFrom(textureColours);
 
