@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace VirtualVitrine.FaceTracking.Transform
@@ -43,9 +44,34 @@ namespace VirtualVitrine.FaceTracking.Transform
             float x = (centerX - 0.5f) * Projection.ScreenWidth;
             float y = (centerY - 0.5f) * Projection.ScreenHeight;
 
-            // Update the position of the head.
-            transform.localPosition = new Vector3(x, y, transform.localPosition.z);
-            projection.UpdateCameraProjection();
+            // Update head position.
+            if (MyPrefs.InterpolatedPosition == 1)
+                StartCoroutine(SmoothTranslation(new Vector3(x, y, transform.localPosition.z)));
+            else
+            {
+                transform.localPosition = new Vector3(x, y, transform.localPosition.z);
+                projection.UpdateCameraProjection();
+            }
+        }
+
+        /// <summary>
+        /// Smooths out the translation of the head over multiple frames, but not longer than the frametime of the webcam..
+        /// </summary>
+        /// <param name="target">Final position</param>
+        /// <returns></returns>
+        private IEnumerator SmoothTranslation(Vector3 target)
+        {
+            var current = 0f;
+            float delta = 1f / WebcamInput.CurrentFrameRate;
+            while (current < 1f)
+            {
+                if (current != 0f && WebcamInput.WebcamTexture.didUpdateThisFrame)
+                    yield break;
+                transform.position = Vector3.Lerp(transform.position, target, current);
+                projection.UpdateCameraProjection();
+                current += delta;
+                yield return null;
+            }
         }
     }
 }

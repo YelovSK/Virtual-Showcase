@@ -10,12 +10,15 @@ namespace VirtualVitrine.FaceTracking
     {
         private static bool mirrored;
         private static Color32[] colorBuffer;
+        public static int CurrentFrameRate;
 
         #region Serialized Fields
 
         [SerializeField] private int resolutionWidth = 1280;
 
         #endregion
+
+        private float previousFrame = -1f;
 
         public static Texture2D FinalTexture { get; private set; }
         public static WebCamTexture WebcamTexture { get; private set; }
@@ -51,6 +54,22 @@ namespace VirtualVitrine.FaceTracking
             print($"Webcam is mirrored: {mirrored}");
         }
 
+        /// <summary>
+        ///     Calculating the FPS of the webcam.
+        /// </summary>
+        private void Update()
+        {
+            if (!WebcamTexture.didUpdateThisFrame) return;
+            if (previousFrame == -1f)
+                previousFrame = Time.realtimeSinceStartup;
+            else
+            {
+                float deltaTime = Time.realtimeSinceStartup - previousFrame;
+                previousFrame = Time.realtimeSinceStartup;
+                CurrentFrameRate = (int) (1f / deltaTime);
+            }
+        }
+
         private void OnDestroy()
         {
             WebcamTexture.Stop();
@@ -66,6 +85,15 @@ namespace VirtualVitrine.FaceTracking
             WebcamTexture.deviceName = MyPrefs.CameraName;
             WebcamTexture.Play();
             mirrored = WebCamTexture.devices.FirstOrDefault(x => x.name == WebcamTexture.deviceName).isFrontFacing;
+
+            // Reinitialize target texture.
+            int largerDimension = Math.Max(WebcamTexture.width, WebcamTexture.height);
+            FinalTexture = new Texture2D(largerDimension, largerDimension, TextureFormat.RGBA32, false);
+            Color[] pixels = Enumerable.Repeat(Color.black, FinalTexture.width * FinalTexture.height).ToArray();
+            FinalTexture.SetPixels(pixels);
+
+            // Reinitialize color buffer.
+            colorBuffer = new Color32[WebcamTexture.width * WebcamTexture.height];
         }
 
         public static void SetAspectRatio()

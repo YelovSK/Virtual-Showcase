@@ -43,6 +43,7 @@ namespace VirtualVitrine.Menu
 
         [Header("Checks")]
         [SerializeField] private Toggle glassesCheck;
+        [SerializeField] private Toggle interpolateCheck;
 
         #endregion
 
@@ -99,6 +100,7 @@ namespace VirtualVitrine.Menu
             hueSlider.value = MyPrefs.Hue;
             hueThreshSlider.value = MyPrefs.HueThreshold;
             glassesCheck.isOn = MyPrefs.GlassesCheck == 1;
+            interpolateCheck.isOn = MyPrefs.InterpolatedPosition == 1;
             qualityDropdown.value = MyPrefs.QualityIndex;
         }
 
@@ -186,6 +188,9 @@ namespace VirtualVitrine.Menu
             ChangeGlassesCheck(glassesCheck);
             glassesCheck.onValueChanged.AddListener(delegate { ChangeGlassesCheck(glassesCheck); });
 
+            ChangeInterpolateCheck(interpolateCheck);
+            interpolateCheck.onValueChanged.AddListener(delegate { ChangeInterpolateCheck(interpolateCheck); });
+
             ChangeQuality(qualityDropdown);
             qualityDropdown.onValueChanged.AddListener(delegate { ChangeQuality(qualityDropdown); });
 
@@ -238,6 +243,11 @@ namespace VirtualVitrine.Menu
         private static void ChangeGlassesCheck(Toggle sender)
         {
             MyPrefs.GlassesCheck = sender.isOn ? 1 : 0;
+        }
+
+        private static void ChangeInterpolateCheck(Toggle sender)
+        {
+            MyPrefs.InterpolatedPosition = sender.isOn ? 1 : 0;
         }
 
         private void ChangeRslider(Slider slider)

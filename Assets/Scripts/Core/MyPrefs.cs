@@ -213,6 +213,16 @@ namespace VirtualVitrine
             }
         }
 
+        public static int InterpolatedPosition
+        {
+            get => PlayerPrefs.GetInt("interpolatedPosition");
+            set
+            {
+                if (value is 0 or 1)
+                    PlayerPrefs.SetInt("interpolatedPosition", value);
+            }
+        }
+
         public static string Resolution
         {
             get => PlayerPrefs.GetString("resolution");
@@ -268,7 +278,7 @@ namespace VirtualVitrine
             MainScene = SceneSwitcher.MainScenes.MainRoom.ToString();
 
             // Eyes smoothing types.
-            SmoothingType = SmoothingTypeEnum.Average.ToString();
+            SmoothingType = SmoothingTypeEnum.Off.ToString();
 
             // Smoothing values.
             FramesSmoothed = 8;
@@ -293,6 +303,7 @@ namespace VirtualVitrine
             StereoOn = 0;
             UpdateHeadDistance = 0;
             GlassesCheck = 0;
+            InterpolatedPosition = 0;
 
             // Calibration screen edge values.
             BottomCalibration = 0.0f;
