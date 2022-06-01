@@ -8325,7 +8325,7 @@ MonoBehaviour:
     camera motion gets smoothed out.
 
     Might add a bit of latency. Use only for
-    low framerate cameras.'
+    low framerate cameras whlie getting high framerate.'
 --- !u!114 &1030251171
 MonoBehaviour:
   m_ObjectHideFlags: 0

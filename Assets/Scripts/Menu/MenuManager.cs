@@ -77,7 +77,6 @@ namespace VirtualVitrine.Menu
             canvas.transform.Find("Rebind menu").gameObject.SetActive(true);
         }
 
-
         public void ResetSettings()
         {
             if (ModelLoader.Model != null)
@@ -122,6 +121,7 @@ namespace VirtualVitrine.Menu
             {
                 Resolution res = resolutions.First();
                 Screen.SetResolution(res.width, res.height, FullScreenMode.ExclusiveFullScreen);
+                resolutionDropdown.value = 0;
             }
 
             // Find given resolution in the given dropdown and set it. If not found, sets to the first one.

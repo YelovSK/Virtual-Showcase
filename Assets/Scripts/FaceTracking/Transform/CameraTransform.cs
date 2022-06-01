@@ -55,7 +55,7 @@ namespace VirtualVitrine.FaceTracking.Transform
         }
 
         /// <summary>
-        /// Smooths out the translation of the head over multiple frames, but not longer than the frametime of the webcam..
+        ///     Smooths out the translation of the head over multiple frames, but not longer than the frametime of the webcam..
         /// </summary>
         /// <param name="target">Final position</param>
         /// <returns></returns>
