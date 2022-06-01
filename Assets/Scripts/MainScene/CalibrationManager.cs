@@ -12,6 +12,8 @@ namespace VirtualVitrine.MainScene
         // Is set by InputHandler in Awake().
         public static string NextStateKeybind;
 
+        private static States state = States.Off;
+
         #region Serialized Fields
 
         [Header("UI Elements")]
@@ -35,13 +37,9 @@ namespace VirtualVitrine.MainScene
 
         #endregion
 
-        // Camera preview position for setting it to the original transform after calibration.
         private CopyTransform origCameraPreviewTransform;
-        private States state = States.Off;
-
+        public static bool Enabled => state != States.Off;
         private static float EyesDistance => (EyeSmoother.LeftEyeSmoothed - EyeSmoother.RightEyeSmoothed).magnitude;
-
-        public bool Enabled => state != States.Off;
 
         #region Event Functions
 

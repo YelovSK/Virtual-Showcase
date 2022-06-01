@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using VirtualVitrine.MainScene;
 
 namespace VirtualVitrine.FaceTracking.Transform
 {
@@ -45,7 +46,7 @@ namespace VirtualVitrine.FaceTracking.Transform
             float y = (centerY - 0.5f) * Projection.ScreenHeight;
 
             // Update head position.
-            if (MyPrefs.InterpolatedPosition == 1)
+            if (MyPrefs.InterpolatedPosition == 1 && !CalibrationManager.Enabled)
                 StartCoroutine(SmoothTranslation(new Vector3(x, y, transform.localPosition.z)));
             else
             {

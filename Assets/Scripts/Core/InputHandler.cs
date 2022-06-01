@@ -43,7 +43,7 @@ namespace VirtualVitrine
                 SceneSwitcher.SwitchDifferentMain();
 
             // Toggle webcam preview (ignore if calibration is active).
-            if (playerInput.actions["Preview toggle"].WasPressedThisFrame() && !calibrationManager.Enabled)
+            if (playerInput.actions["Preview toggle"].WasPressedThisFrame() && !CalibrationManager.Enabled)
                 showcaseInitializer.SetCamPreview(true);
 
             // Toggle stereo/mono.
@@ -75,7 +75,7 @@ namespace VirtualVitrine
                 ModelLoader.ResetTransform();
 
             // Loaded object gets controlled with mouse input.
-            if (!calibrationManager.Enabled)
+            if (!CalibrationManager.Enabled)
                 HandleMouseInput();
         }
 
