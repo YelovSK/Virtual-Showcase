@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Unity.Jobs;
@@ -11,12 +12,15 @@ namespace VirtualVitrine.FaceTracking
         private static bool mirrored;
         private static Color32[] colorBuffer;
         public static int FramesBetweenUpdates;
+        public static int AverageFramesBetweenUpdates;
 
         #region Serialized Fields
 
         [SerializeField] private int resolutionWidth = 1280;
 
         #endregion
+
+        private readonly List<int> framesBetweenUpdatesHistory = new();
 
         public static Texture2D FinalTexture { get; private set; }
         public static WebCamTexture WebcamTexture { get; private set; }
@@ -35,18 +39,7 @@ namespace VirtualVitrine.FaceTracking
             while (WebcamTexture.width == 16 || WebcamTexture.height == 16)
                 await Task.Yield();
 
-            int largerDimension = Math.Max(WebcamTexture.width, WebcamTexture.height);
-
-            // Initialize target texture.
-            FinalTexture = new Texture2D(largerDimension, largerDimension, TextureFormat.RGBA32, false);
-            Color[] pixels = Enumerable.Repeat(Color.black, FinalTexture.width * FinalTexture.height).ToArray();
-            FinalTexture.SetPixels(pixels);
-
-            // Initialize color buffer.
-            colorBuffer = new Color32[WebcamTexture.width * WebcamTexture.height];
-
-            // Check if device is mirrored.
-            mirrored = WebCamTexture.devices.FirstOrDefault(x => x.name == WebcamTexture.deviceName).isFrontFacing;
+            Initialize();
 
             print($"Webcam resolution: {WebcamTexture.width}x{WebcamTexture.height}");
             print($"Webcam is mirrored: {mirrored}");
@@ -61,7 +54,10 @@ namespace VirtualVitrine.FaceTracking
         private void LateUpdate()
         {
             if (WebcamTexture.didUpdateThisFrame)
+            {
+                CalculateAverageFramesBetweenUpdates();
                 FramesBetweenUpdates = 0;
+            }
         }
 
         private void OnDestroy()
@@ -73,21 +69,45 @@ namespace VirtualVitrine.FaceTracking
 
         #endregion
 
+        private static void Initialize()
+        {
+            int largerDimension = Math.Max(WebcamTexture.width, WebcamTexture.height);
+
+            // Initialize target texture.
+            FinalTexture = new Texture2D(largerDimension, largerDimension, TextureFormat.RGBA32, false);
+            Color[] pixels = Enumerable.Repeat(Color.black, FinalTexture.width * FinalTexture.height).ToArray();
+            FinalTexture.SetPixels(pixels);
+
+            // Initialize color buffer.
+            colorBuffer = new Color32[WebcamTexture.width * WebcamTexture.height];
+
+            // Check if device is mirrored.
+            mirrored = WebCamTexture.devices.FirstOrDefault(x => x.name == WebcamTexture.deviceName).isFrontFacing;
+        }
+
+        private void CalculateAverageFramesBetweenUpdates()
+        {
+            const int history_count = 10;
+            if (framesBetweenUpdatesHistory.Count == history_count)
+                framesBetweenUpdatesHistory.RemoveAt(0);
+
+            framesBetweenUpdatesHistory.Add(FramesBetweenUpdates);
+
+            // Take the highest from the lowest 80% to avoid outliers.
+            // Technically not average, but naming is difficult.
+            AverageFramesBetweenUpdates = framesBetweenUpdatesHistory
+                .OrderByDescending(x => x)
+                .TakeLast(history_count - 2)
+                .Max();
+        }
+
         public static void ChangeWebcam()
         {
             WebcamTexture.Stop();
             WebcamTexture.deviceName = MyPrefs.CameraName;
             WebcamTexture.Play();
-            mirrored = WebCamTexture.devices.FirstOrDefault(x => x.name == WebcamTexture.deviceName).isFrontFacing;
 
-            // Reinitialize target texture.
-            int largerDimension = Math.Max(WebcamTexture.width, WebcamTexture.height);
-            FinalTexture = new Texture2D(largerDimension, largerDimension, TextureFormat.RGBA32, false);
-            Color[] pixels = Enumerable.Repeat(Color.black, FinalTexture.width * FinalTexture.height).ToArray();
-            FinalTexture.SetPixels(pixels);
-
-            // Reinitialize color buffer.
-            colorBuffer = new Color32[WebcamTexture.width * WebcamTexture.height];
+            Initialize();
         }
 
         public static void SetAspectRatio()
