@@ -46,7 +46,7 @@ namespace VirtualVitrine.FaceTracking.Transform
             float y = (centerY - 0.5f) * Projection.ScreenHeight;
 
             // Update head position.
-            if (MyPrefs.InterpolatedPosition == 1 && !CalibrationManager.Enabled)
+            if (MyPrefs.InterpolatedPosition == 1 && !CalibrationManager.Enabled && WebcamInput.FramesBetweenUpdates >= 2)
                 StartCoroutine(SmoothTranslation(new Vector3(x, y, transform.localPosition.z)));
             else
             {
@@ -56,22 +56,24 @@ namespace VirtualVitrine.FaceTracking.Transform
         }
 
         /// <summary>
-        ///     Smooths out the translation of the head over multiple frames, but not longer than the frametime of the webcam..
+        ///     Smooths out the translation of the head over multiple frames, but not longer than the frametime of the webcam.
         /// </summary>
         /// <param name="target">Final position</param>
         /// <returns></returns>
         private IEnumerator SmoothTranslation(Vector3 target)
         {
             var current = 0f;
-            float delta = 1f / WebcamInput.CurrentFrameRate;
+            float delta = 1f / WebcamInput.FramesBetweenUpdates;
             while (current < 1f)
             {
-                if (current != 0f && WebcamInput.WebcamTexture.didUpdateThisFrame)
-                    yield break;
                 transform.position = Vector3.Lerp(transform.position, target, current);
                 projection.UpdateCameraProjection();
                 current += delta;
                 yield return null;
+
+                // Sometimes new Webcam frame might come earlier than expected.
+                if (WebcamInput.WebcamTexture.didUpdateThisFrame)
+                    yield break;
             }
         }
     }

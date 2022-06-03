@@ -85,7 +85,6 @@ namespace VirtualVitrine.Menu
             SetElementsToPlayerPrefs();
         }
 
-
         private void SetElementsToPlayerPrefs()
         {
             currentModelText.text = "Current model: " + MyPrefs.ModelPath.Split('\\').Last();
@@ -121,6 +120,7 @@ namespace VirtualVitrine.Menu
             {
                 Resolution res = resolutions.First();
                 Screen.SetResolution(res.width, res.height, FullScreenMode.ExclusiveFullScreen);
+                Application.targetFrameRate = res.refreshRate;
                 resolutionDropdown.value = 0;
             }
 
@@ -129,6 +129,7 @@ namespace VirtualVitrine.Menu
             {
                 Resolution res = MyPrefs.ResolutionParsed;
                 Screen.SetResolution(res.width, res.height, FullScreenMode.ExclusiveFullScreen, res.refreshRate);
+                Application.targetFrameRate = res.refreshRate;
                 int ix = resolutionDropdown.options.FindIndex(x => x.text == $"{res.width} x {res.height} @ {res.refreshRate}Hz");
                 resolutionDropdown.value = ix;
             }

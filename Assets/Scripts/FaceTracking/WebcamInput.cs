@@ -10,15 +10,13 @@ namespace VirtualVitrine.FaceTracking
     {
         private static bool mirrored;
         private static Color32[] colorBuffer;
-        public static int CurrentFrameRate;
+        public static int FramesBetweenUpdates;
 
         #region Serialized Fields
 
         [SerializeField] private int resolutionWidth = 1280;
 
         #endregion
-
-        private float previousFrame = -1f;
 
         public static Texture2D FinalTexture { get; private set; }
         public static WebCamTexture WebcamTexture { get; private set; }
@@ -54,20 +52,16 @@ namespace VirtualVitrine.FaceTracking
             print($"Webcam is mirrored: {mirrored}");
         }
 
-        /// <summary>
-        ///     Calculating the FPS of the webcam.
-        /// </summary>
         private void Update()
         {
-            if (!WebcamTexture.didUpdateThisFrame) return;
-            if (previousFrame == -1f)
-                previousFrame = Time.realtimeSinceStartup;
-            else
-            {
-                float deltaTime = Time.realtimeSinceStartup - previousFrame;
-                previousFrame = Time.realtimeSinceStartup;
-                CurrentFrameRate = (int) (1f / deltaTime);
-            }
+            if (!WebcamTexture.didUpdateThisFrame)
+                FramesBetweenUpdates++;
+        }
+
+        private void LateUpdate()
+        {
+            if (WebcamTexture.didUpdateThisFrame)
+                FramesBetweenUpdates = 0;
         }
 
         private void OnDestroy()
