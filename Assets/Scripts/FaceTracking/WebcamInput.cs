@@ -14,12 +14,6 @@ namespace VirtualVitrine.FaceTracking
         public static int FramesBetweenUpdates;
         public static int AverageFramesBetweenUpdates;
 
-        #region Serialized Fields
-
-        [SerializeField] private int resolutionWidth = 1280;
-
-        #endregion
-
         private readonly List<int> framesBetweenUpdatesHistory = new();
 
         public static Texture2D FinalTexture { get; private set; }
@@ -29,26 +23,12 @@ namespace VirtualVitrine.FaceTracking
 
         #region Event Functions
 
-        private async void Awake()
+        private void Awake()
         {
-            WebcamTexture = new WebCamTexture(MyPrefs.CameraName, resolutionWidth, resolutionWidth);
-            WebcamTexture.Play();
-
-            // Takes a bit for the webcam to initialize.
-            // Might not be needed anymore, seems to work without it.
-            while (WebcamTexture.width == 16 || WebcamTexture.height == 16)
-                await Task.Yield();
-
-            Initialize();
+            ChangeWebcam();
 
             print($"Webcam resolution: {WebcamTexture.width}x{WebcamTexture.height}");
             print($"Webcam is mirrored: {mirrored}");
-        }
-
-        private void Update()
-        {
-            if (!WebcamTexture.didUpdateThisFrame)
-                FramesBetweenUpdates++;
         }
 
         private void LateUpdate()
@@ -58,6 +38,7 @@ namespace VirtualVitrine.FaceTracking
                 CalculateAverageFramesBetweenUpdates();
                 FramesBetweenUpdates = 0;
             }
+            else FramesBetweenUpdates++;
         }
 
         private void OnDestroy()
@@ -75,14 +56,16 @@ namespace VirtualVitrine.FaceTracking
 
             // Initialize target texture.
             FinalTexture = new Texture2D(largerDimension, largerDimension, TextureFormat.RGBA32, false);
-            Color[] pixels = Enumerable.Repeat(Color.black, FinalTexture.width * FinalTexture.height).ToArray();
-            FinalTexture.SetPixels(pixels);
+            var borderCol = new Color32(0, 0, 0, 150);
+            Color32[] pixels = Enumerable.Repeat(borderCol, FinalTexture.width * FinalTexture.height).ToArray();
+            FinalTexture.SetPixels32(pixels);
 
             // Initialize color buffer.
             colorBuffer = new Color32[WebcamTexture.width * WebcamTexture.height];
 
             // Check if device is mirrored.
-            mirrored = WebCamTexture.devices.FirstOrDefault(x => x.name == WebcamTexture.deviceName).isFrontFacing;
+            WebCamDevice device = WebCamTexture.devices.FirstOrDefault(x => x.name == WebcamTexture.deviceName);
+            mirrored = device.isFrontFacing;
         }
 
         private void CalculateAverageFramesBetweenUpdates()
@@ -101,11 +84,17 @@ namespace VirtualVitrine.FaceTracking
                 .Max();
         }
 
-        public static void ChangeWebcam()
+        public static async void ChangeWebcam()
         {
+            if (WebcamTexture == null) WebcamTexture = new WebCamTexture(MyPrefs.CameraName);
             WebcamTexture.Stop();
             WebcamTexture.deviceName = MyPrefs.CameraName;
+            WebcamTexture.requestedFPS = 500; // This should hopefully get the highest FPS of the webcam.
             WebcamTexture.Play();
+
+            // Might take a bit for the webcam to initialize (thanks Unity).
+            while (WebcamTexture.width == 16 || WebcamTexture.height == 16)
+                await Task.Yield();
 
             Initialize();
         }
@@ -117,7 +106,7 @@ namespace VirtualVitrine.FaceTracking
 
             if (mirrored)
             {
-                var job = new FlipJob
+                var job = new MirrorJob
                 {
                     Width = WebcamTexture.width
                 };
@@ -129,7 +118,7 @@ namespace VirtualVitrine.FaceTracking
             FinalTexture.Apply();
         }
 
-        private struct FlipJob : IJobParallelFor
+        private struct MirrorJob : IJobParallelFor
         {
             public int Width;
 

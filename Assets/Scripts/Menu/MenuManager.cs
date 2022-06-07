@@ -119,7 +119,7 @@ namespace VirtualVitrine.Menu
             if (string.IsNullOrEmpty(resolution))
             {
                 Resolution res = resolutions.First();
-                Screen.SetResolution(res.width, res.height, FullScreenMode.ExclusiveFullScreen);
+                Screen.SetResolution(res.width, res.height, FullScreenMode.ExclusiveFullScreen, res.refreshRate);
                 Application.targetFrameRate = res.refreshRate;
                 resolutionDropdown.value = 0;
             }
