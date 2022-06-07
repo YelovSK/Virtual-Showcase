@@ -2,6 +2,8 @@
 
 View-dependent stereo running in Unity. The main use is to view imported .obj files with motion parallax. Off-axis projection is used to achieve proper camera perspective.
 
+**Download Windows build in [releases](https://github.com/YelovSK/Virtual-Showcase/releases).**
+
 ## DEPENDENCIES FOR USAGE IN THE EDITOR
 
 1. Download the project: `git clone --recurse-submodules https://github.com/YelovSK/Virtual-Showcase.git`. [UnityMeshSimplifier](https://github.com/Whinarn/UnityMeshSimplifier) should get downloaded if you clone with `--recurse-submodules` flag.
