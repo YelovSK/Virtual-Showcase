@@ -52,3 +52,9 @@ View-dependent stereo running in Unity. The main use is to view imported .obj fi
 [NativeCounter](https://coffeebraingames.wordpress.com/2021/10/24/some-dots-utilities-nativecounter-and-nativesum/) for keeping count of pixels inside of a job.
 
 [KalmanFilter](https://gist.github.com/davidfoster/48acce6c13e5f7f247dc5d5909dce349) for smoothing eye keypoints.
+
+## Previews
+
+https://user-images.githubusercontent.com/47487825/175299319-9899d9b6-4eba-4607-b306-db12a93fd4b3.mp4
+
+Recorded before implementing position interpolation, so movement appears a bit choppy due to a low FPS webcam.
