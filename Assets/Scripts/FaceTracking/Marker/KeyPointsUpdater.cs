@@ -6,7 +6,7 @@ namespace VirtualVitrine.FaceTracking.Marker
 {
     public sealed class KeyPointsUpdater : MonoBehaviour
     {
-        public static FaceDetector.Detection Detection;
+        public static Detection Detection;
 
         #region Serialized Fields
 
@@ -39,11 +39,13 @@ namespace VirtualVitrine.FaceTracking.Marker
             Vector2 size = Detection.extent * rect.size;
             xform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
             xform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+
             // print(detection.center + " | " + detection.extent);
 
             // Key points
             SetKeyPoint(keyPoints[0], EyeSmoother.LeftEyeSmoothed);
             SetKeyPoint(keyPoints[1], EyeSmoother.RightEyeSmoothed);
+
             // SetKeyPoint(keyPoints[2], Detection.mouth);
             // SetKeyPoint(keyPoints[3], Detection.nose);
             // SetKeyPoint(keyPoints[4], Detection.leftEar);

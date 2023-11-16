@@ -10,7 +10,7 @@ using VirtualVitrine.MainScene;
 
 namespace VirtualVitrine
 {
-    public sealed class MainUpdater : MonoBehaviour
+    public sealed class Mediator : MonoBehaviour
     {
         private static bool initialized;
 

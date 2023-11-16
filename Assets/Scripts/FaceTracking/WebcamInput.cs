@@ -9,12 +9,12 @@ namespace VirtualVitrine.FaceTracking
 {
     public sealed class WebcamInput : MonoBehaviour
     {
-        private static bool mirrored;
+        private static bool _mirrored;
         private static Color32[] colorBuffer;
         public static int FramesBetweenUpdates;
         public static int AverageFramesBetweenUpdates;
 
-        private readonly List<int> framesBetweenUpdatesHistory = new();
+        private readonly List<int> _framesBetweenUpdatesHistory = new();
 
         public static Texture2D FinalTexture { get; private set; }
         public static WebCamTexture WebcamTexture { get; private set; }
@@ -28,7 +28,7 @@ namespace VirtualVitrine.FaceTracking
             ChangeWebcam();
 
             print($"Webcam resolution: {WebcamTexture.width}x{WebcamTexture.height}");
-            print($"Webcam is mirrored: {mirrored}");
+            print($"Webcam is mirrored: {_mirrored}");
         }
 
         private void LateUpdate()
@@ -65,20 +65,20 @@ namespace VirtualVitrine.FaceTracking
 
             // Check if device is mirrored.
             WebCamDevice device = WebCamTexture.devices.FirstOrDefault(x => x.name == WebcamTexture.deviceName);
-            mirrored = device.isFrontFacing;
+            _mirrored = device.isFrontFacing;
         }
 
         private void CalculateAverageFramesBetweenUpdates()
         {
             const int history_count = 10;
-            if (framesBetweenUpdatesHistory.Count == history_count)
-                framesBetweenUpdatesHistory.RemoveAt(0);
+            if (_framesBetweenUpdatesHistory.Count == history_count)
+                _framesBetweenUpdatesHistory.RemoveAt(0);
 
-            framesBetweenUpdatesHistory.Add(FramesBetweenUpdates);
+            _framesBetweenUpdatesHistory.Add(FramesBetweenUpdates);
 
             // Take the highest from the lowest 80% to avoid outliers.
             // Technically not average, but naming is difficult.
-            AverageFramesBetweenUpdates = framesBetweenUpdatesHistory
+            AverageFramesBetweenUpdates = _framesBetweenUpdatesHistory
                 .OrderByDescending(x => x)
                 .TakeLast(history_count - 2)
                 .Max();
@@ -94,7 +94,9 @@ namespace VirtualVitrine.FaceTracking
 
             // Might take a bit for the webcam to initialize (thanks Unity).
             while (WebcamTexture.width == 16 || WebcamTexture.height == 16)
+            {
                 await Task.Yield();
+            }
 
             Initialize();
         }
@@ -104,11 +106,11 @@ namespace VirtualVitrine.FaceTracking
             int startY = (FinalTexture.height - WebcamTexture.height) / 2;
             WebcamTexture.GetPixels32(colorBuffer);
 
-            if (mirrored)
+            if (_mirrored)
             {
                 var job = new MirrorJob
                 {
-                    Width = WebcamTexture.width
+                    Width = WebcamTexture.width,
                 };
                 JobHandle jobHandle = job.Schedule(WebcamTexture.height, 10);
                 jobHandle.Complete();
