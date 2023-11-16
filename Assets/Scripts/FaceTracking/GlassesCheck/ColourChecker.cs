@@ -10,20 +10,13 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
 {
     public class ColourChecker : MonoBehaviour
     {
-        #region Serialized Fields
-
-        [SerializeField] private RawImage colorBox;
-        [SerializeField] private TMP_Text pixelCountText;
-
-        #endregion
-
-        private Texture2D colOverlayTexture;
+        private Texture2D colorOverlayTexture;
 
         #region Event Functions
 
         private void Start()
         {
-            colOverlayTexture = new Texture2D(1, 1);
+            colorOverlayTexture = new Texture2D(1, 1);
         }
 
         #endregion
@@ -32,18 +25,10 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
         ///     Checks pixels in the color box and updates the text to show the number of pixels
         /// </summary>
         /// <returns>True if threshold passed</returns>
-        public bool CheckGlassesOn()
+        public bool CheckGlassesOn(Texture2D texture, RawImage colorOverlay, TMP_Text pixelCountText)
         {
-            // If glasses check is off, don't display overlay and set to true to transform anyway.
-            if (MyPrefs.GlassesCheck == 0)
-            {
-                HideUI();
-                return true;
-            }
-
-            Texture2D tex = WebcamInput.FinalTexture;
-            colorBox.gameObject.SetActive(true);
-            var resolution = new Vector2(tex.width, tex.height);
+            colorOverlay.gameObject.SetActive(true);
+            var resolution = new Vector2(texture.width, texture.height);
 
             // Map coords from 0.0 - 1.0 to width and height of WebcamTexture.
             var leftEye = new Vector2(
@@ -61,7 +46,7 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
             int allPixelsCount = boxWidth * boxHeight;
 
             // Look at the pixels in the box.
-            (Color32[] foundPixelsArr, int foundPixelsCount) = FindPixels(tex, startX, startY, boxWidth, boxHeight);
+            (Color32[] foundPixelsArr, int foundPixelsCount) = FindPixels(texture, startX, startY, boxWidth, boxHeight);
 
             // Check if threshold was passed.
             const float threshold = 0.05f;
@@ -75,7 +60,7 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
             pixelCountText.color = passed ? Color.green : Color.red;
             pixelCountText.text = foundPixelsCount + " / " + allPixelsCount;
 
-            var cBox = (RectTransform) colorBox.transform;
+            var cBox = (RectTransform) colorOverlay.transform;
             var cBoxParent = (RectTransform) cBox.parent;
             Rect cBoxParentRect = cBoxParent.rect;
 
@@ -91,26 +76,21 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
             cBox.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
 
             // Resize texture.
-            colOverlayTexture.Reinitialize(boxWidth, boxHeight);
+            colorOverlayTexture.Reinitialize(boxWidth, boxHeight);
 
             // Set found pixels to white (from FindPixels method).
-            colOverlayTexture.SetPixels32(foundPixelsArr);
+            colorOverlayTexture.SetPixels32(foundPixelsArr);
 
             // Apply and set the texture.
-            colOverlayTexture.Apply();
-            colorBox.texture = colOverlayTexture;
+            colorOverlayTexture.Apply();
+            colorOverlay.texture = colorOverlayTexture;
 
             return passed;
         }
 
-        public void HideUI()
-        {
-            colorBox.gameObject.SetActive(false);
-            pixelCountText.text = "";
-        }
-
-        private static void CalculateColourBoxSize(Vector2 resolution, Vector2 leftEye, Vector2 rightEye, out int startX,
-            out int endX, out int startY, out int endY)
+        private void CalculateColourBoxSize(
+            Vector2 resolution, Vector2 leftEye, Vector2 rightEye,
+            out int startX, out int endX, out int startY, out int endY)
         {
             // Size of the box.
             float xRadius = (int) (rightEye.x - leftEye.x) * 0.9f;
@@ -155,7 +135,7 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
                 FoundPixelsArr = new NativeArray<Color32>(textureColours.Length, Allocator.TempJob),
                 Counter = foundPixelsCounter,
                 HueThresh = MyPrefs.HueThreshold,
-                TargetHue = MyPrefs.Hue
+                TargetHue = MyPrefs.Hue,
             };
             JobHandle jobHandle = job.Schedule(textureColours.Length, 250);
             jobHandle.Complete();

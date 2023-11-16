@@ -78,7 +78,7 @@ namespace VirtualVitrine.MainScene
         private void LoadObject()
         {
             // No model was chosen or model is already loaded.
-            if (MyPrefs.ModelPath == "" || Model != null)
+            if (MyPrefs.ModelPath == string.Empty || Model != null)
                 return;
 
             // Model loading for the first time.
@@ -93,7 +93,9 @@ namespace VirtualVitrine.MainScene
 
             // Set layers.
             foreach (Transform child in Model.transform)
+            {
                 child.gameObject.layer = 3;
+            }
 
             ResetTransform();
         }
@@ -133,7 +135,7 @@ namespace VirtualVitrine.MainScene
                 MenuManager.QualityEnum.Low    => 50_000,
                 MenuManager.QualityEnum.Medium => 100_000,
                 MenuManager.QualityEnum.High   => 250_000,
-                _                              => throw new ArgumentOutOfRangeException()
+                _                              => throw new ArgumentOutOfRangeException(),
             };
 
             // Triangle count of all meshes.
@@ -152,7 +154,9 @@ namespace VirtualVitrine.MainScene
             // Simplify every child mesh of the object.
             runningTasks = meshFilters.ToDictionary(x => x, _ => true);
             foreach (MeshFilter meshFilter in meshFilters)
+            {
                 SimplifyMeshFilter(meshFilter, quality);
+            }
         }
 
         private async void SimplifyMeshFilter(MeshFilter meshFilter, float quality)
@@ -171,7 +175,7 @@ namespace VirtualVitrine.MainScene
             // Model was deleted while simplifying.
             if (meshFilter == null)
             {
-                statusText.text = "";
+                statusText.text = string.Empty;
                 return;
             }
 
@@ -188,7 +192,7 @@ namespace VirtualVitrine.MainScene
             // If all tasks are done, update status text.
             runningTasks[meshFilter] = false;
             if (runningTasks.Values.All(x => x == false))
-                statusText.text = "";
+                statusText.text = string.Empty;
         }
 
         /// <summary>
@@ -226,7 +230,9 @@ namespace VirtualVitrine.MainScene
             // Encapsulate bounds of all meshes.
             var bounds = new Bounds(instance.transform.position, Vector3.zero);
             foreach (MeshRenderer meshRenderer in meshRenderers)
+            {
                 bounds.Encapsulate(meshRenderer.bounds);
+            }
 
             return bounds;
         }

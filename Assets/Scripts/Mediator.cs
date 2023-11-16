@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,8 +13,6 @@ namespace VirtualVitrine
 {
     public sealed class Mediator : MonoBehaviour
     {
-        private static bool initialized;
-
         #region Serialized Fields
 
         [SerializeField] private RawImage previewUI;
@@ -23,7 +22,8 @@ namespace VirtualVitrine
 
         #endregion
 
-        private ColourChecker colourChecker;
+        private ColourChecker colorChecker;
+        private RawImage colorOverlay;
         private Detector detector;
         private TMP_Text distanceText;
         private EyeSmoother eyeSmoother;
@@ -32,25 +32,20 @@ namespace VirtualVitrine
 
         private void Awake()
         {
-            colourChecker = GetComponent<ColourChecker>();
+            colorChecker = GetComponent<ColourChecker>();
             eyeSmoother = GetComponent<EyeSmoother>();
             detector = GetComponent<Detector>();
-            distanceText = previewUI.GetComponentInChildren<TMP_Text>();
 
-            // Spawn webcam input object at start.
-            if (initialized) return;
-            initialized = true;
-            var webcamInputObject = new GameObject("WebcamInput");
-            webcamInputObject.AddComponent<WebcamInput>();
-            DontDestroyOnLoad(webcamInputObject);
+            distanceText = previewUI.GetComponentInChildren<TMP_Text>();
+            colorOverlay = previewUI.GetComponentsInChildren<RawImage>().First(x => x.gameObject != previewUI.gameObject);
         }
 
         private void Start()
         {
-            WebcamInput.WebcamTexture.Play();
+            WebcamInput.Instance.ChangeWebcam(MyPrefs.CameraName);
 
             // Broken webcam, image set to "NO WEBCAM SHOWING".
-            if (!WebcamInput.IsCameraRunning)
+            if (!WebcamInput.Instance.IsCameraRunning)
                 previewUI.texture = defaultCamTexture;
         }
 
@@ -59,31 +54,42 @@ namespace VirtualVitrine
         /// </summary>
         private void Update()
         {
-            if (!WebcamInput.CameraUpdated)
+            if (!WebcamInput.Instance.CameraUpdatedThisFrame)
                 return;
 
-            WebcamInput.SetAspectRatio();
-            previewUI.texture = WebcamInput.FinalTexture;
-            bool faceFound = detector.RunDetector(WebcamInput.FinalTexture);
+            WebcamInput.Instance.SetAspectRatio();
+            previewUI.texture = WebcamInput.Instance.Texture;
+            bool faceFound = detector.RunDetector(WebcamInput.Instance.Texture);
 
             if (!faceFound)
             {
-                distanceText.text = "";
-                colourChecker.HideUI();
+                HideColorOverlay();
                 return;
             }
 
             eyeSmoother.SmoothEyes();
+
             keyPointsUpdater.UpdateKeyPoints();
-            bool glassesOn = colourChecker.CheckGlassesOn();
-            UpdateHeadDistanceInUI();
+
+            if (MyPrefs.GlassesCheck == 0) HideColorOverlay();
+
+            bool glassesOn = MyPrefs.GlassesCheck == 0 || colorChecker.CheckGlassesOn(WebcamInput.Instance.Texture, colorOverlay, distanceText);
+
+            UpdateHeadDistanceUI();
+
             if (glassesOn && SceneSwitcher.InMainScene)
                 cameraTransform.Transform();
         }
 
         #endregion
 
-        private void UpdateHeadDistanceInUI()
+        private void HideColorOverlay()
+        {
+            distanceText.text = string.Empty;
+            colorOverlay.gameObject.SetActive(false);
+        }
+
+        private void UpdateHeadDistanceUI()
         {
             // Threshold in cm for distance to be considered "close" to the calibrated distance.
             const int threshold = 10;
@@ -101,14 +107,15 @@ namespace VirtualVitrine
             string color = Math.Abs(currentDistance - calibratedDistance) <= threshold ? "green" : "red";
 
             // Difference in cm, show "+" if too far, "-" if too close.
-            string difference = currentDistance - calibratedDistance + "cm";
-            if (difference[0] != '-' && difference[0] != '0')
-                difference = "+" + difference;
+            int difference = currentDistance - calibratedDistance;
+            string differenceText = difference + "cm";
+            if (difference > 0)
+                differenceText = "+" + differenceText;
 
             // Update UI. Text in brackets is smaller. Difference and current distance is coloured.
             float size = distanceText.fontSize / 2.2f;
             distanceText.text =
-                $"<color={color}>{difference}</color> <size={size}>(<color={color}>{currentDistance}cm</color> vs {calibratedDistance}cm)</size>";
+                $"<color={color}>{differenceText}</color> <size={size}>(<color={color}>{currentDistance}cm</color> vs {calibratedDistance}cm)</size>";
             distanceText.ForceMeshUpdate();
         }
     }

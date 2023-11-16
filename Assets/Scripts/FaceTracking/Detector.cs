@@ -49,13 +49,11 @@ namespace VirtualVitrine
             keyPointsUpdater.gameObject.SetActive(faceFound);
 
             if (faceFound)
-            {
+
                 // Get detection with largest bounding box.
-                Detection largestFace = detections
+                KeyPointsUpdater.Detection = detections
                     .OrderByDescending(x => x.extent.magnitude)
                     .First();
-                KeyPointsUpdater.Detection = largestFace;
-            }
 
             return faceFound;
         }

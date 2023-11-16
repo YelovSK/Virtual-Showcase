@@ -46,7 +46,7 @@ namespace VirtualVitrine.FaceTracking.Transform
             float y = (centerY - 0.5f) * Projection.ScreenHeight;
 
             // Update head position.
-            if (MyPrefs.InterpolatedPosition == 1 && !CalibrationManager.Enabled && WebcamInput.AverageFramesBetweenUpdates >= 2)
+            if (MyPrefs.InterpolatedPosition == 1 && !CalibrationManager.Enabled && WebcamInput.Instance.AverageFramesBetweenUpdates >= 2)
                 StartCoroutine(SmoothTranslation(new Vector3(x, y, transform.localPosition.z)));
             else
             {
@@ -62,7 +62,7 @@ namespace VirtualVitrine.FaceTracking.Transform
         /// <returns></returns>
         private IEnumerator SmoothTranslation(Vector3 target)
         {
-            int positionCount = WebcamInput.AverageFramesBetweenUpdates + 1;
+            int positionCount = WebcamInput.Instance.AverageFramesBetweenUpdates + 1;
             for (var i = 1; i <= positionCount; i++)
             {
                 float t = i * (1f / positionCount);
@@ -71,7 +71,7 @@ namespace VirtualVitrine.FaceTracking.Transform
                 yield return null;
 
                 // Sometimes new Webcam frame might come earlier than expected.
-                if (WebcamInput.WebcamTexture.didUpdateThisFrame)
+                if (WebcamInput.Instance.CameraUpdatedThisFrame)
                     yield break;
             }
         }

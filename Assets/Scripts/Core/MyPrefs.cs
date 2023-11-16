@@ -245,7 +245,7 @@ namespace VirtualVitrine
                 {
                     width = Convert.ToInt16(split[0]),
                     height = Convert.ToInt16(split[1]),
-                    refreshRate = Convert.ToInt16(split[2])
+                    refreshRate = Convert.ToInt16(split[2]),
                 };
                 return output;
             }
@@ -296,7 +296,7 @@ namespace VirtualVitrine
             HueThreshold = 20;
 
             // Path to .obj file to get loaded.
-            ModelPath = "";
+            ModelPath = string.Empty;
 
             // Checks.
             PreviewOn = 0;
@@ -328,7 +328,7 @@ namespace VirtualVitrine
         {
             Kalman,
             Average,
-            Off
+            Off,
         }
 
         #endregion

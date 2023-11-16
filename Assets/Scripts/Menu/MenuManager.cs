@@ -66,7 +66,7 @@ namespace VirtualVitrine.Menu
         {
             Low,
             Medium,
-            High
+            High,
         }
 
         private static void EnableCanvasObjects()
@@ -163,40 +163,76 @@ namespace VirtualVitrine.Menu
         private void SetDelegates()
         {
             ChangeCamPreview(webcamDropdown);
-            webcamDropdown.onValueChanged.AddListener(delegate { ChangeCamPreview(webcamDropdown); });
+            webcamDropdown.onValueChanged.AddListener(delegate
+            {
+                ChangeCamPreview(webcamDropdown);
+            });
 
             ChangeSmoothing(smoothingDropdown);
-            smoothingDropdown.onValueChanged.AddListener(delegate { ChangeSmoothing(smoothingDropdown); });
+            smoothingDropdown.onValueChanged.AddListener(delegate
+            {
+                ChangeSmoothing(smoothingDropdown);
+            });
 
             ChangeAvgFrames(averageSlider);
-            averageSlider.onValueChanged.AddListener(delegate { ChangeAvgFrames(averageSlider); });
+            averageSlider.onValueChanged.AddListener(delegate
+            {
+                ChangeAvgFrames(averageSlider);
+            });
 
             ChangeQslider(qSlider);
-            qSlider.onValueChanged.AddListener(delegate { ChangeQslider(qSlider); });
+            qSlider.onValueChanged.AddListener(delegate
+            {
+                ChangeQslider(qSlider);
+            });
 
             ChangeRslider(rSlider);
-            rSlider.onValueChanged.AddListener(delegate { ChangeRslider(rSlider); });
+            rSlider.onValueChanged.AddListener(delegate
+            {
+                ChangeRslider(rSlider);
+            });
 
             ChangeThreshold(thresholdSlider);
-            thresholdSlider.onValueChanged.AddListener(delegate { ChangeThreshold(thresholdSlider); });
+            thresholdSlider.onValueChanged.AddListener(delegate
+            {
+                ChangeThreshold(thresholdSlider);
+            });
 
             ChangeHue(hueSlider);
-            hueSlider.onValueChanged.AddListener(delegate { ChangeHue(hueSlider); });
+            hueSlider.onValueChanged.AddListener(delegate
+            {
+                ChangeHue(hueSlider);
+            });
 
             ChangeHueThresh(hueThreshSlider);
-            hueThreshSlider.onValueChanged.AddListener(delegate { ChangeHueThresh(hueThreshSlider); });
+            hueThreshSlider.onValueChanged.AddListener(delegate
+            {
+                ChangeHueThresh(hueThreshSlider);
+            });
 
             ChangeGlassesCheck(glassesCheck);
-            glassesCheck.onValueChanged.AddListener(delegate { ChangeGlassesCheck(glassesCheck); });
+            glassesCheck.onValueChanged.AddListener(delegate
+            {
+                ChangeGlassesCheck(glassesCheck);
+            });
 
             ChangeInterpolateCheck(interpolateCheck);
-            interpolateCheck.onValueChanged.AddListener(delegate { ChangeInterpolateCheck(interpolateCheck); });
+            interpolateCheck.onValueChanged.AddListener(delegate
+            {
+                ChangeInterpolateCheck(interpolateCheck);
+            });
 
             ChangeQuality(qualityDropdown);
-            qualityDropdown.onValueChanged.AddListener(delegate { ChangeQuality(qualityDropdown); });
+            qualityDropdown.onValueChanged.AddListener(delegate
+            {
+                ChangeQuality(qualityDropdown);
+            });
 
             ChangeResolution(resolutionDropdown);
-            resolutionDropdown.onValueChanged.AddListener(delegate { ChangeResolution(resolutionDropdown); });
+            resolutionDropdown.onValueChanged.AddListener(delegate
+            {
+                ChangeResolution(resolutionDropdown);
+            });
         }
 
         private static void ChangeResolution(TMP_Dropdown sender)
@@ -266,8 +302,8 @@ namespace VirtualVitrine.Menu
         private void ChangeCamPreview(TMP_Dropdown sender)
         {
             MyPrefs.CameraName = sender.options[sender.value].text;
-            if (WebcamInput.WebcamTexture.deviceName != MyPrefs.CameraName)
-                WebcamInput.ChangeWebcam();
+            if (WebcamInput.Instance.DeviceName != MyPrefs.CameraName)
+                WebcamInput.Instance.ChangeWebcam(MyPrefs.CameraName);
         }
 
         private void ChangeSmoothing(TMP_Dropdown sender)
