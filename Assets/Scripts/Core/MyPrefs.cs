@@ -245,7 +245,7 @@ namespace VirtualVitrine
                 {
                     width = Convert.ToInt16(split[0]),
                     height = Convert.ToInt16(split[1]),
-                    refreshRate = Convert.ToInt16(split[2]),
+                    refreshRateRatio = new RefreshRate {denominator = 1, numerator = (uint) Convert.ToInt16(split[2])},
                 };
                 return output;
             }

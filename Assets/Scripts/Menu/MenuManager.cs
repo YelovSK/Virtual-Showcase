@@ -112,6 +112,7 @@ namespace VirtualVitrine.Menu
                 List<TMP_Dropdown.OptionData> options = resolutions
                     .Select(res => new TMP_Dropdown.OptionData(res.ToString()))
                     .ToList();
+
                 resolutionDropdown.AddOptions(options);
             }
 
@@ -119,8 +120,8 @@ namespace VirtualVitrine.Menu
             if (string.IsNullOrEmpty(resolution))
             {
                 Resolution res = resolutions.First();
-                Screen.SetResolution(res.width, res.height, FullScreenMode.ExclusiveFullScreen, res.refreshRate);
-                Application.targetFrameRate = res.refreshRate;
+                Screen.SetResolution(res.width, res.height, FullScreenMode.ExclusiveFullScreen, res.refreshRateRatio);
+                Application.targetFrameRate = (int) res.refreshRateRatio.value;
                 resolutionDropdown.value = 0;
             }
 
@@ -128,8 +129,8 @@ namespace VirtualVitrine.Menu
             else
             {
                 Resolution res = MyPrefs.ResolutionParsed;
-                Screen.SetResolution(res.width, res.height, FullScreenMode.ExclusiveFullScreen, res.refreshRate);
-                Application.targetFrameRate = res.refreshRate;
+                Screen.SetResolution(res.width, res.height, FullScreenMode.ExclusiveFullScreen, res.refreshRateRatio);
+                Application.targetFrameRate = (int) res.refreshRateRatio.value;
                 int ix = resolutionDropdown.options.FindIndex(x => x.text == $"{res.width} x {res.height} @ {res.refreshRate}Hz");
                 resolutionDropdown.value = ix;
             }
@@ -239,7 +240,7 @@ namespace VirtualVitrine.Menu
         {
             Resolution[] resolutions = Screen.resolutions.Reverse().ToArray();
             Resolution chosenRes = resolutions[sender.value];
-            Screen.SetResolution(chosenRes.width, chosenRes.height, FullScreenMode.ExclusiveFullScreen, chosenRes.refreshRate);
+            Screen.SetResolution(chosenRes.width, chosenRes.height, FullScreenMode.ExclusiveFullScreen, chosenRes.refreshRateRatio);
             MyPrefs.Resolution = $"{chosenRes.width}x{chosenRes.height}x{chosenRes.refreshRate}";
         }
 

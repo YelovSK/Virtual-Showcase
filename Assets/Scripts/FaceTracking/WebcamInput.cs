@@ -60,20 +60,20 @@ namespace VirtualVitrine.FaceTracking
 
         public async void ChangeWebcam(string deviceName)
         {
+            //lmao
             WebCamDevice device = WebCamTexture.devices.First(x => x.name == deviceName);
             mirrored = device.isFrontFacing;
 
             if (webcamTexture == null)
             {
-                webcamTexture = new WebCamTexture(device.name, int.MaxValue, int.MaxValue, int.MaxValue);
+                webcamTexture = new WebCamTexture(device.name);
+                webcamTexture.requestedFPS = int.MaxValue;
                 webcamTexture.Play();
             }
             else if (webcamTexture.deviceName != device.name)
             {
                 webcamTexture.Stop();
                 webcamTexture.deviceName = device.name;
-                webcamTexture.requestedWidth = int.MaxValue;
-                webcamTexture.requestedHeight = int.MaxValue;
                 webcamTexture.requestedFPS = int.MaxValue;
                 webcamTexture.Play();
             }
