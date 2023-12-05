@@ -27,11 +27,12 @@ namespace VirtualVitrine.MainScene
             MyPrefs.CheckPlayerPrefs();
         }
 
-        private void Start()
+        private async void Start()
         {
             faceTracking.SetActive(true);
             SetCamPreview();
             SetStereo();
+            await ModelLoader.Instance.LoadObjects();
         }
 
         #endregion

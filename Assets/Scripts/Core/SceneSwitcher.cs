@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VirtualVitrine.MainScene;
@@ -34,8 +35,7 @@ namespace VirtualVitrine
         public static void ToggleMenu()
         {
             // Show loading screen if model is going to load.
-            if (InMenu && ModelLoader.Model == null && MyPrefs.ModelPath != string.Empty)
-                instance.loadingScreen.SetActive(true);
+            if (InMenu && ModelLoader.Instance.ModelsInfo.IsEmpty() && MyPrefs.ModelPaths.Any()) instance.loadingScreen.SetActive(true);
 
             // Cursor visible in menu, invisible in main scene. Set before switching scene, thus reverse.
             Cursor.visible = InMainScene;

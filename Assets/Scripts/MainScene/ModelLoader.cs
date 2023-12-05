@@ -3,128 +3,154 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Dummiesman;
-using JetBrains.Annotations;
-using TMPro;
+using GLTFast;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityMeshSimplifier;
 using VirtualVitrine.FaceTracking.Transform;
 using VirtualVitrine.Menu;
 
 namespace VirtualVitrine.MainScene
 {
+    public class ModelInfo
+    {
+        public string Name => Path.GetFileNameWithoutExtension(FullPath);
+        public string FullPath { get; set; }
+        public GameObject Object { get; set; }
+    }
+
     public class ModelLoader : MonoBehaviour
     {
-        private static ModelLoader instance;
+        public static ModelLoader Instance;
 
-        #region Serialized Fields
-
-        // UI text for displaying mesh simplification status.
-        [SerializeField] private TMP_Text statusText;
-
-        #endregion
-
-        private Dictionary<MeshFilter, bool> runningTasks; // [MeshFilter, isRunning]
-
-        public static GameObject Model { get; private set; }
+        public List<ModelInfo> ModelsInfo { get; } = new();
+        public List<GameObject> Models => ModelsInfo.Select(x => x.Object).ToList();
 
         #region Event Functions
 
         private void Awake()
         {
             // Singleton stuff so that model stays loaded between scenes.
-            if (instance == null)
+            if (Instance == null)
             {
-                instance = this;
+                Instance = this;
                 DontDestroyOnLoad(gameObject);
+                GltfImportBase.SetDefaultDeferAgent(new UninterruptedDeferAgent());
             }
-            else if (instance != this) Destroy(gameObject);
-
-            LoadObject();
+            else if (Instance != this) Destroy(gameObject);
         }
 
         #endregion
 
-
-        public static void ResetTransform()
+        public void ResetTransform()
         {
-            if (Model == null)
-                return;
+            if (ModelsInfo.IsEmpty()) return;
 
-            Model.transform.parent = instance.transform;
-            Transform objTransform = Model.transform;
-            objTransform.localRotation = Quaternion.identity;
-            objTransform.localPosition = Vector3.zero;
+            // Reset pos
+            foreach (GameObject model in Models)
+            {
+                model.transform.parent = Instance.transform;
+                model.transform.localRotation = Quaternion.identity;
+                model.transform.localPosition = Vector3.zero;
+            }
+
+            // Scale and center based on the first model.
+            // We want to scale all of the models by the same amount,
+            // because if we import the same model with small changes, it should be
+            // treated equally for the models to overlap properly (if they were exported with the same position and scale).
+            GameObject reference = ModelsInfo.First().Object;
+            Bounds bounds = GetObjectBounds(reference);
 
             // Set height to 90% of screen height.
-            Bounds bounds = GetObjectBounds(Model);
             float currentHeight = bounds.size.y;
             float targetHeight = Projection.ScreenHeight * 0.9f;
-            objTransform.localScale = targetHeight * objTransform.localScale / currentHeight;
-
-            // Get new bounds (scale was changed).
-            bounds = GetObjectBounds(Model);
+            reference.transform.localScale = targetHeight * reference.transform.localScale / currentHeight;
 
             // Set position to be the middle of the parent (center of the screen).
-            objTransform.position = objTransform.parent.position;
+            reference.transform.position = reference.transform.parent.position;
+
+            // Get new bounds (scale was changed).
+            bounds = GetObjectBounds(reference);
 
             // Lower the object by its center.
-            // Eg if the set center is at the feet of a person, we can lower it by the real center.
-            objTransform.Translate(new Vector3(0, -bounds.center.y, -2));
+            // E.g. if the set center is at the feet of a person, we can lower it by the real center.
+            reference.transform.Translate(new Vector3(0, -bounds.center.y, -2));
+
+            foreach (GameObject model in Models.Skip(1))
+            {
+                model.transform.localScale = reference.transform.localScale;
+                model.transform.position = reference.transform.position;
+            }
         }
 
-
-        private void LoadObject()
+        public async Task LoadObjects()
         {
-            // No model was chosen or model is already loaded.
-            if (MyPrefs.ModelPath == string.Empty || Model != null)
-                return;
+            var tasks = new List<Task>();
 
-            // Model loading for the first time.
-            string mtlFilePath = CheckMtlFile();
-            Model = new OBJLoader().Load(MyPrefs.ModelPath, mtlFilePath);
-
-            // Simplify mesh.
-            SimplifyObject(Model);
-
-            // Change shader of material for URP compatibility.
-            ConvertMaterialsToUrp(Model);
-
-            // Set layers.
-            foreach (Transform child in Model.transform)
+            foreach (string path in MyPrefs.ModelPaths)
             {
-                child.gameObject.layer = 3;
+                if (ModelsInfo.Any(x => x.FullPath == path) || File.Exists(path) == false) continue;
+
+                var gltf = new GltfImport();
+
+                Task<Task> task = gltf.Load($"file://{path}").ContinueWith(
+                    async t =>
+                    {
+                        if (t.Result == false) return;
+
+                        var obj = new GameObject(path);
+                        obj.transform.parent = gameObject.transform;
+                        await gltf.InstantiateMainSceneAsync(obj.transform);
+
+                        foreach (Transform child in obj.transform)
+                        {
+                            child.gameObject.layer = 3;
+                        }
+
+                        SimplifyObject(obj);
+
+                        ModelsInfo.Add(new ModelInfo
+                        {
+                            FullPath = path,
+                            Object = obj,
+                        });
+                    },
+                    TaskScheduler.FromCurrentSynchronizationContext()
+                );
+
+                tasks.Add(task);
             }
 
-            ResetTransform();
+            await Task.WhenAll(tasks);
+
+            // Only the first one visible.
+            for (var i = 0; i < ModelsInfo.Count; i++)
+            {
+                ModelsInfo[i].Object.SetActive(i == 0);
+            }
+
+            if (tasks.Any()) ResetTransform();
         }
 
-        private static void ConvertMaterialsToUrp(GameObject model)
+        public void DeleteModel(string path)
         {
-            // Get all materials of Renderers in children.
-            Renderer[] renderers = model.GetComponentsInChildren<Renderer>();
-            IEnumerable<Material> materials = renderers.SelectMany(renderer => renderer.materials);
+            ModelInfo model = ModelsInfo.FirstOrDefault(x => x.FullPath == path);
+            if (model is null) return;
 
-            // Change every material to URP.
-            Shader shader = Shader.Find("Universal Render Pipeline/Lit");
-            foreach (Material mat in materials)
-            {
-                // Save original texture, since on shader change it gets lost.
-                Texture tex = mat.mainTexture;
+            ModelsInfo.Remove(model);
+            Destroy(model.Object);
+        }
 
-                // Default URP shader.
-                mat.shader = shader;
+        public void SwitchNextModel(bool next = true)
+        {
+            int activeIx = ModelsInfo.FindIndex(x => x.Object.activeSelf);
+            if (activeIx == -1) return;
 
-                // Set back the texture.
-                mat.mainTexture = tex;
+            ModelsInfo[activeIx].Object.SetActive(false);
 
-                // Metallic to specular.
-                mat.EnableKeyword("_SPECULAR_SETUP");
-
-                // Render both sides.
-                mat.SetFloat("_Cull", (float) CullMode.Off);
-            }
+            if (next)
+                ModelsInfo[(activeIx + 1) % ModelsInfo.Count].Object.SetActive(true);
+            else
+                ModelsInfo[(activeIx - 1 + ModelsInfo.Count) % ModelsInfo.Count].Object.SetActive(true);
         }
 
         private void SimplifyObject(GameObject obj)
@@ -133,26 +159,27 @@ namespace VirtualVitrine.MainScene
             int maxTriCount = MenuManager.Quality switch
             {
                 MenuManager.QualityEnum.Low    => 50_000,
-                MenuManager.QualityEnum.Medium => 100_000,
-                MenuManager.QualityEnum.High   => 250_000,
+                MenuManager.QualityEnum.Medium => 150_000,
+                MenuManager.QualityEnum.High   => int.MaxValue,
                 _                              => throw new ArgumentOutOfRangeException(),
             };
 
-            // Triangle count of all meshes.
             MeshFilter[] meshFilters = obj.GetComponentsInChildren<MeshFilter>();
-            int triCount = meshFilters.Sum(x => x.sharedMesh.triangles.Length) / 3;
+
+            foreach (MeshFilter meshFilter in meshFilters)
+            {
+                meshFilter.sharedMesh.Optimize();
+            }
 
             // Nothing to simplify if current triangle count is lower than max triangle count.
+            int triCount = meshFilters.Sum(x => x.sharedMesh.triangles.Length) / 3;
             if (triCount < maxTriCount)
                 return;
 
             // Quality is the percentage of triangles to keep. In our case we want maxTriCount vertices.
             float quality = (float) maxTriCount / triCount;
-            int percentReduction = Mathf.RoundToInt((1.0f - quality) * 100);
-            statusText.text = $"Simplifying mesh ({percentReduction}% reduction)...";
 
             // Simplify every child mesh of the object.
-            runningTasks = meshFilters.ToDictionary(x => x, _ => true);
             foreach (MeshFilter meshFilter in meshFilters)
             {
                 SimplifyMeshFilter(meshFilter, quality);
@@ -173,11 +200,7 @@ namespace VirtualVitrine.MainScene
             await Task.Run(() => meshSimplifier.SimplifyMesh(quality));
 
             // Model was deleted while simplifying.
-            if (meshFilter == null)
-            {
-                statusText.text = string.Empty;
-                return;
-            }
+            if (meshFilter == null) return;
 
             // Get simplified mesh.
             var finalMesh = meshSimplifier.ToMesh();
@@ -188,33 +211,6 @@ namespace VirtualVitrine.MainScene
 
             // Set the simplified mesh to the mesh filter.
             meshFilter.sharedMesh = finalMesh;
-
-            // If all tasks are done, update status text.
-            runningTasks[meshFilter] = false;
-            if (runningTasks.Values.All(x => x == false))
-                statusText.text = string.Empty;
-        }
-
-        /// <summary>
-        ///     Checks if there's a .mtl file alongside the .obj file.
-        /// </summary>
-        /// <returns>Path of the .mtl file or null if file not found</returns>
-        [CanBeNull]
-        private static string CheckMtlFile()
-        {
-            string objPath = MyPrefs.ModelPath;
-            string objDir = Path.GetDirectoryName(objPath);
-            if (objDir == null)
-                return null;
-
-            // Get files ending with .mtl in the same directory as the .obj file.
-            List<string> mtlFiles = Directory
-                .GetFiles(objDir)
-                .Where(file => file.EndsWith(".mtl"))
-                .ToList();
-
-            // Return the first .mtl file found or null if no file found.
-            return mtlFiles.Count == 0 ? null : mtlFiles.First();
         }
 
         /// <summary>
@@ -222,13 +218,13 @@ namespace VirtualVitrine.MainScene
         /// </summary>
         /// <param name="obj"></param>
         /// <returns>Encapsulated bounds of children.</returns>
-        private static Bounds GetObjectBounds(GameObject obj)
+        private Bounds GetObjectBounds(GameObject obj)
         {
             // Get meshes of all children.
             MeshRenderer[] meshRenderers = obj.GetComponentsInChildren<MeshRenderer>();
 
             // Encapsulate bounds of all meshes.
-            var bounds = new Bounds(instance.transform.position, Vector3.zero);
+            var bounds = new Bounds(Instance.transform.position, Vector3.zero);
             foreach (MeshRenderer meshRenderer in meshRenderers)
             {
                 bounds.Encapsulate(meshRenderer.bounds);

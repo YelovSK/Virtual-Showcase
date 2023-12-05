@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using UnityEngine;
 using VirtualVitrine.MainScene;
@@ -87,13 +86,22 @@ namespace VirtualVitrine
             }
         }
 
-        public static string ModelPath
+        public static List<string> ModelPaths
         {
-            get => PlayerPrefs.GetString("modelPath");
+            get
+            {
+                List<string> paths = PlayerPrefs.GetString("modelPath").Split(",").ToList();
+                if (paths.Count == 1 && paths[0] == string.Empty)
+                    return new List<string>();
+
+                return paths;
+            }
             set
             {
-                if (File.Exists(value))
-                    PlayerPrefs.SetString("modelPath", value);
+                if (value is null || value.Any() == false)
+                    PlayerPrefs.SetString("modelPath", string.Empty);
+                else
+                    PlayerPrefs.SetString("modelPath", string.Join(",", value));
             }
         }
 
@@ -253,6 +261,32 @@ namespace VirtualVitrine
 
         private static bool PrefsLoaded => PlayerPrefs.HasKey("SmoothingType");
 
+        /// <returns>Whether path was added (no duplicate)</returns>
+        public static bool AddModelPath(string path)
+        {
+            List<string> paths = ModelPaths;
+            if (paths.Contains(path) == false)
+            {
+                paths.Add(path);
+                ModelPaths = paths;
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <returns>Whether removed (was set)</returns>
+        public static bool RemoveModelPath(string path)
+        {
+            List<string> paths = ModelPaths;
+            if (paths.Remove(path))
+            {
+                ModelPaths = paths;
+                return true;
+            }
+
+            return false;
+        }
 
         public static void CheckPlayerPrefs()
         {
@@ -296,7 +330,7 @@ namespace VirtualVitrine
             HueThreshold = 20;
 
             // Path to .obj file to get loaded.
-            ModelPath = string.Empty;
+            ModelPaths = null;
 
             // Checks.
             PreviewOn = 0;

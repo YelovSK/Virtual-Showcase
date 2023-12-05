@@ -3,7 +3,6 @@ using System.Linq;
 using SimpleFileBrowser;
 using TMPro;
 using UnityEngine;
-using VirtualVitrine.MainScene;
 
 namespace VirtualVitrine.Menu
 {
@@ -11,32 +10,30 @@ namespace VirtualVitrine.Menu
     {
         #region Serialized Fields
 
-        [SerializeField] private TMP_Text modelText;
+        [SerializeField]
+        private TMP_Text baseModelText;
 
         #endregion
 
-
         public void ShowFileExplorer()
         {
-            FileBrowser.SetFilters(true, new FileBrowser.Filter("Objects", ".obj"));
-            FileBrowser.SetDefaultFilter(".obj");
+            FileBrowser.SetFilters(true, new FileBrowser.Filter("GLB", ".glb"));
+            FileBrowser.SetDefaultFilter(".glb");
             FileBrowser.AddQuickLink("Desktop", "Desktop");
             FileBrowser.AddQuickLink("Local models", "Models");
             StartCoroutine(ShowLoadDialogCoroutine());
         }
 
-
         private IEnumerator ShowLoadDialogCoroutine()
         {
-            yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.FilesAndFolders, true, null, null,
-                "Load Files and Folders", "Load");
+            yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.FilesAndFolders, false, null, null,
+                "Select model", "Load");
 
             if (!FileBrowser.Success) yield break;
 
-            string path = FileBrowser.Result[0];
-            MyPrefs.ModelPath = path;
-            modelText.text = "Current model: " + path.Split('\\').Last();
-            Destroy(ModelLoader.Model);
+            string path = FileBrowser.Result.First();
+
+            if (MyPrefs.AddModelPath(path)) ModelTextBehavior.InstantiateModelName(baseModelText, path);
         }
     }
 }

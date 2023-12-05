@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using VirtualVitrine.MainScene;
@@ -58,21 +59,13 @@ namespace VirtualVitrine
             if (playerInput.actions["Next calibration"].WasPressedThisFrame())
                 calibrationManager.SetNextState();
 
-            // Go to specific calibration step. Arrow keys for edge and spacebar for the center.
-            if (Keyboard.current.leftArrowKey.wasPressedThisFrame)
-                calibrationManager.SetState(CalibrationManager.States.Left);
-            else if (Keyboard.current.rightArrowKey.wasPressedThisFrame)
-                calibrationManager.SetState(CalibrationManager.States.Right);
-            else if (Keyboard.current.upArrowKey.wasPressedThisFrame)
-                calibrationManager.SetState(CalibrationManager.States.Top);
-            else if (Keyboard.current.downArrowKey.wasPressedThisFrame)
-                calibrationManager.SetState(CalibrationManager.States.Bottom);
-            else if (Keyboard.current.spaceKey.wasPressedThisFrame)
-                calibrationManager.SetState(CalibrationManager.States.Sliders);
-
             // Reset loaded object position.
             if (playerInput.actions["Reset transform"].WasPressedThisFrame())
-                ModelLoader.ResetTransform();
+                ModelLoader.Instance.ResetTransform();
+
+            if (playerInput.actions["Next model"].WasPressedThisFrame())
+                ModelLoader.Instance.SwitchNextModel();
+            else if (playerInput.actions["Previous model"].WasPressedThisFrame()) ModelLoader.Instance.SwitchNextModel(false);
 
             // Loaded object gets controlled with mouse input.
             if (!CalibrationManager.Enabled)
@@ -84,13 +77,16 @@ namespace VirtualVitrine
         public void ResetAllBindings()
         {
             foreach (InputActionMap map in inputActions.actionMaps)
+            {
                 map.RemoveAllBindingOverrides();
+            }
+
             PlayerPrefs.DeleteKey("rebinds");
         }
 
         private void HandleMouseInput()
         {
-            if (ModelLoader.Model == null)
+            if (ModelLoader.Instance.ModelsInfo.Any() == false)
                 return;
 
             const float move_sens = 0.015f;
@@ -100,16 +96,16 @@ namespace VirtualVitrine
 
             // Left mouse button pressed => move object.
             if (playerInput.actions["Move on ground"].IsPressed())
-                ModelLoader.Model.transform.Translate(mouseX * move_sens, 0, mouseY * move_sens, Space.World);
+                ModelLoader.Instance.Models.ForEach(model => model.transform.Translate(mouseX * move_sens, 0, mouseY * move_sens, Space.World));
 
             // Right mouse button pressed => lower/raise object.
             else if (playerInput.actions["Move vertically"].IsPressed())
-                ModelLoader.Model.transform.Translate(0, mouseY * move_sens, 0, Space.World);
+                ModelLoader.Instance.Models.ForEach(model => model.transform.Translate(0, mouseY * move_sens, 0, Space.World));
 
             // X pressed => rotate object around X-axis.
             else if (playerInput.actions["Rotate X"].IsPressed())
             {
-                ModelLoader.Model.transform.Rotate(mouseY * rotation_sens, 0, 0, Space.World);
+                ModelLoader.Instance.Models.ForEach(model => model.transform.Rotate(mouseY * rotation_sens, 0, 0, Space.World));
                 rotationImage.gameObject.SetActive(true);
                 rotationImage.sprite = rotationImages[0];
             }
@@ -117,7 +113,7 @@ namespace VirtualVitrine
             // Y pressed => rotate object around Y-axis.
             else if (playerInput.actions["Rotate Y"].IsPressed())
             {
-                ModelLoader.Model.transform.Rotate(0, -mouseX * rotation_sens, 0, Space.World);
+                ModelLoader.Instance.Models.ForEach(model => model.transform.Rotate(0, -mouseX * rotation_sens, 0, Space.World));
                 rotationImage.gameObject.SetActive(true);
                 rotationImage.sprite = rotationImages[1];
             }
@@ -125,7 +121,7 @@ namespace VirtualVitrine
             // Z pressed => rotate object around Z-axis.
             else if (playerInput.actions["Rotate Z"].IsPressed())
             {
-                ModelLoader.Model.transform.Rotate(0, 0, -mouseX * rotation_sens, Space.World);
+                ModelLoader.Instance.Models.ForEach(model => model.transform.Rotate(0, 0, -mouseX * rotation_sens, Space.World));
                 rotationImage.gameObject.SetActive(true);
                 rotationImage.sprite = rotationImages[2];
             }
@@ -134,8 +130,9 @@ namespace VirtualVitrine
 
             // Mouse wheel => scale object.
             float scroll = Mouse.current.scroll.ReadValue().y;
-            if (scroll > 0f) ModelLoader.Model.transform.localScale *= 1.1f;
-            if (scroll < 0f) ModelLoader.Model.transform.localScale *= 0.9f;
+            if (scroll > 0f) ModelLoader.Instance.Models.ForEach(model => model.transform.localScale *= 1.1f);
+
+            if (scroll < 0f) ModelLoader.Instance.Models.ForEach(model => model.transform.localScale *= 0.9f);
         }
     }
 }

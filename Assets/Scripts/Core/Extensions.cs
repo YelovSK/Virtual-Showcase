@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace VirtualVitrine
@@ -38,6 +40,8 @@ namespace VirtualVitrine
             if (rect != null)
                 rect.sizeDelta = savedCopy.Size;
         }
+
+        public static bool IsEmpty<T>(this IEnumerable<T> source) => source.Any() == false;
     }
 
     public class CopyTransform

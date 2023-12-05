@@ -16,7 +16,7 @@ namespace VirtualVitrine.Menu
         [SerializeField] private TMP_Dropdown qualityDropdown;
         [SerializeField] private TMP_Dropdown resolutionDropdown;
         [SerializeField] private TMP_Dropdown webcamDropdown;
-        [SerializeField] private TMP_Text currentModelText;
+        [SerializeField] private TMP_Text baseModelText;
 
         [Header("Smoothing elements")]
         [SerializeField] private TMP_Dropdown smoothingDropdown;
@@ -79,15 +79,22 @@ namespace VirtualVitrine.Menu
 
         public void ResetSettings()
         {
-            if (ModelLoader.Model != null)
-                Destroy(ModelLoader.Model);
+            foreach (GameObject model in ModelLoader.Instance.Models)
+            {
+                Destroy(model);
+            }
+
             MyPrefs.ResetPlayerPrefsExceptKeyBinds();
             SetElementsToPlayerPrefs();
         }
 
         private void SetElementsToPlayerPrefs()
         {
-            currentModelText.text = "Current model: " + MyPrefs.ModelPath.Split('\\').Last();
+            foreach (string path in MyPrefs.ModelPaths)
+            {
+                ModelTextBehavior.InstantiateModelName(baseModelText, path);
+            }
+
             SetCamName(MyPrefs.CameraName);
             SetSmoothingOption(MyPrefs.SmoothingType);
             SetAvgSliderAndText(MyPrefs.FramesSmoothed);
@@ -251,7 +258,10 @@ namespace VirtualVitrine.Menu
             MyPrefs.QualityIndex = sender.value;
 
             // If quality changed, destroy model to load it again with updated max triangle count.
-            Destroy(ModelLoader.Model);
+            foreach (GameObject model in ModelLoader.Instance.Models)
+            {
+                Destroy(model);
+            }
         }
 
         private void ChangeThreshold(Slider sender)
