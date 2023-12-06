@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace VirtualVitrine.Menu.Tooltip
+namespace VirtualShowcase.Menu.Tooltip
 {
     public class Tooltip : MonoBehaviour
     {

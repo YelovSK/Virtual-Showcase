@@ -2,17 +2,18 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using VirtualVitrine.FaceTracking;
-using VirtualVitrine.FaceTracking.Transform;
+using VirtualShowcase.Core;
+using VirtualShowcase.FaceTracking;
+using VirtualShowcase.FaceTracking.Transform;
 
-namespace VirtualVitrine.MainScene
+namespace VirtualShowcase.MainScene
 {
     public class CalibrationManager : MonoBehaviour
     {
         // Is set by InputHandler in Awake().
         public static string NextStateKeybind;
 
-        private static States state = States.Off;
+        private static eCalibrationState eCalibrationState = eCalibrationState.Off;
 
         #region Serialized Fields
 
@@ -38,7 +39,7 @@ namespace VirtualVitrine.MainScene
         #endregion
 
         private CopyTransform origCameraPreviewTransform;
-        public static bool Enabled => state != States.Off;
+        public static bool Enabled => eCalibrationState != eCalibrationState.Off;
         private static float EyesDistance => (EyeSmoother.LeftEyeSmoothed - EyeSmoother.RightEyeSmoothed).magnitude;
 
         #region Event Functions
@@ -57,24 +58,19 @@ namespace VirtualVitrine.MainScene
 
             // Set delegates.
             ChangeDistanceValue(distanceSlider);
-            distanceSlider.onValueChanged.AddListener(delegate { ChangeDistanceValue(distanceSlider); });
+            distanceSlider.onValueChanged.AddListener(delegate
+            {
+                ChangeDistanceValue(distanceSlider);
+            });
 
             ChangeSizeValue(sizeSlider);
-            sizeSlider.onValueChanged.AddListener(delegate { ChangeSizeValue(sizeSlider); });
+            sizeSlider.onValueChanged.AddListener(delegate
+            {
+                ChangeSizeValue(sizeSlider);
+            });
         }
 
         #endregion
-
-        public enum States
-        {
-            Off,
-            Left,
-            Right,
-            Bottom,
-            Top,
-            Sliders,
-            Reset
-        }
 
         public static float GetRealHeadDistance()
         {
@@ -100,18 +96,18 @@ namespace VirtualVitrine.MainScene
         public void ToggleCalibrationUI()
         {
             // If UI is disabled, go to the first state.
-            if (state == States.Off)
+            if (eCalibrationState == eCalibrationState.Off)
             {
                 Cursor.visible = true;
-                state = state.Next();
-                UpdateState();
+                eCalibrationState = eCalibrationState.Next();
+                UpdateCalibrationState();
             }
 
             // Else disable UI.
             else
             {
                 Cursor.visible = false;
-                state = States.Off;
+                eCalibrationState = eCalibrationState.Off;
                 TurnOffPreview();
             }
         }
@@ -119,17 +115,17 @@ namespace VirtualVitrine.MainScene
         public void SetNextState()
         {
             // If UI is disabled, don't continue.
-            if (state == States.Off)
+            if (eCalibrationState == eCalibrationState.Off)
                 return;
 
-            state = state.Next();
-            UpdateState();
+            eCalibrationState = eCalibrationState.Next();
+            UpdateCalibrationState();
         }
 
-        public void SetState(States s)
+        public void SetState(eCalibrationState s)
         {
-            state = s;
-            UpdateState(false);
+            eCalibrationState = s;
+            UpdateCalibrationState(false);
         }
 
         private void ChangeDistanceValue(Slider sender)
@@ -149,40 +145,40 @@ namespace VirtualVitrine.MainScene
             head.ScreenSize = screenSize;
         }
 
-        private void UpdateState(bool updatePrefs = true)
+        private void UpdateCalibrationState(bool updatePrefs = true)
         {
-            switch (state)
+            switch (eCalibrationState)
             {
                 // Highlight left edge.
-                case States.Left:
+                case eCalibrationState.Left:
                     TurnOnPreview();
                     SetGuideText("left");
                     HighlightEdge();
                     break;
 
                 // Set left edge, highlight right edge.
-                case States.Right:
+                case eCalibrationState.Right:
                     if (updatePrefs) MyPrefs.LeftCalibration = EyeSmoother.EyeCenter.x;
                     SetGuideText("right");
                     HighlightEdge();
                     break;
 
                 // Set right edge, highlight bottom edge.
-                case States.Bottom:
+                case eCalibrationState.Bottom:
                     if (updatePrefs) MyPrefs.RightCalibration = EyeSmoother.EyeCenter.x;
                     SetGuideText("bottom");
                     HighlightEdge();
                     break;
 
                 // Set bottom edge, highlight top edge.
-                case States.Top:
+                case eCalibrationState.Top:
                     if (updatePrefs) MyPrefs.BottomCalibration = EyeSmoother.EyeCenter.y;
                     SetGuideText("top");
                     HighlightEdge();
                     break;
 
                 // Set top edge, highlight middle.
-                case States.Sliders:
+                case eCalibrationState.Sliders:
                     if (updatePrefs) MyPrefs.TopCalibration = EyeSmoother.EyeCenter.y;
                     guideText.text =
                         $"Set the sliders and keep your head pointed at the display from the given distance, then press '{NextStateKeybind}'";
@@ -190,10 +186,10 @@ namespace VirtualVitrine.MainScene
                     break;
 
                 // Set focal length and hide UI.
-                case States.Reset:
+                case eCalibrationState.Reset:
                     MyPrefs.FocalLength = GetFocalLength(distanceSlider.value);
                     TurnOffPreview();
-                    state = 0;
+                    eCalibrationState = 0;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -233,7 +229,7 @@ namespace VirtualVitrine.MainScene
 
         private void HighlightEdge()
         {
-            monitorImage.sprite = monitorSprites[(int) state.Prev()];
+            monitorImage.sprite = monitorSprites[(int) eCalibrationState.Prev()];
         }
     }
 }

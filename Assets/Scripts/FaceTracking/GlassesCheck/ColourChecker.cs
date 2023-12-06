@@ -5,8 +5,9 @@ using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.UI;
+using VirtualShowcase.Core;
 
-namespace VirtualVitrine.FaceTracking.GlassesCheck
+namespace VirtualShowcase.FaceTracking.GlassesCheck
 {
     public class ColourChecker : MonoBehaviour
     {

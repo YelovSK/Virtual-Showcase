@@ -3,13 +3,14 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using VirtualVitrine.FaceTracking;
-using VirtualVitrine.FaceTracking.GlassesCheck;
-using VirtualVitrine.FaceTracking.Marker;
-using VirtualVitrine.FaceTracking.Transform;
-using VirtualVitrine.MainScene;
+using VirtualShowcase.Core;
+using VirtualShowcase.FaceTracking;
+using VirtualShowcase.FaceTracking.GlassesCheck;
+using VirtualShowcase.FaceTracking.Marker;
+using VirtualShowcase.FaceTracking.Transform;
+using VirtualShowcase.MainScene;
 
-namespace VirtualVitrine
+namespace VirtualShowcase
 {
     public sealed class Mediator : MonoBehaviour
     {

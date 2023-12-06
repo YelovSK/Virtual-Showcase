@@ -2,9 +2,9 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using VirtualVitrine.MainScene;
+using VirtualShowcase.MainScene;
 
-namespace VirtualVitrine
+namespace VirtualShowcase
 {
     public class InputHandler : MonoBehaviour
     {
@@ -64,8 +64,8 @@ namespace VirtualVitrine
                 ModelLoader.Instance.ResetTransform();
 
             if (playerInput.actions["Next model"].WasPressedThisFrame())
-                ModelLoader.Instance.SwitchNextModel();
-            else if (playerInput.actions["Previous model"].WasPressedThisFrame()) ModelLoader.Instance.SwitchNextModel(false);
+                ModelLoader.Instance.SwitchActiveModel();
+            else if (playerInput.actions["Previous model"].WasPressedThisFrame()) ModelLoader.Instance.SwitchActiveModel(false);
 
             // Loaded object gets controlled with mouse input.
             if (!CalibrationManager.Enabled)

@@ -4,10 +4,11 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using VirtualVitrine.FaceTracking;
-using VirtualVitrine.MainScene;
+using VirtualShowcase.Core;
+using VirtualShowcase.FaceTracking;
+using VirtualShowcase.MainScene;
 
-namespace VirtualVitrine.Menu
+namespace VirtualShowcase.Menu
 {
     public class MenuManager : MonoBehaviour
     {
@@ -47,12 +48,17 @@ namespace VirtualVitrine.Menu
 
         #endregion
 
-        public static QualityEnum Quality => (QualityEnum) QualitySettings.GetQualityLevel();
+        private List<Resolution> resolutions;
 
         #region Event Functions
 
         private void Start()
         {
+            resolutions = Screen.resolutions
+                .OrderByDescending(r => r.width)
+                .ThenByDescending(r => r.refreshRateRatio)
+                .ToList();
+
             // I sometimes disable menu objects in editor because they overlap.
             EnableCanvasObjects();
             MyPrefs.CheckPlayerPrefs();
@@ -62,14 +68,7 @@ namespace VirtualVitrine.Menu
 
         #endregion
 
-        public enum QualityEnum
-        {
-            Low,
-            Medium,
-            High,
-        }
-
-        private static void EnableCanvasObjects()
+        private void EnableCanvasObjects()
         {
             GameObject canvas = GameObject.Find("Canvas");
             canvas.transform.Find("Main menu").gameObject.SetActive(true);
@@ -109,11 +108,9 @@ namespace VirtualVitrine.Menu
             qualityDropdown.value = MyPrefs.QualityIndex;
         }
 
-        private void SetResolution(string resolution)
+        private void SetResolution(Resolution? resolution)
         {
-            Resolution[] resolutions = Screen.resolutions.Reverse().ToArray();
-
-            // If resolutions weren't added to the dropdown yet, add them.
+            // If resolutions weren't added to the dropdown yet.
             if (resolutionDropdown.options.Count == 0)
             {
                 List<TMP_Dropdown.OptionData> options = resolutions
@@ -123,24 +120,18 @@ namespace VirtualVitrine.Menu
                 resolutionDropdown.AddOptions(options);
             }
 
-            // Resolution wasn't set yet, set it to the first one.
-            if (string.IsNullOrEmpty(resolution))
-            {
-                Resolution res = resolutions.First();
-                Screen.SetResolution(res.width, res.height, FullScreenMode.ExclusiveFullScreen, res.refreshRateRatio);
-                Application.targetFrameRate = (int) res.refreshRateRatio.value;
-                resolutionDropdown.value = 0;
-            }
+            int ix = resolutions.FindIndex(x =>
+                x.width == resolution?.width && x.height == resolution?.height &&
+                Math.Abs(x.refreshRateRatio.value - resolution?.refreshRateRatio.value ?? 0) < 0.1f);
 
-            // Find given resolution in the given dropdown and set it. If not found, sets to the first one.
-            else
-            {
-                Resolution res = MyPrefs.ResolutionParsed;
-                Screen.SetResolution(res.width, res.height, FullScreenMode.ExclusiveFullScreen, res.refreshRateRatio);
-                Application.targetFrameRate = (int) res.refreshRateRatio.value;
-                int ix = resolutionDropdown.options.FindIndex(x => x.text == $"{res.width} x {res.height} @ {res.refreshRate}Hz");
-                resolutionDropdown.value = ix;
-            }
+            Resolution res = ix == -1 ? resolutions.First() : resolutions[ix];
+
+            Screen.SetResolution(res.width, res.height, FullScreenMode.FullScreenWindow, res.refreshRateRatio);
+            Application.targetFrameRate = (int) res.refreshRateRatio.value;
+            MyPrefs.Resolution = res;
+
+            // Let's assume that the available resolutions are still the same as when the MyPrefs.Resolution was set (:
+            resolutionDropdown.value = ix == -1 ? 0 : ix;
         }
 
         private void SetAvgSliderAndText(int framesSmoothed)
@@ -164,7 +155,7 @@ namespace VirtualVitrine.Menu
         private void SetSmoothingOption(string smoothingOption)
         {
             if (smoothingDropdown.options.Count == 0)
-                smoothingDropdown.AddOptions(Enum.GetNames(typeof(MyPrefs.SmoothingTypeEnum)).Reverse().ToList());
+                smoothingDropdown.AddOptions(Enum.GetNames(typeof(eSmoothingType)).Reverse().ToList());
             smoothingDropdown.value = smoothingDropdown.options.FindIndex(option => option.text == smoothingOption);
         }
 
@@ -243,15 +234,15 @@ namespace VirtualVitrine.Menu
             });
         }
 
-        private static void ChangeResolution(TMP_Dropdown sender)
+        private void ChangeResolution(TMP_Dropdown sender)
         {
-            Resolution[] resolutions = Screen.resolutions.Reverse().ToArray();
             Resolution chosenRes = resolutions[sender.value];
             Screen.SetResolution(chosenRes.width, chosenRes.height, FullScreenMode.ExclusiveFullScreen, chosenRes.refreshRateRatio);
-            MyPrefs.Resolution = $"{chosenRes.width}x{chosenRes.height}x{chosenRes.refreshRate}";
+            MyPrefs.Resolution = chosenRes;
+            Application.targetFrameRate = (int) chosenRes.refreshRateRatio.value;
         }
 
-        private static void ChangeQuality(TMP_Dropdown sender)
+        private void ChangeQuality(TMP_Dropdown sender)
         {
             QualitySettings.SetQualityLevel(sender.value, true);
             if (MyPrefs.QualityIndex == sender.value) return;
@@ -283,17 +274,17 @@ namespace VirtualVitrine.Menu
 
         private void ChangeHueThresh(Slider sender)
         {
-            var thresh = (int) sender.value;
-            hueThreshText.text = thresh.ToString();
-            MyPrefs.HueThreshold = thresh;
+            var threshold = (int) sender.value;
+            hueThreshText.text = threshold.ToString();
+            MyPrefs.HueThreshold = threshold;
         }
 
-        private static void ChangeGlassesCheck(Toggle sender)
+        private void ChangeGlassesCheck(Toggle sender)
         {
             MyPrefs.GlassesCheck = sender.isOn ? 1 : 0;
         }
 
-        private static void ChangeInterpolateCheck(Toggle sender)
+        private void ChangeInterpolateCheck(Toggle sender)
         {
             MyPrefs.InterpolatedPosition = sender.isOn ? 1 : 0;
         }
@@ -320,9 +311,9 @@ namespace VirtualVitrine.Menu
         private void ChangeSmoothing(TMP_Dropdown sender)
         {
             MyPrefs.SmoothingType = sender.options[sender.value].text;
-            bool averageActive = MyPrefs.SmoothingType == MyPrefs.SmoothingTypeEnum.Average.ToString();
+            bool averageActive = MyPrefs.SmoothingType == eSmoothingType.Average.ToString();
             averageSlider.transform.parent.gameObject.SetActive(averageActive);
-            bool kalmanActive = MyPrefs.SmoothingType == MyPrefs.SmoothingTypeEnum.Kalman.ToString();
+            bool kalmanActive = MyPrefs.SmoothingType == eSmoothingType.Kalman.ToString();
             qSlider.transform.parent.gameObject.SetActive(kalmanActive);
         }
 

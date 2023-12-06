@@ -1,11 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using VirtualVitrine.MainScene;
+using VirtualShowcase.Enums;
+using VirtualShowcase.MainScene;
 
-namespace VirtualVitrine
+namespace VirtualShowcase.Core
 {
+    /// <summary>
+    ///     I store all persistent settings with Unity's PlayerPrefs.
+    ///     Typing the same string over and over is sketchy and sometimes
+    ///     I need to store a more complex object as a string (which is stupid),
+    ///     so some properties have custom parsing.
+    /// </summary>
     public static class MyPrefs
     {
         public static string MainScene
@@ -91,7 +97,7 @@ namespace VirtualVitrine
             get
             {
                 List<string> paths = PlayerPrefs.GetString("modelPath").Split(",").ToList();
-                if (paths.Count == 1 && paths[0] == string.Empty)
+                if (paths.Count == 0 || string.IsNullOrEmpty(paths[0]))
                     return new List<string>();
 
                 return paths;
@@ -231,31 +237,35 @@ namespace VirtualVitrine
             }
         }
 
-        public static string Resolution
-        {
-            get => PlayerPrefs.GetString("resolution");
-            set
-            {
-                // Expects (width)x(height)x(refresh)
-                if (value.Split('x').ToList().Count == 3)
-                    PlayerPrefs.SetString("resolution", value);
-            }
-        }
-
-        public static Resolution ResolutionParsed
+        public static Resolution? Resolution
         {
             get
             {
-                if (string.IsNullOrEmpty(Resolution))
-                    return new Resolution();
-                List<string> split = Resolution.Split('x').ToList();
-                var output = new Resolution
+                string res = PlayerPrefs.GetString("resolution");
+                if (string.IsNullOrEmpty(res))
+                    return null;
+
+                List<string> split = res.Split('x').ToList();
+                if (split.Count != 3 || split[2].Contains('/') == false)
+                    return null;
+
+                uint denominator = uint.Parse(split[2].Split('/')[0]);
+                uint numerator = uint.Parse(split[2].Split('/')[1]);
+
+                return new Resolution
                 {
-                    width = Convert.ToInt16(split[0]),
-                    height = Convert.ToInt16(split[1]),
-                    refreshRateRatio = new RefreshRate {denominator = 1, numerator = (uint) Convert.ToInt16(split[2])},
+                    width = int.Parse(split[0]),
+                    height = int.Parse(split[1]),
+                    refreshRateRatio = new RefreshRate {denominator = denominator, numerator = numerator},
                 };
-                return output;
+            }
+            set
+            {
+                if (value is null)
+                    PlayerPrefs.SetString("resolution", string.Empty);
+                else
+                    PlayerPrefs.SetString("resolution",
+                        $"{value.Value.width}x{value.Value.height}x{value.Value.refreshRateRatio.denominator}/{value.Value.refreshRateRatio.numerator}");
             }
         }
 
@@ -309,10 +319,10 @@ namespace VirtualVitrine
         private static void SetDefaultPlayerPrefs()
         {
             // Default main scene.
-            MainScene = SceneSwitcher.MainScenes.MainRoom.ToString();
+            MainScene = eMainScenes.MainRoom.ToString();
 
             // Eyes smoothing types.
-            SmoothingType = SmoothingTypeEnum.Off.ToString();
+            SmoothingType = eSmoothingType.Off.ToString();
 
             // Smoothing values.
             FramesSmoothed = 8;
@@ -355,16 +365,5 @@ namespace VirtualVitrine
             // Default quality of 2 is the highest.
             QualityIndex = 2;
         }
-
-        #region Nested type: SmoothingTypeEnum
-
-        public enum SmoothingTypeEnum
-        {
-            Kalman,
-            Average,
-            Off,
-        }
-
-        #endregion
     }
 }

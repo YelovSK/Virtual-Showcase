@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 using GLTFast;
 using UnityEngine;
 using UnityMeshSimplifier;
-using VirtualVitrine.FaceTracking.Transform;
-using VirtualVitrine.Menu;
+using VirtualShowcase.Core;
+using VirtualShowcase.Enums;
+using VirtualShowcase.FaceTracking.Transform;
 
-namespace VirtualVitrine.MainScene
+namespace VirtualShowcase.MainScene
 {
     public class ModelInfo
     {
@@ -45,7 +46,7 @@ namespace VirtualVitrine.MainScene
         {
             if (ModelsInfo.IsEmpty()) return;
 
-            // Reset pos
+            // Reset position.
             foreach (GameObject model in Models)
             {
                 model.transform.parent = Instance.transform;
@@ -75,6 +76,7 @@ namespace VirtualVitrine.MainScene
             // E.g. if the set center is at the feet of a person, we can lower it by the real center.
             reference.transform.Translate(new Vector3(0, -bounds.center.y, -2));
 
+            // Use the scale and position of the reference object for all other objects.
             foreach (GameObject model in Models.Skip(1))
             {
                 model.transform.localScale = reference.transform.localScale;
@@ -88,6 +90,7 @@ namespace VirtualVitrine.MainScene
 
             foreach (string path in MyPrefs.ModelPaths)
             {
+                // Check if it's already loaded (in the models list).
                 if (ModelsInfo.Any(x => x.FullPath == path) || File.Exists(path) == false) continue;
 
                 var gltf = new GltfImport();
@@ -140,7 +143,8 @@ namespace VirtualVitrine.MainScene
             Destroy(model.Object);
         }
 
-        public void SwitchNextModel(bool next = true)
+        /// <param name="next">true for next, false for previous</param>
+        public void SwitchActiveModel(bool next = true)
         {
             int activeIx = ModelsInfo.FindIndex(x => x.Object.activeSelf);
             if (activeIx == -1) return;
@@ -156,12 +160,12 @@ namespace VirtualVitrine.MainScene
         private void SimplifyObject(GameObject obj)
         {
             // Set max triangle count depending on the selected quality.
-            int maxTriCount = MenuManager.Quality switch
+            int maxTriCount = (eGraphicsQuality) QualitySettings.GetQualityLevel() switch
             {
-                MenuManager.QualityEnum.Low    => 50_000,
-                MenuManager.QualityEnum.Medium => 150_000,
-                MenuManager.QualityEnum.High   => int.MaxValue,
-                _                              => throw new ArgumentOutOfRangeException(),
+                eGraphicsQuality.Low    => 50_000,
+                eGraphicsQuality.Medium => 100_000,
+                eGraphicsQuality.High   => int.MaxValue,
+                _                       => throw new ArgumentOutOfRangeException(),
             };
 
             MeshFilter[] meshFilters = obj.GetComponentsInChildren<MeshFilter>();

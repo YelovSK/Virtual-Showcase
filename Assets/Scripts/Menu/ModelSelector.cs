@@ -1,10 +1,10 @@
 using System.Collections;
-using System.Linq;
 using SimpleFileBrowser;
 using TMPro;
 using UnityEngine;
+using VirtualShowcase.Core;
 
-namespace VirtualVitrine.Menu
+namespace VirtualShowcase.Menu
 {
     public class ModelSelector : MonoBehaviour
     {
@@ -17,7 +17,7 @@ namespace VirtualVitrine.Menu
 
         public void ShowFileExplorer()
         {
-            FileBrowser.SetFilters(true, new FileBrowser.Filter("GLB", ".glb"));
+            FileBrowser.SetFilters(true, new FileBrowser.Filter("Models", ".glb"));
             FileBrowser.SetDefaultFilter(".glb");
             FileBrowser.AddQuickLink("Desktop", "Desktop");
             FileBrowser.AddQuickLink("Local models", "Models");
@@ -26,14 +26,16 @@ namespace VirtualVitrine.Menu
 
         private IEnumerator ShowLoadDialogCoroutine()
         {
-            yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.FilesAndFolders, false, null, null,
+            yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.FilesAndFolders, true, null, null,
                 "Select model", "Load");
 
             if (!FileBrowser.Success) yield break;
 
-            string path = FileBrowser.Result.First();
-
-            if (MyPrefs.AddModelPath(path)) ModelTextBehavior.InstantiateModelName(baseModelText, path);
+            foreach (string path in FileBrowser.Result)
+            {
+                if (MyPrefs.AddModelPath(path))
+                    ModelTextBehavior.InstantiateModelName(baseModelText, path);
+            }
         }
     }
 }

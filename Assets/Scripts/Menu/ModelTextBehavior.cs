@@ -2,14 +2,15 @@ using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using VirtualVitrine.MainScene;
+using VirtualShowcase.Core;
+using VirtualShowcase.MainScene;
 
-namespace VirtualVitrine
+namespace VirtualShowcase
 {
     public class ModelTextBehavior : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
+        private readonly Color hoverColor = Color.red;
         private Color baseColor;
-        private Color hoverColor;
         private TextMeshProUGUI textMeshPro;
 
         public string ModelPath => gameObject.name;
@@ -21,7 +22,6 @@ namespace VirtualVitrine
         {
             textMeshPro = GetComponent<TextMeshProUGUI>();
             baseColor = textMeshPro.color;
-            hoverColor = Color.red;
         }
 
         #endregion

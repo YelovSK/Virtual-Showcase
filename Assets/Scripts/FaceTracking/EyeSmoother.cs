@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using VirtualVitrine.FaceTracking.Marker;
+using VirtualShowcase.Core;
+using VirtualShowcase.FaceTracking.Marker;
 
-namespace VirtualVitrine.FaceTracking
+namespace VirtualShowcase.FaceTracking
 {
     public class EyeSmoother : MonoBehaviour
     {
@@ -33,16 +34,16 @@ namespace VirtualVitrine.FaceTracking
 
         public void SmoothEyes()
         {
-            Enum.TryParse(MyPrefs.SmoothingType, out MyPrefs.SmoothingTypeEnum smoothType);
+            Enum.TryParse(MyPrefs.SmoothingType, out eSmoothingType smoothType);
             switch (smoothType)
             {
-                case MyPrefs.SmoothingTypeEnum.Kalman:
+                case eSmoothingType.Kalman:
                     SmoothKalman();
                     break;
-                case MyPrefs.SmoothingTypeEnum.Average:
+                case eSmoothingType.Average:
                     SmoothAverage();
                     break;
-                case MyPrefs.SmoothingTypeEnum.Off:
+                case eSmoothingType.Off:
                     LeftEyeSmoothed = KeyPointsUpdater.Detection.leftEye;
                     RightEyeSmoothed = KeyPointsUpdater.Detection.rightEye;
                     break;

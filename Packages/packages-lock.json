@@ -10,15 +10,15 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.barracuda": {
-      "version": "https://github.com/Unity-Technologies/barracuda-release.git",
+      "version": "3.0.0",
       "depth": 0,
-      "source": "git",
+      "source": "registry",
       "dependencies": {
         "com.unity.burst": "1.6.0",
         "com.unity.modules.jsonserialize": "1.0.0",
         "com.unity.modules.imageconversion": "1.0.0"
       },
-      "hash": "80909e3320d7582cb8a70f52d027bfa1851abf50"
+      "url": "https://packages.unity.com"
     },
     "com.unity.burst": {
       "version": "1.8.9",
@@ -67,7 +67,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.rider": {
-      "version": "3.0.26",
+      "version": "3.0.27",
       "depth": 0,
       "source": "registry",
       "dependencies": {

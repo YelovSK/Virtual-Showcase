@@ -1,8 +1,9 @@
 using System.Collections;
 using UnityEngine;
-using VirtualVitrine.MainScene;
+using VirtualShowcase.Core;
+using VirtualShowcase.MainScene;
 
-namespace VirtualVitrine.FaceTracking.Transform
+namespace VirtualShowcase.FaceTracking.Transform
 {
     public class CameraTransform : MonoBehaviour
     {

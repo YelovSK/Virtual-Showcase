@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 // source https://gist.github.com/davidfoster/48acce6c13e5f7f247dc5d5909dce349
 
-namespace VirtualVitrine.FaceTracking
+namespace VirtualShowcase.FaceTracking
 {
     public class KalmanFilter<T>
     {

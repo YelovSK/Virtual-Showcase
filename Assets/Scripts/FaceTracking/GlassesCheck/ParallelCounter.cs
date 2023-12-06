@@ -6,7 +6,7 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs.LowLevel.Unsafe;
 
-namespace VirtualVitrine.FaceTracking.GlassesCheck
+namespace VirtualShowcase.FaceTracking.GlassesCheck
 {
     [StructLayout(LayoutKind.Sequential)]
     [NativeContainer]
@@ -50,6 +50,7 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             DisposeSentinel.Create(out m_Safety, out m_DisposeSentinel, 0, label);
 #endif
+
             // Initialize the count to 0 to avoid uninitialized data
             Count = 0;
         }
@@ -74,7 +75,10 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
                 AtomicSafetyHandle.CheckReadAndThrow(m_Safety);
 #endif
                 var count = 0;
-                for (var i = 0; i < JobsUtility.MaxJobThreadCount; ++i) count += countIntegers[IntsPerCacheLine * i];
+                for (var i = 0; i < JobsUtility.MaxJobThreadCount; ++i)
+                {
+                    count += countIntegers[IntsPerCacheLine * i];
+                }
 
                 return count;
             }
@@ -86,9 +90,13 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
                 AtomicSafetyHandle.CheckWriteAndThrow(m_Safety);
 #endif
+
                 // Clear all locally cached counts, 
                 // set the first one to the required value
-                for (var i = 1; i < JobsUtility.MaxJobThreadCount; ++i) countIntegers[IntsPerCacheLine * i] = 0;
+                for (var i = 1; i < JobsUtility.MaxJobThreadCount; ++i)
+                {
+                    countIntegers[IntsPerCacheLine * i] = 0;
+                }
 
                 *countIntegers = value;
             }
@@ -108,6 +116,7 @@ namespace VirtualVitrine.FaceTracking.GlassesCheck
         }
 
         [NativeContainer]
+
         // This attribute is what makes it possible to use NativeCounter.Concurrent in a ParallelFor job
         [NativeContainerIsAtomicWriteOnly]
         public struct ParallelWriter

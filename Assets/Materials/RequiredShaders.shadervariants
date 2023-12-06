@@ -1,0 +1,446 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!200 &20000000
+ShaderVariantCollection:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: RequiredShaders
+  m_Shaders:
+  - first: {fileID: 10770, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+      - keywords: UNITY_UI_ALPHACLIP
+        passType: 0
+      - keywords: UNITY_UI_CLIP_RECT
+        passType: 0
+  - first: {fileID: 66, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+  - first: {fileID: 106, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords: _SUNDISK_SIMPLE
+        passType: 0
+  - first: {fileID: 9000, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+  - first: {fileID: 9001, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+  - first: {fileID: 9002, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+  - first: {fileID: 9003, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+  - first: {fileID: 9004, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+  - first: {fileID: 9007, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+  - first: {fileID: 9101, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+  - first: {fileID: 9103, guid: 0000000000000000f000000000000000, type: 0}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+  - first: {fileID: 4800000, guid: d6dae50ee9e1bfa4db75f19f99355220, type: 3}
+    second:
+      variants:
+      - keywords: _DEPTH_MSAA_8
+        passType: 0
+      - keywords: _OUTPUT_DEPTH
+        passType: 0
+  - first: {fileID: 4800000, guid: 65df88701913c224d95fc554db28381a, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+  - first: {fileID: 4800000, guid: e7857e9d0c934dc4f83f270f8447b006, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+  - first: {fileID: 4800000, guid: e6e9a19c3678ded42a3bc431ebef7dbd, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+  - first: {fileID: 4800000, guid: 93446b5c5339d4f00b85c159e1159b7c, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+  - first: {fileID: 4800000, guid: 1121bb4e615ca3c48b214e79e841e823, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+  - first: {fileID: 4800000, guid: 63eaba0ebfb82cc43bde059b4a8c65f6, type: 3}
+    second:
+      variants:
+      - keywords: _SMAA_PRESET_HIGH
+        passType: 0
+  - first: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: _CASTING_PUNCTUAL_LIGHT_SHADOW
+        passType: 8
+      - keywords: 
+        passType: 11
+      - keywords: _EMISSION
+        passType: 11
+      - keywords: 
+        passType: 13
+      - keywords: DIRLIGHTMAP_COMBINED DYNAMICLIGHTMAP_ON FOG_EXP LIGHTMAP_ON SHADOWS_SHADOWMASK
+          _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS _EMISSION _MAIN_LIGHT_SHADOWS
+          _SHADOWS_SOFT
+        passType: 13
+      - keywords: DIRLIGHTMAP_COMBINED DYNAMICLIGHTMAP_ON FOG_EXP LIGHTMAP_ON SHADOWS_SHADOWMASK
+          _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS _SHADOWS_SOFT
+        passType: 13
+      - keywords: FOG_EXP _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS _EMISSION
+          _MAIN_LIGHT_SHADOWS _SHADOWS_SOFT
+        passType: 13
+      - keywords: FOG_EXP _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS
+          _SHADOWS_SOFT _SPECULAR_SETUP
+        passType: 13
+      - keywords: _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS _EMISSION _MAIN_LIGHT_SHADOWS
+        passType: 13
+      - keywords: _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS _EMISSION _MAIN_LIGHT_SHADOWS
+          _SHADOWS_SOFT
+        passType: 13
+      - keywords: _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS
+        passType: 13
+      - keywords: _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS
+          _SHADOWS_SOFT
+        passType: 13
+      - keywords: _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS
+          _SHADOWS_SOFT _SPECULAR_SETUP
+        passType: 13
+      - keywords: _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS
+          _SPECULAR_SETUP
+        passType: 13
+      - keywords: _ADDITIONAL_LIGHTS _MAIN_LIGHT_SHADOWS
+        passType: 13
+  - first: {fileID: 4800000, guid: fe393ace9b354375a9cb14cdbbc28be4, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+      - keywords: UNDERLAY_ON
+        passType: 0
+  - first: {fileID: 4800000, guid: 85187c2149c549c5b33f0cdb02836b17, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+  - first: {fileID: 4800000, guid: 0b9ecd638f6c8f545ad360a14390b661, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 0b2b645e73217f040a1c5a56938e1a5f, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: d15d796a4efe4b0429e2d4c08f53e10a, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: e7bb264f71a76b64ca7a26148d7c18fd, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 97a746f9b7f26334c840552c379b55e0, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: bf44d2b8d8011c044b0c279769b8f106, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 64e4f2a303cfa50469c37dba086b386a, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 591a3c0612d3fd443a48e5f8d1524490, type: 3}
+    second:
+      variants:
+      - keywords: ArgMax BATCHTILLING_OFF ReduceN
+        passType: 0
+  - first: {fileID: 4800000, guid: ce42c26f8d395eb4fb5f60ddca0049e1, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 23341d4f86653834a9d49a4bd2eed862, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 7df61c7c6d39e284788b0e957cdcceb7, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF ReduceN
+        passType: 0
+  - first: {fileID: 4800000, guid: 85eeabcf392639b449cf6daab4e02211, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 390e5d6f68d6cea4187c73311334cce8, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 2791212921327144d8248dfe5f9b79da, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: bc344ba7ad8b57b4d918a9f7d029cb1b, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 5083906475a3be346a7828801c6bfbe6, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF ReduceNone
+        passType: 0
+  - first: {fileID: 4800000, guid: 43b323cac05bcfa419e2745d7f0ef147, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 9626ea9ab0b94e94a95ddbd110d29e78, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF None
+        passType: 0
+  - first: {fileID: 4800000, guid: ef5a86e12013d444fb3b1abdd0f52de4, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 31e4af92ef99f5644970af330b92f11f, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: f868a56d815cb174a9054230194069c9, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF Sub
+        passType: 0
+  - first: {fileID: 4800000, guid: d7d0dd0d75980854698fda3b64064f15, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: d0c49b9d8f87a034b9a2ccc84df087ef, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 5c7b7cbbc9eafbe419d22e9485aacb45, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: ec56be125cfe2de4e8664b6e4fd7c00b, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 952ecd58e11f99f469813b5206eb4cf4, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 906a377749414ef428e310032b093876, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: dce9cbe29a165a94fad431491552a39d, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 0cd09682d2723d04e957d229dfa41bbb, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 3f5bce070d34bc745bdaaf312ec25ae9, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 750dc44b5188a0047915538013c7fafa, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 5038389ba3277cf43b4844f5520eb231, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 8eefed1a026d30840a504a3df988f403, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 3a0431d0fc2c43c468a2b6c7e67de5d0, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF ReduceN
+        passType: 0
+  - first: {fileID: 4800000, guid: 9bb27abd97d768e4a89ca0ed9f2bd88a, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 0c6f0ed2e703bff4dae9ffaf72e4d67f, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: fa97a13e61738ef418102c0bdf7e9a40, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 250538bd780e0484c82352bcefb68f4d, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 7a0c372ea4d290d46a859e226f3f0db5, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: a85eb55355defae4dbd68f698857c3c7, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF xTranspose_OFF yTranspose_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 6eee405438c886740828f17d72b93324, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF Input1D
+        passType: 0
+  - first: {fileID: 4800000, guid: 525964304d390c24da0f0bf4f8f06869, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: c72b5e72f9c141943ab0c51ddbc37622, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: 443f2de71dcda184581a1e90c9bb9ea2, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF
+        passType: 0
+  - first: {fileID: 4800000, guid: c27dc5cba8ccd9d408583df574b77160, type: 3}
+    second:
+      variants:
+      - keywords: BATCHTILLING_OFF Input1D
+        passType: 0
+  - first: {fileID: -6465566751694194690, guid: 3739e562a03fc0b4982d8aa66cc50865, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: 
+        passType: 13
+      - keywords: _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS
+        passType: 13
+      - keywords: _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS
+          _SHADOWS_SOFT
+        passType: 13
+  - first: {fileID: 4800000, guid: 36e335017ad71d54fbb10842863188ae, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 0
+  - first: {fileID: -6465566751694194690, guid: b9d29dfa1474148e792ac720cbd45122, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 8
+      - keywords: INSTANCING_ON
+        passType: 8
+      - keywords: _CASTING_PUNCTUAL_LIGHT_SHADOW
+        passType: 8
+      - keywords: 
+        passType: 13
+      - keywords: FOG_EXP SHADOWS_SHADOWMASK _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS
+          _MAIN_LIGHT_SHADOWS _SHADOWS_SOFT
+        passType: 13
+      - keywords: FOG_EXP SHADOWS_SHADOWMASK _ADDITIONAL_LIGHTS _MAIN_LIGHT_SHADOWS
+        passType: 13
+      - keywords: FOG_EXP _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS
+          _SHADOWS_SOFT
+        passType: 13
+      - keywords: FOG_EXP _ADDITIONAL_LIGHTS _MAIN_LIGHT_SHADOWS
+        passType: 13
+      - keywords: _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS
+        passType: 13
+      - keywords: _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS
+          _RECEIVE_SHADOWS_OFF
+        passType: 13
+      - keywords: _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS
+          _RECEIVE_SHADOWS_OFF _SHADOWS_SOFT
+        passType: 13
+      - keywords: _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS
+          _SHADOWS_SOFT
+        passType: 13
+      - keywords: _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS
+          _SHADOWS_SOFT _SPECULAR_SETUP
+        passType: 13
+      - keywords: _ADDITIONAL_LIGHTS _ADDITIONAL_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS
+          _SPECULAR_SETUP
+        passType: 13
+      - keywords: _ADDITIONAL_LIGHTS _MAIN_LIGHT_SHADOWS
+        passType: 13
+      - keywords: _ADDITIONAL_LIGHTS _MAIN_LIGHT_SHADOWS _RECEIVE_SHADOWS_OFF
+        passType: 13

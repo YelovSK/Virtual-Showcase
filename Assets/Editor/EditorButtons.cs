@@ -5,10 +5,11 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace VirtualVitrine.Menu
+namespace VirtualShowcase.Menu
 {
     [InitializeOnLoad]
     [ExecuteInEditMode]
+
     // Class is for selecting which menus to show in the editor because they overlap due to animations.
     public class EditorButtons : MonoBehaviour
     {
@@ -70,6 +71,7 @@ namespace VirtualVitrine.Menu
             main.SetActive(mainActive);
             options.SetActive(optionsActive);
             rebind.SetActive(rebindActive);
+
             // If all selected, don't expand.
             if (mainActive && optionsActive && rebindActive)
             {
@@ -114,10 +116,7 @@ namespace VirtualVitrine.Menu
         /// <summary>
         ///     Check if the target GameObject is expanded (aka unfolded) in the Hierarchy view.
         /// </summary>
-        public static bool IsExpanded(GameObject go)
-        {
-            return GetExpandedGameObjects().Contains(go);
-        }
+        public static bool IsExpanded(GameObject go) => GetExpandedGameObjects().Contains(go);
 
         /// <summary>
         ///     Get a list of all GameObjects which are expanded (aka unfolded) in the Hierarchy view.

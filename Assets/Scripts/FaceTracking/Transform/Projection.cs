@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using VirtualShowcase.Core;
 
-namespace VirtualVitrine.FaceTracking.Transform
+namespace VirtualShowcase.FaceTracking.Transform
 {
     [ExecuteInEditMode]
     public sealed class Projection : MonoBehaviour
@@ -73,7 +74,9 @@ namespace VirtualVitrine.FaceTracking.Transform
 
             // Draw lines from cameras to screen corners.
             foreach (Camera cam in ActiveCameras)
+            {
                 DrawCameraGizmos(cam);
+            }
         }
 
         #endregion
@@ -121,7 +124,9 @@ namespace VirtualVitrine.FaceTracking.Transform
         public void UpdateCameraProjection()
         {
             foreach (Camera cam in cameras)
+            {
                 SetCameraFrustum(cam);
+            }
         }
 
         private void SetCameraFrustum(Camera cam)

@@ -2422,7 +2422,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 5
   m_Viewport: {fileID: 1156056004}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 963353570}
@@ -8987,7 +8987,7 @@ GameObject:
   - component: {fileID: 1098663915}
   - component: {fileID: 1098663914}
   m_Layer: 5
-  m_Name: SelectModelButton
+  m_Name: AddModelsButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9011,7 +9011,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
   m_AnchoredPosition: {x: 0, y: 50}
-  m_SizeDelta: {x: 520, y: 75}
+  m_SizeDelta: {x: 465.9, y: 75}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1098663914
 MonoBehaviour:
@@ -12036,7 +12036,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: SELECT MODEL
+  m_text: ADD MODELS
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
   m_sharedMaterial: {fileID: 2164040, guid: 5302535af1044152a457ed104f1f4b91, type: 2}

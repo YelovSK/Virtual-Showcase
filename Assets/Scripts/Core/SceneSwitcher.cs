@@ -1,9 +1,11 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using VirtualVitrine.MainScene;
+using VirtualShowcase.Core;
+using VirtualShowcase.Enums;
+using VirtualShowcase.MainScene;
 
-namespace VirtualVitrine
+namespace VirtualShowcase
 {
     public class SceneSwitcher : MonoBehaviour
     {
@@ -45,16 +47,9 @@ namespace VirtualVitrine
 
         public static void SwitchDifferentMain()
         {
-            var mainScene = Extensions.ParseEnum<MainScenes>(MyPrefs.MainScene);
+            var mainScene = Extensions.ParseEnum<eMainScenes>(MyPrefs.MainScene);
             MyPrefs.MainScene = mainScene.Next().ToString();
             SceneManager.LoadScene(MyPrefs.MainScene);
-        }
-
-        public enum MainScenes
-        {
-            MainRoom,
-            MainLines,
-            MainWhite,
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Unity.Jobs;
 using UnityEngine;
 
-namespace VirtualVitrine.FaceTracking
+namespace VirtualShowcase.FaceTracking
 {
     public class WebcamInput : MonoBehaviour
     {

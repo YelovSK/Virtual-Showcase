@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
-namespace VirtualVitrine.Menu.Tooltip
+namespace VirtualShowcase.Menu.Tooltip
 {
     public class TooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerMoveHandler
     {

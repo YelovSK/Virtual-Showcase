@@ -2,7 +2,7 @@ using MediaPipe.BlazeFace;
 using TMPro;
 using UnityEngine;
 
-namespace VirtualVitrine.FaceTracking.Marker
+namespace VirtualShowcase.FaceTracking.Marker
 {
     public sealed class KeyPointsUpdater : MonoBehaviour
     {

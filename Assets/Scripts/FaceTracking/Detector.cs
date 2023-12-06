@@ -1,9 +1,10 @@
 using System.Linq;
 using MediaPipe.BlazeFace;
 using UnityEngine;
-using VirtualVitrine.FaceTracking.Marker;
+using VirtualShowcase.Core;
+using VirtualShowcase.FaceTracking.Marker;
 
-namespace VirtualVitrine
+namespace VirtualShowcase
 {
     public class Detector : MonoBehaviour
     {
