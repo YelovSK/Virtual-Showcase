@@ -2,7 +2,7 @@ using System.Collections;
 using SimpleFileBrowser;
 using TMPro;
 using UnityEngine;
-using VirtualShowcase.Core;
+using VirtualShowcase.Utilities;
 
 namespace VirtualShowcase.Menu
 {

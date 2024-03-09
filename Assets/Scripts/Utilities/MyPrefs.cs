@@ -4,7 +4,7 @@ using UnityEngine;
 using VirtualShowcase.Enums;
 using VirtualShowcase.MainScene;
 
-namespace VirtualShowcase.Core
+namespace VirtualShowcase.Utilities
 {
     /// <summary>
     ///     I store all persistent settings with Unity's PlayerPrefs.
@@ -111,34 +111,22 @@ namespace VirtualShowcase.Core
             }
         }
 
-        public static int PreviewOn
+        public static bool PreviewOn
         {
-            get => PlayerPrefs.GetInt("previewOn");
-            set
-            {
-                if (value is 0 or 1)
-                    PlayerPrefs.SetInt("previewOn", value);
-            }
+            get => PlayerPrefs.GetInt("previewOn").ToBool();
+            set => PlayerPrefs.SetInt("previewOn", value.ToInt());
         }
 
-        public static int StereoOn
+        public static bool StereoOn
         {
-            get => PlayerPrefs.GetInt("stereoOn");
-            set
-            {
-                if (value is 0 or 1)
-                    PlayerPrefs.SetInt("stereoOn", value);
-            }
+            get => PlayerPrefs.GetInt("stereoOn").ToBool();
+            set => PlayerPrefs.SetInt("stereoOn", value.ToInt());
         }
 
-        public static int GlassesCheck
+        public static bool GlassesCheck
         {
-            get => PlayerPrefs.GetInt("glassesCheck");
-            set
-            {
-                if (value is 0 or 1)
-                    PlayerPrefs.SetInt("glassesCheck", value);
-            }
+            get => PlayerPrefs.GetInt("glassesCheck").ToBool();
+            set => PlayerPrefs.SetInt("glassesCheck", value.ToInt());
         }
 
         public static float BottomCalibration
@@ -207,36 +195,27 @@ namespace VirtualShowcase.Core
             set => PlayerPrefs.SetFloat("focalLength", value);
         }
 
-        public static int QualityIndex
+        public static eGraphicsQuality QualityIndex
         {
-            get => PlayerPrefs.GetInt("qualityIndex");
-            set
-            {
-                if (value >= 0 && value <= 2)
-                    PlayerPrefs.SetInt("qualityIndex", value);
-            }
+            get => (eGraphicsQuality) PlayerPrefs.GetInt("qualityIndex");
+            set => PlayerPrefs.SetInt("qualityIndex", (int) value);
         }
 
-        public static int UpdateHeadDistance
+        public static bool UpdateHeadDistance
         {
-            get => PlayerPrefs.GetInt("updateHeadDistance");
-            set
-            {
-                if (value is 0 or 1)
-                    PlayerPrefs.SetInt("updateHeadDistance", value);
-            }
+            get => PlayerPrefs.GetInt("updateHeadDistance").ToBool();
+            set => PlayerPrefs.SetInt("updateHeadDistance", value.ToInt());
         }
 
-        public static int InterpolatedPosition
+        public static bool InterpolatedPosition
         {
-            get => PlayerPrefs.GetInt("interpolatedPosition");
-            set
-            {
-                if (value is 0 or 1)
-                    PlayerPrefs.SetInt("interpolatedPosition", value);
-            }
+            get => PlayerPrefs.GetInt("interpolatedPosition").ToBool();
+            set => PlayerPrefs.SetInt("interpolatedPosition", value.ToInt());
         }
 
+        /// <summary>
+        ///     Saves as string: {width},{height},{refreshRate.denominator},{refreshRate.numerator}
+        /// </summary>
         public static Resolution? Resolution
         {
             get
@@ -245,18 +224,15 @@ namespace VirtualShowcase.Core
                 if (string.IsNullOrEmpty(res))
                     return null;
 
-                List<string> split = res.Split('x').ToList();
-                if (split.Count != 3 || split[2].Contains('/') == false)
+                List<string> split = res.Split(',').ToList();
+                if (split.Count != 4)
                     return null;
-
-                uint denominator = uint.Parse(split[2].Split('/')[0]);
-                uint numerator = uint.Parse(split[2].Split('/')[1]);
 
                 return new Resolution
                 {
                     width = int.Parse(split[0]),
                     height = int.Parse(split[1]),
-                    refreshRateRatio = new RefreshRate {denominator = denominator, numerator = numerator},
+                    refreshRateRatio = new RefreshRate {denominator = uint.Parse(split[2]), numerator = uint.Parse(split[3])},
                 };
             }
             set
@@ -265,7 +241,7 @@ namespace VirtualShowcase.Core
                     PlayerPrefs.SetString("resolution", string.Empty);
                 else
                     PlayerPrefs.SetString("resolution",
-                        $"{value.Value.width}x{value.Value.height}x{value.Value.refreshRateRatio.denominator}/{value.Value.refreshRateRatio.numerator}");
+                        $"{value.Value.width},{value.Value.height},{value.Value.refreshRateRatio.denominator},{value.Value.refreshRateRatio.numerator}");
             }
         }
 
@@ -275,27 +251,21 @@ namespace VirtualShowcase.Core
         public static bool AddModelPath(string path)
         {
             List<string> paths = ModelPaths;
-            if (paths.Contains(path) == false)
-            {
-                paths.Add(path);
-                ModelPaths = paths;
-                return true;
-            }
+            if (paths.Contains(path)) return false;
 
-            return false;
+            paths.Add(path);
+            ModelPaths = paths;
+            return true;
         }
 
         /// <returns>Whether removed (was set)</returns>
         public static bool RemoveModelPath(string path)
         {
             List<string> paths = ModelPaths;
-            if (paths.Remove(path))
-            {
-                ModelPaths = paths;
-                return true;
-            }
+            if (!paths.Remove(path)) return false;
 
-            return false;
+            ModelPaths = paths;
+            return true;
         }
 
         public static void CheckPlayerPrefs()
@@ -314,7 +284,6 @@ namespace VirtualShowcase.Core
             PlayerPrefs.SetString("rebinds", binds);
             SetDefaultPlayerPrefs();
         }
-
 
         private static void SetDefaultPlayerPrefs()
         {
@@ -343,11 +312,11 @@ namespace VirtualShowcase.Core
             ModelPaths = null;
 
             // Checks.
-            PreviewOn = 0;
-            StereoOn = 0;
-            UpdateHeadDistance = 0;
-            GlassesCheck = 0;
-            InterpolatedPosition = 0;
+            PreviewOn = false;
+            StereoOn = false;
+            UpdateHeadDistance = false;
+            GlassesCheck = false;
+            InterpolatedPosition = false;
 
             // Calibration screen edge values.
             BottomCalibration = 0.0f;
@@ -356,14 +325,14 @@ namespace VirtualShowcase.Core
             RightCalibration = 1.0f;
 
             // Calibration screen parameters.
-            ScreenSize = 24;
-            ScreenDistance = 50;
+            ScreenSize = 27;
+            ScreenDistance = 80;
 
             // Focal length for face distance.
             FocalLength = CalibrationManager.GetFocalLength(ScreenDistance);
 
             // Default quality of 2 is the highest.
-            QualityIndex = 2;
+            QualityIndex = eGraphicsQuality.High;
         }
     }
 }

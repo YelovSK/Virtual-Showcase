@@ -1,5 +1,5 @@
 using UnityEngine;
-using VirtualShowcase.Core;
+using VirtualShowcase.Utilities;
 
 namespace VirtualShowcase.MainScene
 {
@@ -42,16 +42,16 @@ namespace VirtualShowcase.MainScene
         public void SetCamPreview(bool toggle = false)
         {
             if (toggle)
-                MyPrefs.PreviewOn = MyPrefs.PreviewOn == 0 ? 1 : 0;
-            camPreview.gameObject.SetActive(MyPrefs.PreviewOn == 1);
-            darkenImage.gameObject.SetActive(MyPrefs.PreviewOn == 1);
+                MyPrefs.PreviewOn = !MyPrefs.PreviewOn;
+            camPreview.gameObject.SetActive(MyPrefs.PreviewOn);
+            darkenImage.gameObject.SetActive(MyPrefs.PreviewOn);
         }
 
         public void SetStereo(bool toggle = false)
         {
             if (toggle)
-                MyPrefs.StereoOn = MyPrefs.StereoOn == 0 ? 1 : 0;
-            bool stereoOn = MyPrefs.StereoOn == 1;
+                MyPrefs.StereoOn = !MyPrefs.StereoOn;
+            bool stereoOn = MyPrefs.StereoOn;
 
             monoCam.SetActive(!stereoOn);
             leftCam.SetActive(stereoOn);

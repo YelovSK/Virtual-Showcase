@@ -3,12 +3,12 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using VirtualShowcase.Core;
 using VirtualShowcase.FaceTracking;
 using VirtualShowcase.FaceTracking.GlassesCheck;
 using VirtualShowcase.FaceTracking.Marker;
 using VirtualShowcase.FaceTracking.Transform;
 using VirtualShowcase.MainScene;
+using VirtualShowcase.Utilities;
 
 namespace VirtualShowcase
 {
@@ -72,9 +72,9 @@ namespace VirtualShowcase
 
             keyPointsUpdater.UpdateKeyPoints();
 
-            if (MyPrefs.GlassesCheck == 0) HideColorOverlay();
+            if (MyPrefs.GlassesCheck == false) HideColorOverlay();
 
-            bool glassesOn = MyPrefs.GlassesCheck == 0 || colorChecker.CheckGlassesOn(WebcamInput.Instance.Texture, colorOverlay, distanceText);
+            bool glassesOn = MyPrefs.GlassesCheck == false || colorChecker.CheckGlassesOn(WebcamInput.Instance.Texture, colorOverlay, distanceText);
 
             UpdateHeadDistanceUI();
 

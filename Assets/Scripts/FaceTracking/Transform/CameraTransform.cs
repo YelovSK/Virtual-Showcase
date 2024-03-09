@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
-using VirtualShowcase.Core;
 using VirtualShowcase.MainScene;
+using VirtualShowcase.Utilities;
 
 namespace VirtualShowcase.FaceTracking.Transform
 {
@@ -47,7 +47,7 @@ namespace VirtualShowcase.FaceTracking.Transform
             float y = (centerY - 0.5f) * Projection.ScreenHeight;
 
             // Update head position.
-            if (MyPrefs.InterpolatedPosition == 1 && !CalibrationManager.Enabled && WebcamInput.Instance.AverageFramesBetweenUpdates >= 2)
+            if (MyPrefs.InterpolatedPosition && !CalibrationManager.Enabled && WebcamInput.Instance.AverageFramesBetweenUpdates >= 2)
                 StartCoroutine(SmoothTranslation(new Vector3(x, y, transform.localPosition.z)));
             else
             {

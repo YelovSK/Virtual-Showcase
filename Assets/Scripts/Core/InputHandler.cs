@@ -3,8 +3,9 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using VirtualShowcase.MainScene;
+using VirtualShowcase.Utilities;
 
-namespace VirtualShowcase
+namespace VirtualShowcase.Core
 {
     public class InputHandler : MonoBehaviour
     {

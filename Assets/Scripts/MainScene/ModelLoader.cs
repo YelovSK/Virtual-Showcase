@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 using GLTFast;
 using UnityEngine;
 using UnityMeshSimplifier;
-using VirtualShowcase.Core;
+using VirtualShowcase.Common;
 using VirtualShowcase.Enums;
 using VirtualShowcase.FaceTracking.Transform;
+using VirtualShowcase.Utilities;
 
 namespace VirtualShowcase.MainScene
 {
@@ -19,25 +20,16 @@ namespace VirtualShowcase.MainScene
         public GameObject Object { get; set; }
     }
 
-    public class ModelLoader : MonoBehaviour
+    public class ModelLoader : MonoSingleton<ModelLoader>
     {
-        public static ModelLoader Instance;
-
         public List<ModelInfo> ModelsInfo { get; } = new();
         public List<GameObject> Models => ModelsInfo.Select(x => x.Object).ToList();
 
         #region Event Functions
 
-        private void Awake()
+        private void Start()
         {
-            // Singleton stuff so that model stays loaded between scenes.
-            if (Instance == null)
-            {
-                Instance = this;
-                DontDestroyOnLoad(gameObject);
-                GltfImportBase.SetDefaultDeferAgent(new UninterruptedDeferAgent());
-            }
-            else if (Instance != this) Destroy(gameObject);
+            GltfImportBase.SetDefaultDeferAgent(new UninterruptedDeferAgent());
         }
 
         #endregion
@@ -104,9 +96,9 @@ namespace VirtualShowcase.MainScene
                         obj.transform.parent = gameObject.transform;
                         await gltf.InstantiateMainSceneAsync(obj.transform);
 
-                        foreach (Transform child in obj.transform)
+                        foreach (Transform child in obj.GetComponentsInChildren<Transform>(true))
                         {
-                            child.gameObject.layer = 3;
+                            child.gameObject.layer = Constants.LAYER_MODEL;
                         }
 
                         SimplifyObject(obj);
@@ -143,6 +135,16 @@ namespace VirtualShowcase.MainScene
             Destroy(model.Object);
         }
 
+        public void DeleteModels()
+        {
+            foreach (ModelInfo model in ModelsInfo)
+            {
+                Destroy(model.Object);
+            }
+
+            ModelsInfo.Clear();
+        }
+
         /// <param name="next">true for next, false for previous</param>
         public void SwitchActiveModel(bool next = true)
         {
@@ -168,26 +170,23 @@ namespace VirtualShowcase.MainScene
                 _                       => throw new ArgumentOutOfRangeException(),
             };
 
-            MeshFilter[] meshFilters = obj.GetComponentsInChildren<MeshFilter>();
-
-            foreach (MeshFilter meshFilter in meshFilters)
-            {
-                meshFilter.sharedMesh.Optimize();
-            }
+            // Sometimes the result is split into multiple meshes, combine them into one.
+            // Simplifying multiple meshes can lead to gaps,
+            // but simplifying this combined mesh also leads to issues,
+            // probably because it uses one material per submesh.
+            // Pick your poison I guess.
+            MeshFilter mesh = obj.MeshCombine(true);
 
             // Nothing to simplify if current triangle count is lower than max triangle count.
-            int triCount = meshFilters.Sum(x => x.sharedMesh.triangles.Length) / 3;
+            int triCount = mesh.sharedMesh.triangles.Length;
             if (triCount < maxTriCount)
                 return;
 
             // Quality is the percentage of triangles to keep. In our case we want maxTriCount vertices.
             float quality = (float) maxTriCount / triCount;
 
-            // Simplify every child mesh of the object.
-            foreach (MeshFilter meshFilter in meshFilters)
-            {
-                SimplifyMeshFilter(meshFilter, quality);
-            }
+            // Simplify.
+            SimplifyMeshFilter(mesh, quality);
         }
 
         private async void SimplifyMeshFilter(MeshFilter meshFilter, float quality)
@@ -215,6 +214,8 @@ namespace VirtualShowcase.MainScene
 
             // Set the simplified mesh to the mesh filter.
             meshFilter.sharedMesh = finalMesh;
+            meshFilter.name += "_optimized";
+            meshFilter.sharedMesh.name += "_optimized";
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿namespace VirtualShowcase
+﻿namespace VirtualShowcase.Enums
 {
     public enum eSmoothingType
     {

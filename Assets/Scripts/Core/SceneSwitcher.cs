@@ -1,11 +1,10 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using VirtualShowcase.Core;
 using VirtualShowcase.Enums;
 using VirtualShowcase.MainScene;
 
-namespace VirtualShowcase
+namespace VirtualShowcase.Utilities
 {
     public class SceneSwitcher : MonoBehaviour
     {

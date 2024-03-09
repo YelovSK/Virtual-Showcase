@@ -3,8 +3,10 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using VirtualShowcase.Core;
+using VirtualShowcase.Enums;
 using VirtualShowcase.FaceTracking;
 using VirtualShowcase.FaceTracking.Transform;
+using VirtualShowcase.Utilities;
 
 namespace VirtualShowcase.MainScene
 {
@@ -207,7 +209,7 @@ namespace VirtualShowcase.MainScene
             calibrationUI.SetActive(true);
 
             // Enable camera preview.
-            MyPrefs.PreviewOn = 1;
+            MyPrefs.PreviewOn = true;
             GetComponent<ShowcaseInitializer>().SetCamPreview();
 
             // Make the webcam preview smaller and put it in the left corner.
@@ -220,7 +222,7 @@ namespace VirtualShowcase.MainScene
             calibrationUI.SetActive(false);
 
             // Disable camera preview.
-            MyPrefs.PreviewOn = 0;
+            MyPrefs.PreviewOn = false;
             GetComponent<ShowcaseInitializer>().SetCamPreview();
 
             // Set back the webcam preview location and size.

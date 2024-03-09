@@ -5,7 +5,7 @@ using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.UI;
-using VirtualShowcase.Core;
+using VirtualShowcase.Utilities;
 
 namespace VirtualShowcase.FaceTracking.GlassesCheck
 {
@@ -54,7 +54,7 @@ namespace VirtualShowcase.FaceTracking.GlassesCheck
             bool passed = (float) foundPixelsCount / allPixelsCount > threshold;
 
             // Don't compute overlay if preview is not showing in main scene.
-            if (MyPrefs.PreviewOn == 0 && SceneSwitcher.InMainScene)
+            if (MyPrefs.PreviewOn == false && SceneSwitcher.InMainScene)
                 return passed;
 
             // Set label text to show number of found pixels.

@@ -2,14 +2,14 @@ using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using VirtualShowcase.Core;
 using VirtualShowcase.MainScene;
+using VirtualShowcase.Utilities;
 
-namespace VirtualShowcase
+namespace VirtualShowcase.Menu
 {
     public class ModelTextBehavior : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
-        private readonly Color hoverColor = Color.red;
+        private static readonly Color hoverColor = Color.red;
         private Color baseColor;
         private TextMeshProUGUI textMeshPro;
 
