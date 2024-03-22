@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using VirtualShowcase.Common;
 using VirtualShowcase.Utilities;
 
 namespace VirtualShowcase.FaceTracking.Transform
@@ -9,9 +10,6 @@ namespace VirtualShowcase.FaceTracking.Transform
     [ExecuteInEditMode]
     public sealed class Projection : MonoBehaviour
     {
-        private const int base_screen_diagonal = 24;
-        private const float aspect_ratio = 16 / 9f;
-
         #region Serialized Fields
 
         [SerializeField] private bool drawGizmos;
@@ -20,35 +18,16 @@ namespace VirtualShowcase.FaceTracking.Transform
 
         #endregion
 
-        public int ScreenDistance
-        {
-            get => MyPrefs.ScreenDistance;
-            set
-            {
-                MyPrefs.ScreenDistance = value;
-                SetCameraDistance();
-            }
-        }
-
-        public int ScreenSize
-        {
-            get => MyPrefs.ScreenSize;
-            set
-            {
-                MyPrefs.ScreenSize = value;
-                SetCameraDistance();
-            }
-        }
-
-        public static float ScreenWidth => DiagonalToWidthAndHeight(base_screen_diagonal, aspect_ratio).x;
-        public static float ScreenHeight => DiagonalToWidthAndHeight(base_screen_diagonal, aspect_ratio).y;
+        public static float ScreenWidth => DiagonalToWidthAndHeight(Constants.SCREEN_BASE_DIAGONAL_INCHES, Constants.SCREEN_ASPECT_RATIO).x;
+        public static float ScreenHeight => DiagonalToWidthAndHeight(Constants.SCREEN_BASE_DIAGONAL_INCHES, Constants.SCREEN_ASPECT_RATIO).y;
         private IEnumerable<Camera> ActiveCameras => cameras.Where(x => x.isActiveAndEnabled);
 
         #region Event Functions
 
         private void Start()
         {
-            SetCameraDistance();
+            MyPrefs.ScreenSizeChanged += (sender, args) => SetCameraDistance();
+            MyPrefs.ScreenDistanceChanged += (sender, args) => SetCameraDistance();
         }
 
         /// <summary>
@@ -101,8 +80,8 @@ namespace VirtualShowcase.FaceTracking.Transform
             // and scaling the scene according to the screen size, the screen size stays
             // the same and only the head distance changes. The field of view is the same
             // as if the scene/screen got scaled to the new size.
-            float sizeRatio = (float) base_screen_diagonal / ScreenSize;
-            float headDistance = ScreenDistance * sizeRatio;
+            float sizeRatio = (float) Constants.SCREEN_BASE_DIAGONAL_INCHES / MyPrefs.ScreenSize;
+            float headDistance = MyPrefs.ScreenDistance * sizeRatio;
             transform.localPosition = new Vector3(0, 0, -headDistance);
 
             // Likewise, eye separation needs to be adjusted with the same ratio.

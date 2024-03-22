@@ -60,8 +60,15 @@ namespace VirtualShowcase.FaceTracking
 
         public async void ChangeWebcam(string deviceName)
         {
-            //lmao
-            WebCamDevice device = WebCamTexture.devices.First(x => x.name == deviceName);
+            WebCamDevice[] devices = WebCamTexture.devices;
+            if (devices.Length == 0)
+            {
+                print("No webcam devices were found");
+                return;
+            }
+
+            WebCamDevice device = devices.First(x => x.name == deviceName);
+            
             mirrored = device.isFrontFacing;
 
             if (webcamTexture == null)

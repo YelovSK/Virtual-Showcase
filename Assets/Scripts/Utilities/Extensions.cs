@@ -176,6 +176,26 @@ namespace VirtualShowcase.Utilities
             gameObject.transform.localScale = originalScale;
             return meshFilterCombine;
         }
+        
+        /// <summary>
+        ///     Gets the bounds of all the children of the given object.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns>Encapsulated bounds of children.</returns>
+        public static Bounds GetObjectBounds(this GameObject obj)
+        {
+            // Get meshes of all children.
+            MeshRenderer[] meshRenderers = obj.GetComponentsInChildren<MeshRenderer>();
+
+            // Encapsulate bounds of all meshes.
+            var bounds = new Bounds(obj.transform.position, Vector3.zero);
+            foreach (MeshRenderer meshRenderer in meshRenderers)
+            {
+                bounds.Encapsulate(meshRenderer.bounds);
+            }
+
+            return bounds;
+        }
     }
 
     public class CopyTransform

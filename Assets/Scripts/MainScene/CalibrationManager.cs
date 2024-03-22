@@ -133,7 +133,7 @@ namespace VirtualShowcase.MainScene
         private void ChangeDistanceValue(Slider sender)
         {
             distanceValue.text = sender.value + "cm";
-            head.ScreenDistance = (int) sender.value;
+            MyPrefs.ScreenDistance = (int) sender.value;
         }
 
         private void ChangeSizeValue(Slider sender)
@@ -144,7 +144,7 @@ namespace VirtualShowcase.MainScene
             sizeValue.text = screenSize + "''";
 
             // Update size of screen.
-            head.ScreenSize = screenSize;
+            MyPrefs.ScreenSize = screenSize;
         }
 
         private void UpdateCalibrationState(bool updatePrefs = true)

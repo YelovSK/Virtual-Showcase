@@ -61,9 +61,16 @@ namespace VirtualShowcase.Core
                 calibrationManager.SetNextState();
 
             // Reset loaded object position.
-            if (playerInput.actions["Reset transform"].WasPressedThisFrame())
-                ModelLoader.Instance.ResetTransform();
+            if (playerInput.actions["Reset transform real"].WasPressedThisFrame())
+            {
+                ModelLoader.Instance.ResetTransform(showRealSize: true);
+            }
+            else if (playerInput.actions["Reset transform"].WasPressedThisFrame())
+            {
+                ModelLoader.Instance.ResetTransform(showRealSize: false);
+            }
 
+            
             if (playerInput.actions["Next model"].WasPressedThisFrame())
                 ModelLoader.Instance.SwitchActiveModel();
             else if (playerInput.actions["Previous model"].WasPressedThisFrame()) ModelLoader.Instance.SwitchActiveModel(false);
@@ -131,9 +138,14 @@ namespace VirtualShowcase.Core
 
             // Mouse wheel => scale object.
             float scroll = Mouse.current.scroll.ReadValue().y;
-            if (scroll > 0f) ModelLoader.Instance.Models.ForEach(model => model.transform.localScale *= 1.1f);
-
-            if (scroll < 0f) ModelLoader.Instance.Models.ForEach(model => model.transform.localScale *= 0.9f);
+            if (scroll > 0f)
+            {
+                ModelLoader.Instance.Models.ForEach(model => model.transform.localScale *= 1.1f);
+            }
+            else if (scroll < 0f)
+            {
+                ModelLoader.Instance.Models.ForEach(model => model.transform.localScale *= 0.9f);
+            }
         }
     }
 }

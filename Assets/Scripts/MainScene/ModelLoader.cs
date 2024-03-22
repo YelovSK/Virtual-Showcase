@@ -24,25 +24,38 @@ namespace VirtualShowcase.MainScene
     {
         public List<ModelInfo> ModelsInfo { get; } = new();
         public List<GameObject> Models => ModelsInfo.Select(x => x.Object).ToList();
-
+        private bool showRealSize = false;
+        
         #region Event Functions
 
         private void Start()
         {
+            MyPrefs.ScreenSizeChanged += (sender, args) =>
+            {
+                if (showRealSize) ResetTransform(showRealSize);
+            };
             GltfImportBase.SetDefaultDeferAgent(new UninterruptedDeferAgent());
         }
 
         #endregion
 
-        public void ResetTransform()
+        /// <summary>
+        /// Adjusts the position and size of the model.
+        /// </summary>
+        /// <param name="showRealSize">True to use default scale, False to autosize to fit screen.</param>
+        public void ResetTransform(bool showRealSize)
         {
+            this.showRealSize = showRealSize;
+
             if (ModelsInfo.IsEmpty()) return;
 
             // Reset position.
             foreach (GameObject model in Models)
             {
                 model.transform.parent = Instance.transform;
-                model.transform.localRotation = Quaternion.identity;
+                // X is rotated by 90 degrees because the coordinate system of the .glb models
+                // and importer seems to be different than the default Unity system.
+                model.transform.localRotation = Quaternion.Euler(-90, 0, 0);
                 model.transform.localPosition = Vector3.zero;
             }
 
@@ -51,28 +64,42 @@ namespace VirtualShowcase.MainScene
             // because if we import the same model with small changes, it should be
             // treated equally for the models to overlap properly (if they were exported with the same position and scale).
             GameObject reference = ModelsInfo.First().Object;
-            Bounds bounds = GetObjectBounds(reference);
+            Bounds bounds = reference.GetObjectBounds();
 
-            // Set height to 90% of screen height.
-            float currentHeight = bounds.size.y;
-            float targetHeight = Projection.ScreenHeight * 0.9f;
-            reference.transform.localScale = targetHeight * reference.transform.localScale / currentHeight;
+            if (showRealSize)
+            {
+                // Stupid temp hack to set the real life scale of model.
+                // Model is exported with 1 unit = 1 meter, however we use 1 unit = 1 cm.
+                // Plus it's all scaled according to the base screen size. Dumb, I know.
+                float sizeRatio = (float) Constants.SCREEN_BASE_DIAGONAL_INCHES / MyPrefs.ScreenSize;
+                const int cm_in_meter = 100;
+                float scale = sizeRatio * cm_in_meter;
+                reference.transform.localScale = new Vector3(scale, scale, scale);
+            }
+            else
+            {
+                // Set height to 90% of screen height.
+                float currentHeight = bounds.size.y;
+                float targetHeight = Projection.ScreenHeight * 0.9f;
+                reference.transform.localScale = targetHeight * reference.transform.localScale / currentHeight;
+            }
 
             // Set position to be the middle of the parent (center of the screen).
-            reference.transform.position = reference.transform.parent.position;
+            reference.transform.localPosition = reference.transform.parent.position;
 
             // Get new bounds (scale was changed).
-            bounds = GetObjectBounds(reference);
+            bounds = reference.GetObjectBounds();
 
             // Lower the object by its center.
             // E.g. if the set center is at the feet of a person, we can lower it by the real center.
-            reference.transform.Translate(new Vector3(0, -bounds.center.y, -2));
+            // Translating in the Z direction probably because of the 
+            reference.transform.Translate(new Vector3(0, -bounds.center.y, 0), Instance.transform);
 
             // Use the scale and position of the reference object for all other objects.
             foreach (GameObject model in Models.Skip(1))
             {
                 model.transform.localScale = reference.transform.localScale;
-                model.transform.position = reference.transform.position;
+                model.transform.localPosition = reference.transform.localPosition;
             }
         }
 
@@ -94,6 +121,7 @@ namespace VirtualShowcase.MainScene
 
                         var obj = new GameObject(path);
                         obj.transform.parent = gameObject.transform;
+                        obj.transform.rotation = Quaternion.Euler(-90, 0, 0);
                         await gltf.InstantiateMainSceneAsync(obj.transform);
 
                         foreach (Transform child in obj.GetComponentsInChildren<Transform>(true))
@@ -102,7 +130,7 @@ namespace VirtualShowcase.MainScene
                         }
 
                         SimplifyObject(obj);
-
+                        
                         ModelsInfo.Add(new ModelInfo
                         {
                             FullPath = path,
@@ -123,7 +151,7 @@ namespace VirtualShowcase.MainScene
                 ModelsInfo[i].Object.SetActive(i == 0);
             }
 
-            if (tasks.Any()) ResetTransform();
+            if (tasks.Any()) ResetTransform(showRealSize);
         }
 
         public void DeleteModel(string path)
@@ -216,26 +244,6 @@ namespace VirtualShowcase.MainScene
             meshFilter.sharedMesh = finalMesh;
             meshFilter.name += "_optimized";
             meshFilter.sharedMesh.name += "_optimized";
-        }
-
-        /// <summary>
-        ///     Gets the bounds of all the children of the given object.
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns>Encapsulated bounds of children.</returns>
-        private Bounds GetObjectBounds(GameObject obj)
-        {
-            // Get meshes of all children.
-            MeshRenderer[] meshRenderers = obj.GetComponentsInChildren<MeshRenderer>();
-
-            // Encapsulate bounds of all meshes.
-            var bounds = new Bounds(Instance.transform.position, Vector3.zero);
-            foreach (MeshRenderer meshRenderer in meshRenderers)
-            {
-                bounds.Encapsulate(meshRenderer.bounds);
-            }
-
-            return bounds;
         }
     }
 }

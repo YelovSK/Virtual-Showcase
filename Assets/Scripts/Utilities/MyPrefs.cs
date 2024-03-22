@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using VirtualShowcase.Enums;
@@ -14,6 +15,15 @@ namespace VirtualShowcase.Utilities
     /// </summary>
     public static class MyPrefs
     {
+        #region Events
+
+        public static event EventHandler ScreenSizeChanged;
+        public static event EventHandler ScreenDistanceChanged;
+
+        #endregion
+
+        #region Properties
+
         public static string MainScene
         {
             get => PlayerPrefs.GetString("mainScene");
@@ -174,6 +184,7 @@ namespace VirtualShowcase.Utilities
             get => PlayerPrefs.GetInt("screenDiagonalInches");
             set
             {
+                ScreenSizeChanged?.Invoke(null, EventArgs.Empty);
                 if (value > 1)
                     PlayerPrefs.SetInt("screenDiagonalInches", value);
             }
@@ -184,6 +195,7 @@ namespace VirtualShowcase.Utilities
             get => PlayerPrefs.GetInt("distanceFromScreenCm");
             set
             {
+                ScreenDistanceChanged?.Invoke(null, EventArgs.Empty);
                 if (value > 1)
                     PlayerPrefs.SetInt("distanceFromScreenCm", value);
             }
@@ -247,6 +259,8 @@ namespace VirtualShowcase.Utilities
 
         private static bool PrefsLoaded => PlayerPrefs.HasKey("SmoothingType");
 
+        #endregion
+        
         /// <returns>Whether path was added (no duplicate)</returns>
         public static bool AddModelPath(string path)
         {
