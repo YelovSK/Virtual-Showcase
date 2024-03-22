@@ -16,22 +16,26 @@
     }
   ],
   "dependencies": {
+    "com.atteneder.draco": "4.1.0",
     "com.unity.ai.navigation": "1.1.5",
     "com.unity.barracuda": "3.0.0",
     "com.unity.cloud.gltfast": "6.0.1",
-    "com.unity.collab-proxy": "2.2.0",
-    "com.unity.ide.rider": "3.0.27",
+    "com.unity.collab-proxy": "2.3.1",
+    "com.unity.ide.rider": "3.0.28",
     "com.unity.ide.visualstudio": "2.0.22",
     "com.unity.ide.vscode": "1.2.5",
     "com.unity.inputsystem": "1.7.0",
     "com.unity.jobs": "0.70.0-preview.7",
-    "com.unity.postprocessing": "3.2.2",
-    "com.unity.render-pipelines.universal": "14.0.9",
+    "com.unity.postprocessing": "3.4.0",
+    "com.unity.render-pipelines.universal": "14.0.10",
     "com.unity.test-framework": "1.4.0",
-    "com.unity.textmeshpro": "3.0.6",
+    "com.unity.textmeshpro": "3.0.8",
     "com.unity.timeline": "1.8.6",
     "com.unity.ugui": "1.0.0",
+    "com.whinarn.unitymeshsimplifier": "https://github.com/Whinarn/UnityMeshSimplifier.git",
+    "com.yasirkula.simplefilebrowser": "https://github.com/yasirkula/UnitySimpleFileBrowser.git",
     "jp.keijiro.klak.testtools": "1.0.4",
+    "jp.keijiro.mediapipe.blazeface": "https://github.com/keijiro/BlazeFaceBarracuda.git?path=/Packages/jp.keijiro.mediapipe.blazeface",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
@@ -62,7 +66,6 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0",
-    "com.atteneder.draco": "4.1.0"
+    "com.unity.modules.xr": "1.0.0"
   }
 }
