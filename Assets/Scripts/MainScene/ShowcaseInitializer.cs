@@ -31,31 +31,36 @@ namespace VirtualShowcase.MainScene
         private async void Start()
         {
             faceTracking.SetActive(true);
-            SetCamPreview();
-            SetStereo();
+            SetCameraPreviewEnabled(MyPrefs.PreviewOn);
+            SetStereo(MyPrefs.StereoOn);
             await ModelLoader.Instance.LoadObjects();
         }
 
         #endregion
-
-
-        public void SetCamPreview(bool toggle = false)
+        
+        /// <summary>
+        /// Lower left corner during calibration.
+        /// </summary>
+        public void ShowSmallCamPreview()
         {
-            if (toggle)
-                MyPrefs.PreviewOn = !MyPrefs.PreviewOn;
-            camPreview.gameObject.SetActive(MyPrefs.PreviewOn);
-            darkenImage.gameObject.SetActive(MyPrefs.PreviewOn);
+            SetCameraPreviewEnabled(true);
+
+            // Make the webcam preview smaller and put it in the left corner.
+            camPreview.transform.localScale = Vector3.one * 0.5f;
+            camPreview.transform.localPosition = new Vector3(-710, -310, 0);
         }
 
-        public void SetStereo(bool toggle = false)
+        public void SetCameraPreviewEnabled(bool previewEnabled)
         {
-            if (toggle)
-                MyPrefs.StereoOn = !MyPrefs.StereoOn;
-            bool stereoOn = MyPrefs.StereoOn;
-
-            monoCam.SetActive(!stereoOn);
-            leftCam.SetActive(stereoOn);
-            rightCam.SetActive(stereoOn);
+            camPreview.gameObject.SetActive(previewEnabled);
+            darkenImage.gameObject.SetActive(previewEnabled);
+        }
+        
+        public void SetStereo(bool stereoEnabled)
+        {
+            monoCam.SetActive(!stereoEnabled);
+            leftCam.SetActive(stereoEnabled);
+            rightCam.SetActive(stereoEnabled);
         }
     }
 }

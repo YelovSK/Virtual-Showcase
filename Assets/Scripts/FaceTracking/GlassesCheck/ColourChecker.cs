@@ -5,6 +5,7 @@ using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.UI;
+using VirtualShowcase.Core;
 using VirtualShowcase.Utilities;
 
 namespace VirtualShowcase.FaceTracking.GlassesCheck
@@ -33,11 +34,11 @@ namespace VirtualShowcase.FaceTracking.GlassesCheck
 
             // Map coords from 0.0 - 1.0 to width and height of WebcamTexture.
             var leftEye = new Vector2(
-                EyeSmoother.LeftEyeSmoothed.x * resolution.x,
-                EyeSmoother.LeftEyeSmoothed.y * resolution.y);
+                EyeTracker.LeftEyeSmoothed.x * resolution.x,
+                EyeTracker.LeftEyeSmoothed.y * resolution.y);
             var rightEye = new Vector2(
-                EyeSmoother.RightEyeSmoothed.x * resolution.x,
-                EyeSmoother.RightEyeSmoothed.y * resolution.y);
+                EyeTracker.RightEyeSmoothed.x * resolution.x,
+                EyeTracker.RightEyeSmoothed.y * resolution.y);
             Vector2 center = (leftEye + rightEye) / 2;
 
             // Look from (startX, startY) to (endX, endY).
@@ -54,7 +55,7 @@ namespace VirtualShowcase.FaceTracking.GlassesCheck
             bool passed = (float) foundPixelsCount / allPixelsCount > threshold;
 
             // Don't compute overlay if preview is not showing in main scene.
-            if (MyPrefs.PreviewOn == false && SceneSwitcher.InMainScene)
+            if (MyPrefs.PreviewOn == false && SceneSwitcher.Instance.InMainScene)
                 return passed;
 
             // Set label text to show number of found pixels.

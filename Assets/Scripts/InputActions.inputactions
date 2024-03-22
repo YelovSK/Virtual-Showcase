@@ -2,40 +2,49 @@
     "name": "InputActions",
     "maps": [
         {
-            "name": "Default",
+            "name": "Model",
             "id": "1aa14592-b48a-4efc-90ab-f5278d82d004",
             "actions": [
                 {
-                    "name": "Calibration toggle",
+                    "name": "Rotate X",
+                    "type": "Value",
+                    "id": "a825965b-71de-4c87-a476-1ca7bc8e9c98",
+                    "expectedControlType": "Delta",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Rotate Y",
+                    "type": "Value",
+                    "id": "ec88a893-075d-44b4-9c54-31df4c16f1cf",
+                    "expectedControlType": "Delta",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Rotate Z",
+                    "type": "Value",
+                    "id": "04f65594-ace9-4bd0-b920-1fbbc103b312",
+                    "expectedControlType": "Delta",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Next model",
                     "type": "Button",
-                    "id": "d4e402ef-e353-4404-95ef-08d15e2981d8",
+                    "id": "02a646bb-2ea5-4e76-9fd0-334f7c2daa7e",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Main scene switch",
+                    "name": "Previous model",
                     "type": "Button",
-                    "id": "ff59dd0e-9747-4ad3-8863-53c36808b76f",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Stereo toggle",
-                    "type": "Button",
-                    "id": "d66725d7-5f9e-4892-893c-6e9e4ddc7ae5",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Next calibration",
-                    "type": "Button",
-                    "id": "763a929c-d48a-4e05-a83f-b43064b50914",
+                    "id": "32ff5905-eaf4-476c-9d46-467b51b9fe97",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -51,129 +60,106 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Preview toggle",
-                    "type": "Button",
-                    "id": "659e5510-593f-419d-8796-e060e9404d2a",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Move on ground",
-                    "type": "Button",
-                    "id": "4ba9b8a3-7838-4c0f-b3eb-e0ced77e2b95",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Move vertically",
-                    "type": "Button",
-                    "id": "3680318b-46f3-4359-af61-4a8b916a74cb",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Rotate X",
-                    "type": "Button",
-                    "id": "a825965b-71de-4c87-a476-1ca7bc8e9c98",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Rotate Y",
-                    "type": "Button",
-                    "id": "ec88a893-075d-44b4-9c54-31df4c16f1cf",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Rotate Z",
-                    "type": "Button",
-                    "id": "04f65594-ace9-4bd0-b920-1fbbc103b312",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Next model",
-                    "type": "Button",
-                    "id": "dc0e27a1-66e1-457a-aa50-2041300f7342",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Previous model",
-                    "type": "Button",
-                    "id": "e29fa98f-c3e7-40d8-a353-1f0f89795d5d",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Reset transform real",
                     "type": "Button",
-                    "id": "06db16dd-c18a-4217-b036-2b098efea21f",
+                    "id": "352caa59-a492-4b36-9d36-59be90d12718",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Move X Y",
+                    "type": "PassThrough",
+                    "id": "eb076d61-2e57-4d47-af20-4b23524561f4",
+                    "expectedControlType": "Vector2",
+                    "processors": "ScaleVector2(x=0.075,y=0.075)",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Move Y Z",
+                    "type": "PassThrough",
+                    "id": "fdfe0b19-05fa-46fc-bd37-013a2232a95f",
+                    "expectedControlType": "Vector2",
+                    "processors": "ScaleVector2(x=0.075,y=0.075)",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Scale",
+                    "type": "Value",
+                    "id": "6bbe502d-29f4-41b0-8720-be8adb8ac7cb",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
                 {
-                    "name": "",
-                    "id": "abef33ac-ab98-4755-8fbd-c9a473309a0a",
-                    "path": "<Keyboard>/c",
+                    "name": "One Modifier",
+                    "id": "ea0140ff-7c87-4899-a642-d745540c49b9",
+                    "path": "OneModifier",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Calibration toggle",
+                    "action": "Rotate X",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "11e00213-7703-4ccf-aae6-4fe92af86694",
+                    "path": "<Keyboard>/x",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotate X",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "binding",
+                    "id": "4f6c2a25-7eb0-49f8-9f35-f35c44000508",
+                    "path": "<Mouse>/delta/y",
+                    "interactions": "",
+                    "processors": "Scale(factor=0.05)",
+                    "groups": "",
+                    "action": "Rotate X",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "0e4ff59f-4eb7-4bf5-985d-5efa5f5a4a3b",
+                    "path": "<Keyboard>/rightArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Next model",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "a1720048-d4e5-493a-b7a5-437a4b748e8b",
-                    "path": "<Keyboard>/s",
+                    "id": "7ee2ee54-b118-45c0-9038-e8acf9cec970",
+                    "path": "<Keyboard>/leftArrow",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Main scene switch",
+                    "action": "Previous model",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "d47b9511-8427-45b6-b14c-e6cbf7ee1c4d",
-                    "path": "<Keyboard>/tab",
+                    "id": "87c91e3c-4bd4-4b24-9817-9cd969fa8e56",
+                    "path": "<Keyboard>/t",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Stereo toggle",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "71a485d2-910c-4396-ace4-a39754c39fa6",
-                    "path": "<Keyboard>/enter",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Next calibration",
+                    "action": "Reset transform real",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -189,8 +175,351 @@
                     "isPartOfComposite": false
                 },
                 {
+                    "name": "One Modifier",
+                    "id": "fc305952-fed8-47d6-8c5b-6abeab742fa3",
+                    "path": "OneModifier",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move X Y",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "ce357adf-98a2-43a8-9ff3-6eb7a69147b2",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move X Y",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "binding",
+                    "id": "58106518-f722-4e98-9a6c-803ec691e267",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "ScaleVector2(x=4,y=4)",
+                    "groups": "",
+                    "action": "Move X Y",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "One Modifier",
+                    "id": "d5750b20-692c-4f50-92c1-2ea5976912b9",
+                    "path": "OneModifier",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move Y Z",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "30a0c400-8149-49f3-924d-a40a34b2f02f",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move Y Z",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "binding",
+                    "id": "dd423709-f312-4db0-8ded-2c99a190443d",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "ScaleVector2(x=4,y=4)",
+                    "groups": "",
+                    "action": "Move Y Z",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
                     "name": "",
-                    "id": "78edd6e3-ef15-4eb8-9580-29919300604e",
+                    "id": "07c2d893-5109-49e4-9822-4f4ccc77dfba",
+                    "path": "<Mouse>/scroll/y",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Scale",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "One Modifier",
+                    "id": "2c87c088-9e76-4bef-b59b-f3d31934ae81",
+                    "path": "OneModifier",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotate Y",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "c19ca7b9-3dd8-435e-8dd8-56ec19c5f60a",
+                    "path": "<Keyboard>/y",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotate Y",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "binding",
+                    "id": "74f96b90-6620-4f14-94c8-548974c7e637",
+                    "path": "<Mouse>/delta/x",
+                    "interactions": "",
+                    "processors": "Scale(factor=0.05)",
+                    "groups": "",
+                    "action": "Rotate Y",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "One Modifier",
+                    "id": "6bff3c44-e1cd-4f6b-a17a-908ee9171ea7",
+                    "path": "OneModifier",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotate Z",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "dd3b48d4-4e60-4f3b-b99c-82ca7ac6e2eb",
+                    "path": "<Keyboard>/z",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotate Z",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "binding",
+                    "id": "fddda709-2f44-4755-b75f-c8ea905aa6fe",
+                    "path": "<Mouse>/delta/x",
+                    "interactions": "",
+                    "processors": "Scale(factor=0.05)",
+                    "groups": "",
+                    "action": "Rotate Z",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                }
+            ]
+        },
+        {
+            "name": "Menu",
+            "id": "1fc7ee5b-c8b1-4f02-9cd1-930825db0e0a",
+            "actions": [],
+            "bindings": []
+        },
+        {
+            "name": "Calibration",
+            "id": "14cca5c9-d25d-440f-b579-34e2e44e509d",
+            "actions": [
+                {
+                    "name": "Next calibration",
+                    "type": "Button",
+                    "id": "49645d4e-c099-455a-9754-4b35f89d4aed",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Left edge",
+                    "type": "Button",
+                    "id": "6d45d37f-d3b3-4754-9f2c-252755fc4948",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Right edge",
+                    "type": "Button",
+                    "id": "54f30885-fe6e-4e3a-9ad1-929ea61479dd",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Bottom edge",
+                    "type": "Button",
+                    "id": "f80d2a49-f58d-4fb7-954a-c19383ee56f0",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Top edge",
+                    "type": "Button",
+                    "id": "53eccf2c-4787-4cba-b03a-b27a7b1a1f7f",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "63111b8a-e9da-4667-9864-cd4ea09be80a",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Next calibration",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "20dd4056-25b4-48c2-b22f-ad4150a87ab8",
+                    "path": "<Keyboard>/leftArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Left edge",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ef8b7de8-1cb7-436c-8fba-5c4f59715e88",
+                    "path": "<Keyboard>/rightArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Right edge",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1dd22692-105a-4a18-bc0b-2d1318649091",
+                    "path": "<Keyboard>/downArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Bottom edge",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4b84d0c0-4efa-448a-921a-06fe83a48e1b",
+                    "path": "<Keyboard>/upArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Top edge",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "MainGeneral",
+            "id": "47d59b6c-9090-4a2d-9f88-dda85ce2dee9",
+            "actions": [
+                {
+                    "name": "Calibration toggle",
+                    "type": "Button",
+                    "id": "77db97a9-6682-46f6-a9e2-bc6406b24033",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Main scene switch",
+                    "type": "Button",
+                    "id": "8fb0f13d-6536-4309-94ae-c21eddad426b",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Stereo toggle",
+                    "type": "Button",
+                    "id": "eeadb41b-cfa2-483c-affa-65860267cca9",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Preview toggle",
+                    "type": "Button",
+                    "id": "a16527a1-f213-4f08-ab68-bee4ace220ee",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Menu toggle",
+                    "type": "Button",
+                    "id": "a3c72384-0ba8-457d-a624-2f9c32360e5b",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "f0be596d-3733-4d08-8fbf-498ca1a38749",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Calibration toggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "99814d18-3a4c-4035-bd16-84339d9a1d71",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Main scene switch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1af7d7b3-76f9-45d2-a867-135db7828987",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Stereo toggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "17ab4875-26bf-49a5-b6f2-d2f83f92117e",
                     "path": "<Keyboard>/p",
                     "interactions": "",
                     "processors": "",
@@ -201,113 +530,14 @@
                 },
                 {
                     "name": "",
-                    "id": "d24e332d-79b8-43b6-8e05-f3a07e6771f6",
-                    "path": "<Mouse>/leftButton",
+                    "id": "d2dbe942-2f29-41d3-8457-392a1343b213",
+                    "path": "<Keyboard>/escape",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Move on ground",
+                    "action": "Menu toggle",
                     "isComposite": false,
                     "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "bdb1b08f-0c9a-4961-bdbb-380a190b71f6",
-                    "path": "<Mouse>/rightButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move vertically",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "724fc707-23bc-4a2c-8cea-482c8fed928e",
-                    "path": "<Keyboard>/x",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Rotate X",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "5148b7cd-0e27-40cf-80db-a961422cf54c",
-                    "path": "<Keyboard>/y",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Rotate Y",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "a46ebd4c-328c-4f9c-95fd-3ffc464d10de",
-                    "path": "<Keyboard>/z",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Rotate Z",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "cab486d2-544b-449e-b873-74b185775fe0",
-                    "path": "<Keyboard>/rightArrow",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Next model",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "4e325693-5288-44d5-8dab-c35ccf48da30",
-                    "path": "<Keyboard>/leftArrow",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Previous model",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "One Modifier",
-                    "id": "033b0589-c536-4e61-8467-c259431b0003",
-                    "path": "OneModifier",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Reset transform real",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "modifier",
-                    "id": "73da24e6-483f-4461-9ac9-f9d3d95053f0",
-                    "path": "<Keyboard>/leftShift",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Reset transform real",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "binding",
-                    "id": "2d008c45-9e85-41ef-b1f8-55ee2561840b",
-                    "path": "<Keyboard>/r",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Reset transform real",
-                    "isComposite": false,
-                    "isPartOfComposite": true
                 }
             ]
         }

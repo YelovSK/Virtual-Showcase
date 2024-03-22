@@ -24,12 +24,6 @@ namespace VirtualShowcase.FaceTracking.Transform
 
         #region Event Functions
 
-        private void Start()
-        {
-            MyPrefs.ScreenSizeChanged += (sender, args) => SetCameraDistance();
-            MyPrefs.ScreenDistanceChanged += (sender, args) => SetCameraDistance();
-        }
-
         /// <summary>
         ///     This update runs only in the editor so that the frustum can be updated in real time
         /// </summary>
@@ -39,6 +33,11 @@ namespace VirtualShowcase.FaceTracking.Transform
                 UpdateCameraProjection();
         }
 
+        private void OnEnable()
+        {
+            MyPrefs.ScreenSizeChanged.AddListener(SetCameraDistance);
+            MyPrefs.ScreenDistanceChanged.AddListener(SetCameraDistance);
+        }
 
         /// <summary>
         ///     Draws gizmos in the Edit window.
@@ -60,12 +59,7 @@ namespace VirtualShowcase.FaceTracking.Transform
 
         #endregion
 
-        /// <summary>
-        ///     Returns width and height of display in centimeters from diagonal inches.
-        /// </summary>
-        /// <param name="diagonalInches"></param>
-        /// <param name="aspectRatio"></param>
-        /// <returns></returns>
+        /// <returns>Width and height of display in centimeters from diagonal inches.</returns>
         public static Vector2 DiagonalToWidthAndHeight(int diagonalInches, float aspectRatio)
         {
             const float cms_in_inch = 2.54f;
@@ -85,8 +79,8 @@ namespace VirtualShowcase.FaceTracking.Transform
             transform.localPosition = new Vector3(0, 0, -headDistance);
 
             // Likewise, eye separation needs to be adjusted with the same ratio.
-            cameras[1].transform.localPosition = new Vector3(3 * sizeRatio, 0, 0); // right eye
-            cameras[2].transform.localPosition = new Vector3(-3 * sizeRatio, 0, 0); // left eye
+            cameras[(int)eCamera.Left].transform.localPosition = new Vector3(3 * sizeRatio, 0, 0); // right eye
+            cameras[(int)eCamera.Right].transform.localPosition = new Vector3(-3 * sizeRatio, 0, 0); // left eye
 
             // Set the camera's near according to the distance
             // because Unity's fog is affected by the camera's near.
@@ -201,6 +195,13 @@ namespace VirtualShowcase.FaceTracking.Transform
             leftTop = screen.position - screen.right * 0.5f * width + screen.up * 0.5f * height;
             rightBottom = screen.position + screen.right * 0.5f * width - screen.up * 0.5f * height;
             rightTop = screen.position + screen.right * 0.5f * width + screen.up * 0.5f * height;
+        }
+
+        private enum eCamera
+        {
+            Main = 0,
+            Left = 1,
+            Right = 2,
         }
     }
 }

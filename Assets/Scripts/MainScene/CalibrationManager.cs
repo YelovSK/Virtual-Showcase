@@ -1,21 +1,17 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using VirtualShowcase.Core;
 using VirtualShowcase.Enums;
 using VirtualShowcase.FaceTracking;
-using VirtualShowcase.FaceTracking.Transform;
 using VirtualShowcase.Utilities;
 
 namespace VirtualShowcase.MainScene
 {
     public class CalibrationManager : MonoBehaviour
     {
-        // Is set by InputHandler in Awake().
-        public static string NextStateKeybind;
-
-        private static eCalibrationState eCalibrationState = eCalibrationState.Off;
+        private eCalibrationState _calibrationState = eCalibrationState.Off;
 
         #region Serialized Fields
 
@@ -25,10 +21,6 @@ namespace VirtualShowcase.MainScene
         [SerializeField] private Sprite[] monitorSprites;
         [SerializeField] private Transform cameraPreviewTransform;
         [SerializeField] private TMP_Text guideText;
-
-        // Head for changing the distance from the display.
-        [Space]
-        [SerializeField] private Projection head;
 
         [Header("Display distance sliders")]
         [SerializeField] private Slider distanceSlider;
@@ -41,13 +33,16 @@ namespace VirtualShowcase.MainScene
         #endregion
 
         private CopyTransform origCameraPreviewTransform;
-        public static bool Enabled => eCalibrationState != eCalibrationState.Off;
-        private static float EyesDistance => (EyeSmoother.LeftEyeSmoothed - EyeSmoother.RightEyeSmoothed).magnitude;
+        public bool Enabled => _calibrationState != eCalibrationState.Off;
+        public event EventHandler<eCalibrationState> StateChanged;
+        private string _nextStateKeybind;
 
         #region Event Functions
 
         private void Start()
         {
+            _nextStateKeybind = new InputActions().Calibration.Nextcalibration.GetBindingDisplayString();
+
             // Make UI invisible/disabled.
             calibrationUI.SetActive(false);
 
@@ -73,35 +68,14 @@ namespace VirtualShowcase.MainScene
         }
 
         #endregion
-
-        public static float GetRealHeadDistance()
-        {
-            // https://www.youtube.com/watch?v=jsoe1M2AjFk
-            const int real_eyes_distance = 6;
-            float realDistance = real_eyes_distance * MyPrefs.FocalLength / EyesDistance;
-            return realDistance;
-        }
-
-        public static float GetFocalLength(float distanceFromScreen)
-        {
-            // Eyes distance on camera.
-            float eyesDistance = EyesDistance;
-
-            // Real life distance of eyes in cm.
-            const int real_eyes_distance = 6;
-
-            // Calculate focal length.
-            float focal = eyesDistance * distanceFromScreen / real_eyes_distance;
-            return focal;
-        }
-
+        
         public void ToggleCalibrationUI()
         {
             // If UI is disabled, go to the first state.
-            if (eCalibrationState == eCalibrationState.Off)
+            if (_calibrationState == eCalibrationState.Off)
             {
                 Cursor.visible = true;
-                eCalibrationState = eCalibrationState.Next();
+                _calibrationState = _calibrationState.Next();
                 UpdateCalibrationState();
             }
 
@@ -109,24 +83,24 @@ namespace VirtualShowcase.MainScene
             else
             {
                 Cursor.visible = false;
-                eCalibrationState = eCalibrationState.Off;
-                TurnOffPreview();
+                _calibrationState = eCalibrationState.Off;
+                UpdateCalibrationState();
             }
         }
 
         public void SetNextState()
         {
             // If UI is disabled, don't continue.
-            if (eCalibrationState == eCalibrationState.Off)
+            if (_calibrationState == eCalibrationState.Off)
                 return;
 
-            eCalibrationState = eCalibrationState.Next();
+            _calibrationState = _calibrationState.Next();
             UpdateCalibrationState();
         }
 
         public void SetState(eCalibrationState s)
         {
-            eCalibrationState = s;
+            _calibrationState = s;
             UpdateCalibrationState(false);
         }
 
@@ -149,7 +123,7 @@ namespace VirtualShowcase.MainScene
 
         private void UpdateCalibrationState(bool updatePrefs = true)
         {
-            switch (eCalibrationState)
+            switch (_calibrationState)
             {
                 // Highlight left edge.
                 case eCalibrationState.Left:
@@ -160,47 +134,54 @@ namespace VirtualShowcase.MainScene
 
                 // Set left edge, highlight right edge.
                 case eCalibrationState.Right:
-                    if (updatePrefs) MyPrefs.LeftCalibration = EyeSmoother.EyeCenter.x;
+                    if (updatePrefs) MyPrefs.LeftCalibration = EyeTracker.EyeCenter.x;
                     SetGuideText("right");
                     HighlightEdge();
                     break;
 
                 // Set right edge, highlight bottom edge.
                 case eCalibrationState.Bottom:
-                    if (updatePrefs) MyPrefs.RightCalibration = EyeSmoother.EyeCenter.x;
+                    if (updatePrefs) MyPrefs.RightCalibration = EyeTracker.EyeCenter.x;
                     SetGuideText("bottom");
                     HighlightEdge();
                     break;
 
                 // Set bottom edge, highlight top edge.
                 case eCalibrationState.Top:
-                    if (updatePrefs) MyPrefs.BottomCalibration = EyeSmoother.EyeCenter.y;
+                    if (updatePrefs) MyPrefs.BottomCalibration = EyeTracker.EyeCenter.y;
                     SetGuideText("top");
                     HighlightEdge();
                     break;
 
                 // Set top edge, highlight middle.
                 case eCalibrationState.Sliders:
-                    if (updatePrefs) MyPrefs.TopCalibration = EyeSmoother.EyeCenter.y;
+                    if (updatePrefs) MyPrefs.TopCalibration = EyeTracker.EyeCenter.y;
                     guideText.text =
-                        $"Set the sliders and keep your head pointed at the display from the given distance, then press '{NextStateKeybind}'";
+                        $"Set the sliders and keep your head pointed at the display from the given distance, then press '{_nextStateKeybind}'";
                     HighlightEdge();
                     break;
 
                 // Set focal length and hide UI.
                 case eCalibrationState.Reset:
-                    MyPrefs.FocalLength = GetFocalLength(distanceSlider.value);
+                    MyPrefs.FocalLength = EyeTracker.GetFocalLength(distanceSlider.value);
                     TurnOffPreview();
-                    eCalibrationState = 0;
+                    _calibrationState = eCalibrationState.Off;
                     break;
+
+                case eCalibrationState.Off:
+                    TurnOffPreview();
+                    break;
+                
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            StateChanged?.Invoke(this, _calibrationState);
         }
 
         private void SetGuideText(string edgeText)
         {
-            var text = $"Align your head with the {edgeText} edge of the display and press '{NextStateKeybind}'";
+            var text = $"Align your head with the {edgeText} edge of the display and press '{_nextStateKeybind}'";
             guideText.text = text;
         }
 
@@ -209,12 +190,7 @@ namespace VirtualShowcase.MainScene
             calibrationUI.SetActive(true);
 
             // Enable camera preview.
-            MyPrefs.PreviewOn = true;
-            GetComponent<ShowcaseInitializer>().SetCamPreview();
-
-            // Make the webcam preview smaller and put it in the left corner.
-            cameraPreviewTransform.localScale = Vector3.one * 0.5f;
-            cameraPreviewTransform.localPosition = new Vector3(-710, -310, 0);
+            GetComponent<ShowcaseInitializer>().ShowSmallCamPreview();
         }
 
         private void TurnOffPreview()
@@ -222,8 +198,7 @@ namespace VirtualShowcase.MainScene
             calibrationUI.SetActive(false);
 
             // Disable camera preview.
-            MyPrefs.PreviewOn = false;
-            GetComponent<ShowcaseInitializer>().SetCamPreview();
+            GetComponent<ShowcaseInitializer>().SetCameraPreviewEnabled(false);
 
             // Set back the webcam preview location and size.
             cameraPreviewTransform.LoadTransform(origCameraPreviewTransform);
@@ -231,7 +206,7 @@ namespace VirtualShowcase.MainScene
 
         private void HighlightEdge()
         {
-            monitorImage.sprite = monitorSprites[(int) eCalibrationState.Prev()];
+            monitorImage.sprite = monitorSprites[(int) _calibrationState.Prev()];
         }
     }
 }

@@ -6,7 +6,7 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs.LowLevel.Unsafe;
 
-namespace VirtualShowcase.FaceTracking.GlassesCheck
+namespace VirtualShowcase.Utilities
 {
     [StructLayout(LayoutKind.Sequential)]
     [NativeContainer]

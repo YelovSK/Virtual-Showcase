@@ -1,50 +1,46 @@
-using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using VirtualShowcase.Enums;
-using VirtualShowcase.MainScene;
+using VirtualShowcase.Utilities;
 
-namespace VirtualShowcase.Utilities
+namespace VirtualShowcase.Core
 {
-    public class SceneSwitcher : MonoBehaviour
+    public class SceneSwitcher : MonoSingleton<SceneSwitcher>
     {
-        private static SceneSwitcher instance;
+        public bool InMainScene => !InMenu;
+        public bool InMenu => SceneManager.GetActiveScene().name == "Menu";
 
-        #region Serialized Fields
-
-        [SerializeField] private GameObject loadingScreen;
-
-        #endregion
-
-        public static bool InMainScene => !InMenu;
-        public static bool InMenu => SceneManager.GetActiveScene().name == "Menu";
+        public UnityEvent OnMenuOpened = new();
+        public UnityEvent OnMainOpened = new();
 
         #region Event Functions
 
-        private void Awake()
+        private void Start()
         {
-            instance = this;
+            OnMenuOpened.Invoke();
         }
 
         #endregion
 
-        public static void Quit()
+        public void ToggleMenu()
         {
-            Application.Quit();
-        }
-
-        public static void ToggleMenu()
-        {
-            // Show loading screen if model is going to load.
-            if (InMenu && ModelLoader.Instance.ModelsInfo.IsEmpty() && MyPrefs.ModelPaths.Any()) instance.loadingScreen.SetActive(true);
-
             // Cursor visible in menu, invisible in main scene. Set before switching scene, thus reverse.
             Cursor.visible = InMainScene;
 
+            if (InMenu)
+            {
+                OnMainOpened.Invoke();
+            }
+            else
+            {
+                OnMenuOpened.Invoke();
+            }
+            
             SceneManager.LoadScene(InMainScene ? "Menu" : MyPrefs.MainScene);
         }
 
-        public static void SwitchDifferentMain()
+        public void SwitchDifferentMain()
         {
             var mainScene = Extensions.ParseEnum<eMainScenes>(MyPrefs.MainScene);
             MyPrefs.MainScene = mainScene.Next().ToString();

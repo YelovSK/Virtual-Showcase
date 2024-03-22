@@ -3,11 +3,11 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using VirtualShowcase.Core;
 using VirtualShowcase.FaceTracking;
 using VirtualShowcase.FaceTracking.GlassesCheck;
 using VirtualShowcase.FaceTracking.Marker;
 using VirtualShowcase.FaceTracking.Transform;
-using VirtualShowcase.MainScene;
 using VirtualShowcase.Utilities;
 
 namespace VirtualShowcase
@@ -27,14 +27,14 @@ namespace VirtualShowcase
         private RawImage colorOverlay;
         private Detector detector;
         private TMP_Text distanceText;
-        private EyeSmoother eyeSmoother;
+        private EyeTracker eyeTracker;
 
         #region Event Functions
 
         private void Awake()
         {
             colorChecker = GetComponent<ColourChecker>();
-            eyeSmoother = GetComponent<EyeSmoother>();
+            eyeTracker = GetComponent<EyeTracker>();
             detector = GetComponent<Detector>();
 
             distanceText = previewUI.GetComponentInChildren<TMP_Text>();
@@ -68,7 +68,7 @@ namespace VirtualShowcase
                 return;
             }
 
-            eyeSmoother.SmoothEyes();
+            eyeTracker.SmoothEyes();
 
             keyPointsUpdater.UpdateKeyPoints();
 
@@ -78,7 +78,7 @@ namespace VirtualShowcase
 
             UpdateHeadDistanceUI();
 
-            if (glassesOn && SceneSwitcher.InMainScene)
+            if (glassesOn && SceneSwitcher.Instance.InMainScene)
                 cameraTransform.Transform();
         }
 
@@ -94,7 +94,7 @@ namespace VirtualShowcase
         {
             // Threshold in cm for distance to be considered "close" to the calibrated distance.
             const int threshold = 10;
-            var currentDistance = (int) CalibrationManager.GetRealHeadDistance();
+            var currentDistance = (int) EyeTracker.GetRealHeadDistance();
             int calibratedDistance = MyPrefs.ScreenDistance;
 
             // Uncalibrated.

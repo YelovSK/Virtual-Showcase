@@ -43,8 +43,8 @@ namespace VirtualShowcase.FaceTracking.Marker
             // print(detection.center + " | " + detection.extent);
 
             // Key points
-            SetKeyPoint(keyPoints[0], EyeSmoother.LeftEyeSmoothed);
-            SetKeyPoint(keyPoints[1], EyeSmoother.RightEyeSmoothed);
+            SetKeyPoint(keyPoints[0], EyeTracker.LeftEyeSmoothed);
+            SetKeyPoint(keyPoints[1], EyeTracker.RightEyeSmoothed);
 
             // SetKeyPoint(keyPoints[2], Detection.mouth);
             // SetKeyPoint(keyPoints[3], Detection.nose);

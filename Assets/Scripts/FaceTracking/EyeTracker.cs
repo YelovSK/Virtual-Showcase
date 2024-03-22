@@ -8,7 +8,7 @@ using VirtualShowcase.Utilities;
 
 namespace VirtualShowcase.FaceTracking
 {
-    public class EyeSmoother : MonoBehaviour
+    public class EyeTracker : MonoBehaviour
     {
         // Average
         private readonly List<Vector2> leftEyeHistory = new();
@@ -21,6 +21,8 @@ namespace VirtualShowcase.FaceTracking
         public static Vector2 LeftEyeSmoothed { get; private set; }
         public static Vector2 RightEyeSmoothed { get; private set; }
         public static Vector2 EyeCenter => (LeftEyeSmoothed + RightEyeSmoothed) / 2;
+        public static float EyesDistance => (LeftEyeSmoothed - RightEyeSmoothed).magnitude;
+
 
         #region Event Functions
 
@@ -51,6 +53,25 @@ namespace VirtualShowcase.FaceTracking
             }
         }
 
+        public static float GetRealHeadDistance()
+        {
+            // https://www.youtube.com/watch?v=jsoe1M2AjFk
+            const int real_eyes_distance = 6;
+            float realDistance = real_eyes_distance * MyPrefs.FocalLength / EyesDistance;
+            return realDistance;
+        }
+
+        public static float GetFocalLength(float distanceFromScreen)
+        {
+            // Eyes distance on camera.
+            float eyesDistance = EyesDistance;
+
+            // Real life distance of eyes in cm.
+            const int real_eyes_distance = 6;
+
+            // Calculate focal length.
+            return eyesDistance * distanceFromScreen / real_eyes_distance;
+        }
 
         private void SmoothKalman()
         {

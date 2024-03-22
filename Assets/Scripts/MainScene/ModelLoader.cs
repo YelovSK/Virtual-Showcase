@@ -30,10 +30,10 @@ namespace VirtualShowcase.MainScene
 
         private void Start()
         {
-            MyPrefs.ScreenSizeChanged += (sender, args) =>
+            MyPrefs.ScreenSizeChanged.AddListener(() =>
             {
                 if (showRealSize) ResetTransform(showRealSize);
-            };
+            });
             GltfImportBase.SetDefaultDeferAgent(new UninterruptedDeferAgent());
         }
 

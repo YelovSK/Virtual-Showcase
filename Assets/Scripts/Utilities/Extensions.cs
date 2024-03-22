@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using static UnityEngine.Object;
 
 namespace VirtualShowcase.Utilities
@@ -50,7 +51,7 @@ namespace VirtualShowcase.Utilities
             {
                 0 => false,
                 1 => true,
-                _ => throw new ArgumentOutOfRangeException(nameof(value), value, null),
+                _ => throw new ArgumentOutOfRangeException(nameof(value), value, "Value must be 0 or 1."),
             };
         }
 
@@ -184,10 +185,8 @@ namespace VirtualShowcase.Utilities
         /// <returns>Encapsulated bounds of children.</returns>
         public static Bounds GetObjectBounds(this GameObject obj)
         {
-            // Get meshes of all children.
             MeshRenderer[] meshRenderers = obj.GetComponentsInChildren<MeshRenderer>();
 
-            // Encapsulate bounds of all meshes.
             var bounds = new Bounds(obj.transform.position, Vector3.zero);
             foreach (MeshRenderer meshRenderer in meshRenderers)
             {
@@ -195,6 +194,22 @@ namespace VirtualShowcase.Utilities
             }
 
             return bounds;
+        }
+
+        public static void SetEnabled(this InputActionMap map, bool enabled)
+        {
+            if (enabled)
+                map.Enable();
+            else
+                map.Disable();
+        }
+
+        public static void SetEnabled(this InputAction action, bool enabled)
+        {
+            if (enabled)
+                action.Enable();
+            else
+                action.Disable();
         }
     }
 

@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 using VirtualShowcase.Enums;
-using VirtualShowcase.MainScene;
+using VirtualShowcase.FaceTracking;
 
 namespace VirtualShowcase.Utilities
 {
@@ -17,12 +17,34 @@ namespace VirtualShowcase.Utilities
     {
         #region Events
 
-        public static event EventHandler ScreenSizeChanged;
-        public static event EventHandler ScreenDistanceChanged;
+        public static UnityEvent ScreenSizeChanged = new();
+        public static UnityEvent ScreenDistanceChanged = new();
+
+        public static UnityEvent PreviewEnabled = new();
+        public static UnityEvent PreviewDisabled = new();
 
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Set to null to delete key.
+        /// </summary>
+        public static string Rebinds
+        {
+            get => PlayerPrefs.GetString("rebinds");
+            set
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    PlayerPrefs.DeleteKey("rebinds");
+                }
+                else
+                {
+                    PlayerPrefs.SetString("rebinds", value);
+                }
+            }
+        }
 
         public static string MainScene
         {
@@ -124,7 +146,14 @@ namespace VirtualShowcase.Utilities
         public static bool PreviewOn
         {
             get => PlayerPrefs.GetInt("previewOn").ToBool();
-            set => PlayerPrefs.SetInt("previewOn", value.ToInt());
+            set
+            {
+                PlayerPrefs.SetInt("previewOn", value.ToInt());
+                if (value)
+                    PreviewEnabled.Invoke();
+                else
+                    PreviewDisabled.Invoke();
+            }
         }
 
         public static bool StereoOn
@@ -184,7 +213,7 @@ namespace VirtualShowcase.Utilities
             get => PlayerPrefs.GetInt("screenDiagonalInches");
             set
             {
-                ScreenSizeChanged?.Invoke(null, EventArgs.Empty);
+                ScreenSizeChanged.Invoke();
                 if (value > 1)
                     PlayerPrefs.SetInt("screenDiagonalInches", value);
             }
@@ -195,7 +224,7 @@ namespace VirtualShowcase.Utilities
             get => PlayerPrefs.GetInt("distanceFromScreenCm");
             set
             {
-                ScreenDistanceChanged?.Invoke(null, EventArgs.Empty);
+                ScreenDistanceChanged.Invoke();
                 if (value > 1)
                     PlayerPrefs.SetInt("distanceFromScreenCm", value);
             }
@@ -291,11 +320,11 @@ namespace VirtualShowcase.Utilities
         public static void ResetPlayerPrefsExceptKeyBinds()
         {
             // Save binds temporarily.
-            string binds = PlayerPrefs.GetString("rebinds");
+            string binds = Rebinds;
             PlayerPrefs.DeleteAll();
 
             // Set binds back.
-            PlayerPrefs.SetString("rebinds", binds);
+            Rebinds = binds;
             SetDefaultPlayerPrefs();
         }
 
@@ -343,7 +372,7 @@ namespace VirtualShowcase.Utilities
             ScreenDistance = 80;
 
             // Focal length for face distance.
-            FocalLength = CalibrationManager.GetFocalLength(ScreenDistance);
+            FocalLength = EyeTracker.GetFocalLength(ScreenDistance);
 
             // Default quality of 2 is the highest.
             QualityIndex = eGraphicsQuality.High;

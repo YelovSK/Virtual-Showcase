@@ -10,6 +10,7 @@ namespace VirtualShowcase.FaceTracking.Transform
         #region Serialized Fields
 
         [SerializeField] private Projection projection;
+        [SerializeField] private CalibrationManager calibrationManager;
 
         #endregion
 
@@ -39,15 +40,15 @@ namespace VirtualShowcase.FaceTracking.Transform
         {
             // Map coords based on the calibration.
             // Middle of the screen is 0.0f, left is -0.5f, right is 0.5f.
-            float centerX = Map(EyeSmoother.EyeCenter.x, MyPrefs.LeftCalibration, MyPrefs.RightCalibration, 0.0f, 1.0f);
-            float centerY = Map(EyeSmoother.EyeCenter.y, MyPrefs.BottomCalibration, MyPrefs.TopCalibration, 0.0f, 1.0f);
+            float centerX = Map(EyeTracker.EyeCenter.x, MyPrefs.LeftCalibration, MyPrefs.RightCalibration, 0.0f, 1.0f);
+            float centerY = Map(EyeTracker.EyeCenter.y, MyPrefs.BottomCalibration, MyPrefs.TopCalibration, 0.0f, 1.0f);
 
             // Get local x, y coordinates of the head.
             float x = (centerX - 0.5f) * Projection.ScreenWidth;
             float y = (centerY - 0.5f) * Projection.ScreenHeight;
 
             // Update head position.
-            if (MyPrefs.InterpolatedPosition && !CalibrationManager.Enabled && WebcamInput.Instance.AverageFramesBetweenUpdates >= 2)
+            if (MyPrefs.InterpolatedPosition && !calibrationManager.Enabled && WebcamInput.Instance.AverageFramesBetweenUpdates >= 2)
                 StartCoroutine(SmoothTranslation(new Vector3(x, y, transform.localPosition.z)));
             else
             {

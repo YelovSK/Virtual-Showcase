@@ -4,6 +4,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using VirtualShowcase.Core;
 using VirtualShowcase.Enums;
 using VirtualShowcase.FaceTracking;
 using VirtualShowcase.MainScene;
@@ -19,6 +20,7 @@ namespace VirtualShowcase.Menu
         [SerializeField] private TMP_Dropdown resolutionDropdown;
         [SerializeField] private TMP_Dropdown webcamDropdown;
         [SerializeField] private TMP_Text baseModelText;
+        [SerializeField] private GameObject loadingScreen;
 
         [Header("Smoothing elements")]
         [SerializeField] private TMP_Dropdown smoothingDropdown;
@@ -91,6 +93,17 @@ namespace VirtualShowcase.Menu
             SetElementsToPlayerPrefs();
         }
 
+        public void Quit()
+        {
+            Application.Quit();
+        }
+
+        public void SwitchMain()
+        {
+            loadingScreen.SetActive(true);
+            SceneSwitcher.Instance.ToggleMenu();
+        }
+        
         private void SetElementsToPlayerPrefs()
         {
             foreach (string path in MyPrefs.ModelPaths)
@@ -266,10 +279,10 @@ namespace VirtualShowcase.Menu
         {
             var hue = (int) sender.value;
             hueText.text = hue.ToString();
-            Color rgBcolor = Color.HSVToRGB((float) hue / 360, 1, 1);
+            Color rgbColor = Color.HSVToRGB((float) hue / 360, 1, 1);
 
             // Fill hueSlider with given colour.
-            hueSlider.GetComponentInChildren<Image>().color = rgBcolor;
+            hueSlider.GetComponentInChildren<Image>().color = rgbColor;
             MyPrefs.Hue = hue;
         }
 
