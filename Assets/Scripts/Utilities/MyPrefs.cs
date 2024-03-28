@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Events;
+using VirtualShowcase.Core;
 using VirtualShowcase.Enums;
 using VirtualShowcase.FaceTracking;
 
@@ -15,16 +15,6 @@ namespace VirtualShowcase.Utilities
     /// </summary>
     public static class MyPrefs
     {
-        #region Events
-
-        public static UnityEvent ScreenSizeChanged = new();
-        public static UnityEvent ScreenDistanceChanged = new();
-
-        public static UnityEvent PreviewEnabled = new();
-        public static UnityEvent PreviewDisabled = new();
-
-        #endregion
-
         #region Properties
 
         /// <summary>
@@ -149,10 +139,7 @@ namespace VirtualShowcase.Utilities
             set
             {
                 PlayerPrefs.SetInt("previewOn", value.ToInt());
-                if (value)
-                    PreviewEnabled.Invoke();
-                else
-                    PreviewDisabled.Invoke();
+                Events.CameraPreviewChanged.Invoke(null, value);
             }
         }
 
@@ -213,7 +200,6 @@ namespace VirtualShowcase.Utilities
             get => PlayerPrefs.GetInt("screenDiagonalInches");
             set
             {
-                ScreenSizeChanged.Invoke();
                 if (value > 1)
                     PlayerPrefs.SetInt("screenDiagonalInches", value);
             }
@@ -224,7 +210,6 @@ namespace VirtualShowcase.Utilities
             get => PlayerPrefs.GetInt("distanceFromScreenCm");
             set
             {
-                ScreenDistanceChanged.Invoke();
                 if (value > 1)
                     PlayerPrefs.SetInt("distanceFromScreenCm", value);
             }
@@ -368,6 +353,7 @@ namespace VirtualShowcase.Utilities
             RightCalibration = 1.0f;
 
             // Calibration screen parameters.
+            Events.ScreenSizeChanged?.Invoke(null, 27);
             ScreenSize = 27;
             ScreenDistance = 80;
 

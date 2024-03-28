@@ -55,7 +55,7 @@ namespace VirtualShowcase.FaceTracking.GlassesCheck
             bool passed = (float) foundPixelsCount / allPixelsCount > threshold;
 
             // Don't compute overlay if preview is not showing in main scene.
-            if (MyPrefs.PreviewOn == false && SceneSwitcher.Instance.InMainScene)
+            if (MyPrefs.PreviewOn == false && MySceneManager.Instance.IsInMainScene)
                 return passed;
 
             // Set label text to show number of found pixels.
@@ -175,7 +175,7 @@ namespace VirtualShowcase.FaceTracking.GlassesCheck
             }
         }
 
-        private static bool PixelInThreshold(Color pixel, int thresh, int targetHue)
+        private bool PixelInThreshold(Color pixel, int thresh, int targetHue)
         {
             // Get HSV values.
             Color.RGBToHSV(pixel, out float h, out float s, out float v);

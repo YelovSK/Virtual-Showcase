@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using VirtualShowcase.Common;
+using VirtualShowcase.Core;
 using VirtualShowcase.Utilities;
 
 namespace VirtualShowcase.FaceTracking.Transform
@@ -35,8 +36,8 @@ namespace VirtualShowcase.FaceTracking.Transform
 
         private void OnEnable()
         {
-            MyPrefs.ScreenSizeChanged.AddListener(SetCameraDistance);
-            MyPrefs.ScreenDistanceChanged.AddListener(SetCameraDistance);
+            Events.ScreenSizeChanged.AddListener((sender, size) => SetCameraDistance());
+            Events.ScreenDistanceChanged.AddListener((sender, distance) => SetCameraDistance());
         }
 
         /// <summary>

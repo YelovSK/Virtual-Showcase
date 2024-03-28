@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using VirtualShowcase.Core;
 using VirtualShowcase.Enums;
-using VirtualShowcase.FaceTracking;
-using VirtualShowcase.MainScene;
 using VirtualShowcase.Utilities;
 
 namespace VirtualShowcase.Menu
@@ -65,8 +64,6 @@ namespace VirtualShowcase.Menu
             // I sometimes disable menu objects in editor because they overlap.
             EnableCanvasObjects();
 
-            // GameManager.Instance.menuLoaded += EnableCanvasObjects;
-
             MyPrefs.CheckPlayerPrefs();
             SetElementsToPlayerPrefs();
             SetCallbacks();
@@ -84,10 +81,7 @@ namespace VirtualShowcase.Menu
 
         public void ResetSettings()
         {
-            foreach (GameObject model in ModelLoader.Instance.Models)
-            {
-                Destroy(model);
-            }
+            Events.ModelsRemoveRequest?.Invoke(gameObject);
 
             MyPrefs.ResetPlayerPrefsExceptKeyBinds();
             SetElementsToPlayerPrefs();
@@ -101,14 +95,14 @@ namespace VirtualShowcase.Menu
         public void SwitchMain()
         {
             loadingScreen.SetActive(true);
-            SceneSwitcher.Instance.ToggleMenu();
+            MySceneManager.Instance.ToggleMenu();
         }
         
         private void SetElementsToPlayerPrefs()
         {
             foreach (string path in MyPrefs.ModelPaths)
             {
-                ModelTextBehavior.InstantiateModelName(baseModelText, path);
+                AddModelLabel(path);
             }
 
             SetCamName(MyPrefs.CameraName);
@@ -178,6 +172,14 @@ namespace VirtualShowcase.Menu
 
         private void SetCallbacks()
         {
+            Events.ModelAdded.AddListener((sender, path) => AddModelLabel(path));
+            Events.ModelRemoved.AddListener((sender, path) =>
+            {
+                TMP_Text modelText = baseModelText.transform.parent.GetComponentsInChildren<TMP_Text>()
+                    .First(text => text.text == Path.GetFileNameWithoutExtension(path));
+                Destroy(modelText.gameObject);
+            });
+            
             ChangeCamPreview(webcamDropdown);
             webcamDropdown.onValueChanged.AddListener(delegate
             {
@@ -266,7 +268,7 @@ namespace VirtualShowcase.Menu
             MyPrefs.QualityIndex = (eGraphicsQuality) sender.value;
 
             // If quality changed, destroy model to load it again with updated max triangle count.
-            ModelLoader.Instance.DeleteModels();
+            Events.ModelsRemoveRequest?.Invoke(gameObject);
         }
 
         private void ChangeThreshold(Slider sender)
@@ -317,9 +319,9 @@ namespace VirtualShowcase.Menu
 
         private void ChangeCamPreview(TMP_Dropdown sender)
         {
-            MyPrefs.CameraName = sender.options[sender.value].text;
-            if (WebcamInput.Instance.DeviceName != MyPrefs.CameraName)
-                WebcamInput.Instance.ChangeWebcam(MyPrefs.CameraName);
+            string cameraName = sender.options[sender.value].text;
+            MyPrefs.CameraName = cameraName;
+            Events.CameraChanged?.Invoke(gameObject, cameraName);
         }
 
         private void ChangeSmoothing(TMP_Dropdown sender)
@@ -335,6 +337,12 @@ namespace VirtualShowcase.Menu
         {
             MyPrefs.FramesSmoothed = (int) slider.value;
             averageValue.text = slider.value + " frames";
+        }
+        
+        private void AddModelLabel(string path)
+        {
+            TMP_Text modelText = Instantiate(baseModelText, baseModelText.transform.parent);
+            modelText.GetComponent<ModelTextBehavior>().SetModelName(path);
         }
     }
 }

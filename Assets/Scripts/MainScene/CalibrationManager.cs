@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using VirtualShowcase.Core;
 using VirtualShowcase.Enums;
 using VirtualShowcase.FaceTracking;
 using VirtualShowcase.Utilities;
@@ -34,7 +35,6 @@ namespace VirtualShowcase.MainScene
 
         private CopyTransform origCameraPreviewTransform;
         public bool Enabled => _calibrationState != eCalibrationState.Off;
-        public event EventHandler<eCalibrationState> StateChanged;
         private string _nextStateKeybind;
 
         #region Event Functions
@@ -118,6 +118,7 @@ namespace VirtualShowcase.MainScene
             sizeValue.text = screenSize + "''";
 
             // Update size of screen.
+            Events.ScreenSizeChanged?.Invoke(gameObject, screenSize);
             MyPrefs.ScreenSize = screenSize;
         }
 
@@ -176,7 +177,7 @@ namespace VirtualShowcase.MainScene
                     throw new ArgumentOutOfRangeException();
             }
 
-            StateChanged?.Invoke(this, _calibrationState);
+            Events.CalibrationChanged?.Invoke(gameObject, _calibrationState != eCalibrationState.Off);
         }
 
         private void SetGuideText(string edgeText)

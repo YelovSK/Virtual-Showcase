@@ -254,7 +254,7 @@
       "url": "https://registry.npmjs.com"
     },
     "jp.keijiro.klak.testtools": {
-      "version": "1.0.4",
+      "version": "3.1.0",
       "depth": 0,
       "source": "registry",
       "dependencies": {

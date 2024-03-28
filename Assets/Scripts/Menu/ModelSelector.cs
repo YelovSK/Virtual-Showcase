@@ -1,20 +1,13 @@
 using System.Collections;
 using SimpleFileBrowser;
-using TMPro;
 using UnityEngine;
+using VirtualShowcase.Core;
 using VirtualShowcase.Utilities;
 
 namespace VirtualShowcase.Menu
 {
     public class ModelSelector : MonoBehaviour
     {
-        #region Serialized Fields
-
-        [SerializeField]
-        private TMP_Text baseModelText;
-
-        #endregion
-
         public void ShowFileExplorer()
         {
             FileBrowser.SetFilters(true, new FileBrowser.Filter("Models", ".glb"));
@@ -34,7 +27,9 @@ namespace VirtualShowcase.Menu
             foreach (string path in FileBrowser.Result)
             {
                 if (MyPrefs.AddModelPath(path))
-                    ModelTextBehavior.InstantiateModelName(baseModelText, path);
+                {
+                    Events.ModelAdded?.Invoke(gameObject, path);
+                }
             }
         }
     }

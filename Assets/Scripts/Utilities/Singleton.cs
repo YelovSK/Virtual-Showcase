@@ -18,7 +18,7 @@ namespace VirtualShowcase.Utilities
 
         #region Event Functions
 
-        private void Awake()
+        protected virtual void Awake()
         {
             if (_instance != null)
                 Destroy(gameObject);

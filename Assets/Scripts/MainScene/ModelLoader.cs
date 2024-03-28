@@ -7,6 +7,7 @@ using GLTFast;
 using UnityEngine;
 using UnityMeshSimplifier;
 using VirtualShowcase.Common;
+using VirtualShowcase.Core;
 using VirtualShowcase.Enums;
 using VirtualShowcase.FaceTracking.Transform;
 using VirtualShowcase.Utilities;
@@ -30,10 +31,12 @@ namespace VirtualShowcase.MainScene
 
         private void Start()
         {
-            MyPrefs.ScreenSizeChanged.AddListener(() =>
+            Events.ScreenSizeChanged.AddListener((sender, size) =>
             {
                 if (showRealSize) ResetTransform(showRealSize);
             });
+            Events.ModelRemoved.AddListener((sender, path) => DeleteModel(path));
+            Events.ModelsRemoveRequest.AddListener(sender => DeleteModels());
             GltfImportBase.SetDefaultDeferAgent(new UninterruptedDeferAgent());
         }
 

@@ -40,7 +40,7 @@ namespace VirtualShowcase.Core
         {
             _inputActions.Enable();
 
-            _inputActions.Model.Get().SetEnabled(!SceneSwitcher.Instance.InMenu);
+            _inputActions.Model.Get().SetEnabled(!MySceneManager.Instance.IsInMenu);
             _inputActions.Calibration.Get().SetEnabled(calibrationManager.Enabled);
             _inputActions.MainGeneral.Get().SetEnabled(true);
 
@@ -56,29 +56,23 @@ namespace VirtualShowcase.Core
         private void SubscribeToInputActions()
         {
             // Enable/disable action maps depending on the state.
-            SceneSwitcher.Instance.OnMenuOpened.AddListener(() => _inputActions.Model.Disable());
-            SceneSwitcher.Instance.OnMainOpened.AddListener(() => _inputActions.Model.Enable());
-            MyPrefs.PreviewEnabled.AddListener(() =>
+            Events.MenuSceneOpened.AddListener(_ => _inputActions.Model.Disable());
+            Events.MainSceneOpened.AddListener(_ => _inputActions.Model.Enable());
+            Events.CameraPreviewChanged.AddListener((sender, isEnabled) =>
             {
-                _inputActions.Calibration.Disable();
-                _inputActions.Model.Disable();
-                _inputActions.MainGeneral.Calibrationtoggle.SetEnabled(false);
+                _inputActions.Calibration.Get().SetEnabled(!isEnabled);
+                _inputActions.Model.Get().SetEnabled(!isEnabled);
+                _inputActions.MainGeneral.Calibrationtoggle.SetEnabled(!isEnabled);
             });
-            MyPrefs.PreviewDisabled.AddListener(() =>
+            Events.CalibrationChanged.AddListener((sender, isEnabled) =>
             {
-                _inputActions.Calibration.Enable();
-                _inputActions.Model.Enable();
-                _inputActions.MainGeneral.Calibrationtoggle.SetEnabled(true);
+                _inputActions.Calibration.Get().SetEnabled(isEnabled);
+                _inputActions.Model.Get().SetEnabled(!isEnabled);
+                _inputActions.MainGeneral.Previewtoggle.SetEnabled(!isEnabled);
             });
-            calibrationManager.StateChanged += (sender, state) =>
-            {
-                _inputActions.Calibration.Get().SetEnabled(state != eCalibrationState.Off);
-                _inputActions.Model.Get().SetEnabled(state == eCalibrationState.Off);
-                _inputActions.MainGeneral.Previewtoggle.SetEnabled(state == eCalibrationState.Off);
-            };
 
             // Subscribe to input actions.
-            _inputActions.MainGeneral.Mainsceneswitch.performed += _ => SceneSwitcher.Instance.SwitchDifferentMain();
+            _inputActions.MainGeneral.Mainsceneswitch.performed += _ => MySceneManager.Instance.SwitchToNextMainScene();
             _inputActions.MainGeneral.Previewtoggle.performed += _ =>
             {
                 MyPrefs.PreviewOn = !MyPrefs.PreviewOn;
@@ -90,7 +84,7 @@ namespace VirtualShowcase.Core
                 showcaseInitializer.SetStereo(MyPrefs.StereoOn);
             };
             _inputActions.MainGeneral.Calibrationtoggle.performed += _ => calibrationManager.ToggleCalibrationUI();
-            _inputActions.MainGeneral.Menutoggle.performed += _ => SceneSwitcher.Instance.ToggleMenu();
+            _inputActions.MainGeneral.Menutoggle.performed += _ => MySceneManager.Instance.ToggleMenu();
 
             _inputActions.Calibration.Nextcalibration.performed += _ => calibrationManager.SetNextState();
             _inputActions.Calibration.Topedge.performed += _ => calibrationManager.SetState(eCalibrationState.Top);

@@ -4,62 +4,71 @@ using System.Linq;
 using System.Threading.Tasks;
 using Unity.Jobs;
 using UnityEngine;
+using VirtualShowcase.Core;
+using VirtualShowcase.Utilities;
 
 namespace VirtualShowcase.FaceTracking
 {
-    public class WebcamInput : MonoBehaviour
+    public class WebcamInput : MonoSingleton<WebcamInput>
     {
         private readonly List<int> framesBetweenUpdatesHistory = new();
         private Color32[] colorBuffer;
-        private bool mirrored;
+        private bool isMirrored;
         private WebCamTexture webcamTexture;
-
-        public static WebcamInput Instance { get; private set; }
 
         public int FramesBetweenUpdates { get; private set; }
         public int AverageFramesBetweenUpdates { get; private set; }
 
         public Texture2D Texture { get; private set; }
 
-        public bool IsCameraRunning => Texture != null && webcamTexture.isPlaying;
-        public bool CameraUpdatedThisFrame => Texture != null && webcamTexture.didUpdateThisFrame;
-        public string DeviceName => webcamTexture.deviceName;
+        public bool IsCameraRunning => Texture != null && webcamTexture != null && webcamTexture.isPlaying;
+        public bool CameraUpdatedThisFrame => Texture != null && webcamTexture != null && webcamTexture.didUpdateThisFrame;
+        public string DeviceName => webcamTexture?.deviceName;
 
         #region Event Functions
 
-        private void Awake()
+        private void Start()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
+            Events.CameraChanged.AddListener((sender, cameraName) => ChangeWebcam(cameraName));
+            Events.CameraUpdated.AddListener(_ => UpdateTexture2D());
+            // Webcam gets paused when switching scenes.
+            UnityEngine.SceneManagement.SceneManager.sceneLoaded += (scene, mode) => webcamTexture?.Play();
         }
 
-        private void LateUpdate()
+        private void Update()
         {
             if (webcamTexture.didUpdateThisFrame)
             {
                 CalculateAverageFramesBetweenUpdates();
                 FramesBetweenUpdates = 0;
+                Events.CameraUpdated.Invoke(gameObject);
             }
             else FramesBetweenUpdates++;
         }
 
         private void OnDestroy()
         {
-            if (webcamTexture != null) webcamTexture.Stop();
-            Destroy(webcamTexture);
-            Destroy(Texture);
+            if (webcamTexture != null)
+            {
+                webcamTexture.Stop();
+                Destroy(webcamTexture);
+            }
+
+            if (Texture != null)
+            {
+                Destroy(Texture);
+            }
         }
 
         #endregion
 
         public async void ChangeWebcam(string deviceName)
         {
+            if (DeviceName == deviceName)
+            {
+                return;
+            }
+            
             WebCamDevice[] devices = WebCamTexture.devices;
             if (devices.Length == 0)
             {
@@ -69,7 +78,7 @@ namespace VirtualShowcase.FaceTracking
 
             WebCamDevice device = devices.First(x => x.name == deviceName);
             
-            mirrored = device.isFrontFacing;
+            isMirrored = device.isFrontFacing;
 
             if (webcamTexture == null)
             {
@@ -95,7 +104,7 @@ namespace VirtualShowcase.FaceTracking
             Initialize();
 
             print($"Webcam resolution: {webcamTexture.width}x{webcamTexture.height}");
-            print($"Webcam is mirrored: {mirrored}");
+            print($"Webcam is mirrored: {isMirrored}");
         }
 
         private void Initialize()
@@ -127,12 +136,12 @@ namespace VirtualShowcase.FaceTracking
                 .Max();
         }
 
-        public void SetAspectRatio()
+        private void UpdateTexture2D()
         {
             int startY = (Texture.height - webcamTexture.height) / 2;
             webcamTexture.GetPixels32(colorBuffer);
 
-            if (mirrored)
+            if (isMirrored)
             {
                 var job = new MirrorJob
                 {

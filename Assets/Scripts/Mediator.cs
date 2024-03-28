@@ -33,6 +33,8 @@ namespace VirtualShowcase
 
         private void Awake()
         {
+            Events.CameraUpdated.AddListener(_ => HandleCameraUpdate());
+
             colorChecker = GetComponent<ColourChecker>();
             eyeTracker = GetComponent<EyeTracker>();
             detector = GetComponent<Detector>();
@@ -50,16 +52,10 @@ namespace VirtualShowcase
                 previewUI.texture = defaultCamTexture;
         }
 
-        /// <summary>
-        ///     Main loop of the program, calls other components. Detects face, updates UI and transforms camera.
-        /// </summary>
-        private void Update()
+        private void HandleCameraUpdate()
         {
-            if (!WebcamInput.Instance.CameraUpdatedThisFrame)
-                return;
-
-            WebcamInput.Instance.SetAspectRatio();
             previewUI.texture = WebcamInput.Instance.Texture;
+
             bool faceFound = detector.RunDetector(WebcamInput.Instance.Texture);
 
             if (!faceFound)
@@ -78,7 +74,7 @@ namespace VirtualShowcase
 
             UpdateHeadDistanceUI();
 
-            if (glassesOn && SceneSwitcher.Instance.InMainScene)
+            if (glassesOn && MySceneManager.Instance.IsInMainScene)
                 cameraTransform.Transform();
         }
 
