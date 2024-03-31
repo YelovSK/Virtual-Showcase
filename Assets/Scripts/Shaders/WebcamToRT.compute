@@ -1,0 +1,39 @@
+#pragma kernel CSMain
+
+// Textures
+Texture2D<float4> InputImage;
+RWTexture2D<float4> OutputImage;
+
+// Stuff
+uint startY;
+bool mirror;
+
+// Source
+uint sourceWidth;
+uint sourceHeight;
+
+// Target
+uint targetWidth;
+uint targetHeight;
+
+[numthreads(8, 8, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    const float gamma_fix = 1.0 / 2.2;
+
+    // Outside of the source image -> black borders.
+    if (id.y >= sourceHeight + startY || id.y <= startY)
+    {
+        OutputImage[id.xy] = float4(0, 0, 0, 1);
+        return;
+    }
+
+    if (mirror)
+    {
+        OutputImage[id.xy] = pow(InputImage[float2(targetWidth - id.x, id.y - startY)], gamma_fix);
+    }
+    else
+    {
+        OutputImage[id.xy] = pow(InputImage[float2(id.x, id.y - startY)], gamma_fix);
+    }
+}

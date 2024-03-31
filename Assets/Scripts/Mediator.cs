@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,9 +19,6 @@ namespace VirtualShowcase
         private RawImage previewUI;
 
         [SerializeField]
-        private Texture2D defaultCamTexture;
-
-        [SerializeField]
         private CameraTransform cameraTransform;
 
         [SerializeField]
@@ -31,7 +27,6 @@ namespace VirtualShowcase
         #endregion
 
         private ColourChecker _colorChecker;
-        private RawImage _colorOverlay;
         private Detector _detector;
         private TMP_Text _distanceText;
         private EyeTracker _eyeTracker;
@@ -47,26 +42,17 @@ namespace VirtualShowcase
             _detector = GetComponent<Detector>();
 
             _distanceText = previewUI.GetComponentInChildren<TMP_Text>();
-            _colorOverlay = previewUI.GetComponentsInChildren<RawImage>().First(x => x.gameObject != previewUI.gameObject);
         }
 
         private void Start()
         {
             WebcamInput.Instance.ChangeWebcam(MyPrefs.CameraName);
-
-            // Broken webcam, image set to "NO WEBCAM SHOWING".
-            if (!WebcamInput.Instance.IsCameraRunning)
-            {
-                previewUI.texture = defaultCamTexture;
-            }
         }
 
         #endregion
 
         private void HandleCameraUpdate()
         {
-            previewUI.texture = WebcamInput.Instance.Texture;
-
             bool faceFound = _detector.RunDetector(WebcamInput.Instance.Texture);
 
             if (!faceFound)
@@ -84,8 +70,7 @@ namespace VirtualShowcase
                 HideColorOverlay();
             }
 
-            bool glassesOn = MyPrefs.GlassesCheck == false ||
-                             _colorChecker.CheckGlassesOn(WebcamInput.Instance.Texture, _colorOverlay, _distanceText);
+            bool glassesOn = !MyPrefs.GlassesCheck || _colorChecker.CheckGlassesOn(WebcamInput.Instance.Texture);
 
             UpdateHeadDistanceUI();
 
@@ -98,7 +83,6 @@ namespace VirtualShowcase
         private void HideColorOverlay()
         {
             _distanceText.text = string.Empty;
-            _colorOverlay.gameObject.SetActive(false);
         }
 
         private void UpdateHeadDistanceUI()

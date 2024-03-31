@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.UI;
+using VirtualShowcase.FaceTracking;
 
 namespace VirtualShowcase.Showcase
 {
@@ -7,55 +9,68 @@ namespace VirtualShowcase.Showcase
         #region Serialized Fields
 
         [SerializeField]
-        private GameObject camPreview;
-
-        [SerializeField]
-        private GameObject darkenImage;
+        private Texture2D defaultCamTexture;
 
         #endregion
 
-        private Vector3 _originalPosition;
+        private RawImage _image;
 
+        private Vector3 _originalPosition;
         private Vector3 _originalScale;
 
         #region Event Functions
 
         private void Awake()
         {
-            _originalScale = camPreview.transform.localScale;
-            _originalPosition = camPreview.transform.localPosition;
-            Disable();
+            _originalScale = transform.localScale;
+            _originalPosition = transform.localPosition;
+            _image = GetComponent<RawImage>();
+
+            WebcamInput.Instance.CameraChanged.AddListener(SetTexture);
         }
 
         #endregion
 
+        /// <summary>
+        ///     This is relevant only in the showcase scene. Stupid.
+        /// </summary>
         public void ShowSmallPreview()
         {
             Enable();
 
             // Stupid.
-            camPreview.transform.localScale = Vector3.one * 0.5f;
-            camPreview.transform.localPosition = new Vector3(-710, -310, 0);
+            transform.localScale = Vector3.one * 0.5f;
+            transform.localPosition = new Vector3(-710, -310, 0);
         }
 
         public void ShowLargePreview()
         {
             Enable();
 
-            camPreview.transform.localScale = _originalScale;
-            camPreview.transform.localPosition = _originalPosition;
+            transform.localScale = _originalScale;
+            transform.localPosition = _originalPosition;
         }
 
         public void Enable()
         {
-            camPreview.gameObject.SetActive(true);
-            darkenImage.gameObject.SetActive(true);
+            gameObject.SetActive(true);
         }
 
         public void Disable()
         {
-            camPreview.gameObject.SetActive(false);
-            darkenImage.gameObject.SetActive(false);
+            gameObject.SetActive(false);
+        }
+
+        private void SetTexture()
+        {
+            if (WebcamInput.Instance.IsCameraRunning)
+            {
+                _image.texture = WebcamInput.Instance.Texture;
+            }
+            else
+            {
+                _image.texture = defaultCamTexture;
+            }
         }
     }
 }

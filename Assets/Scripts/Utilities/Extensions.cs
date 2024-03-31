@@ -12,9 +12,12 @@ namespace VirtualShowcase.Utilities
         // Next enum value.
         public static T Next<T>(this T src) where T : struct
         {
-            if (!typeof(T).IsEnum) throw new ArgumentException($"Argument {typeof(T).FullName} is not an Enum");
+            if (!typeof(T).IsEnum)
+            {
+                throw new ArgumentException($"Argument {typeof(T).FullName} is not an Enum");
+            }
 
-            var arr = (T[]) Enum.GetValues(src.GetType());
+            var arr = (T[])Enum.GetValues(src.GetType());
             int j = Array.IndexOf(arr, src) + 1;
             return arr.Length == j ? arr[0] : arr[j];
         }
@@ -22,14 +25,20 @@ namespace VirtualShowcase.Utilities
         // Previous enum value.
         public static T Prev<T>(this T src) where T : struct
         {
-            if (!typeof(T).IsEnum) throw new ArgumentException($"Argument {typeof(T).FullName} is not an Enum");
+            if (!typeof(T).IsEnum)
+            {
+                throw new ArgumentException($"Argument {typeof(T).FullName} is not an Enum");
+            }
 
-            var arr = (T[]) Enum.GetValues(src.GetType());
+            var arr = (T[])Enum.GetValues(src.GetType());
             int j = Array.IndexOf(arr, src) - 1;
             return -1 == j ? arr[^1] : arr[j];
         }
 
-        public static T ParseEnum<T>(string value) => (T) Enum.Parse(typeof(T), value, true);
+        public static T ParseEnum<T>(string value)
+        {
+            return (T)Enum.Parse(typeof(T), value, true);
+        }
 
         public static void LoadTransform(this Transform original, CopyTransform savedCopy)
         {
@@ -38,12 +47,20 @@ namespace VirtualShowcase.Utilities
             original.localScale = savedCopy.LocalScale;
             var rect = original.GetComponent<RectTransform>();
             if (rect != null)
+            {
                 rect.sizeDelta = savedCopy.Size;
+            }
         }
 
-        public static bool IsEmpty<T>(this IEnumerable<T> source) => source.Any() == false;
+        public static bool IsEmpty<T>(this IEnumerable<T> source)
+        {
+            return source.Any() == false;
+        }
 
-        public static int ToInt(this bool value) => value ? 1 : 0;
+        public static int ToInt(this bool value)
+        {
+            return value ? 1 : 0;
+        }
 
         public static bool ToBool(this int value)
         {
@@ -79,7 +96,9 @@ namespace VirtualShowcase.Utilities
                 if (!meshRenderer ||
                     !meshFilter.sharedMesh ||
                     meshRenderer.sharedMaterials.Length != meshFilter.sharedMesh.subMeshCount)
+                {
                     continue;
+                }
 
                 for (var s = 0; s < meshFilter.sharedMesh.subMeshCount; s++)
                 {
@@ -102,9 +121,16 @@ namespace VirtualShowcase.Utilities
 
             // Get / Create mesh filter & renderer
             var meshFilterCombine = gameObject.GetComponent<MeshFilter>();
-            if (meshFilterCombine == null) meshFilterCombine = gameObject.AddComponent<MeshFilter>();
+            if (meshFilterCombine == null)
+            {
+                meshFilterCombine = gameObject.AddComponent<MeshFilter>();
+            }
+
             var meshRendererCombine = gameObject.GetComponent<MeshRenderer>();
-            if (meshRendererCombine == null) meshRendererCombine = gameObject.AddComponent<MeshRenderer>();
+            if (meshRendererCombine == null)
+            {
+                meshRendererCombine = gameObject.AddComponent<MeshRenderer>();
+            }
 
             // Combine by material index into per-material meshes
             // also, Create CombineInstance array for next step
@@ -144,13 +170,19 @@ namespace VirtualShowcase.Utilities
                 Transform child;
                 for (var i = 0; i < meshFilters.Length; i++)
                 {
-                    if (meshFilters[i].gameObject == gameObject) continue;
+                    if (meshFilters[i].gameObject == gameObject)
+                    {
+                        continue;
+                    }
 
                     //Check if any children should be saved
                     for (var c = 0; c < meshFilters[i].transform.childCount; c++)
                     {
                         child = meshFilters[i].transform.GetChild(c);
-                        if (!toDestroy.Contains(child)) toSave.Add(child);
+                        if (!toDestroy.Contains(child))
+                        {
+                            toSave.Add(child);
+                        }
                     }
 
                     //Move toSave children to root object
@@ -165,19 +197,25 @@ namespace VirtualShowcase.Utilities
                 }
             }
             else
+            {
                 for (var i = 0; i < meshFilters.Length; i++)
                 {
-                    if (meshFilters[i].gameObject == gameObject) continue;
+                    if (meshFilters[i].gameObject == gameObject)
+                    {
+                        continue;
+                    }
+
                     Destroy(meshFilters[i].GetComponent<MeshRenderer>());
                     Destroy(meshFilters[i]);
                 }
+            }
 
             gameObject.transform.position = originalPosition;
             gameObject.transform.rotation = originalRotation;
             gameObject.transform.localScale = originalScale;
             return meshFilterCombine;
         }
-        
+
         /// <summary>
         ///     Gets the bounds of all the children of the given object.
         /// </summary>
@@ -199,17 +237,25 @@ namespace VirtualShowcase.Utilities
         public static void SetEnabled(this InputActionMap map, bool enabled)
         {
             if (enabled)
+            {
                 map.Enable();
+            }
             else
+            {
                 map.Disable();
+            }
         }
 
         public static void SetEnabled(this InputAction action, bool enabled)
         {
             if (enabled)
+            {
                 action.Enable();
+            }
             else
+            {
                 action.Disable();
+            }
         }
     }
 
@@ -227,7 +273,9 @@ namespace VirtualShowcase.Utilities
             LocalScale = trans.localScale;
             var rect = trans.GetComponent<RectTransform>();
             if (rect != null)
+            {
                 Size = rect.sizeDelta;
+            }
         }
     }
 }

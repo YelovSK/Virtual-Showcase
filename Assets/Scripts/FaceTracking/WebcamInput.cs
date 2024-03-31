@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Unity.Jobs;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using VirtualShowcase.Core;
 using VirtualShowcase.Utilities;
@@ -12,15 +12,23 @@ namespace VirtualShowcase.FaceTracking
 {
     public class WebcamInput : MonoSingleton<WebcamInput>
     {
+        #region Serialized Fields
+
+        [SerializeField]
+        private ComputeShader webcamToRenderTextureShader;
+
+        #endregion
+
         private readonly List<int> _framesBetweenUpdatesHistory = new();
-        private Color32[] _colorBuffer;
         private bool _isMirrored;
         private WebCamTexture _webcamTexture;
 
+        [NonSerialized]
+        public UnityEvent CameraChanged = new();
+
         public int FramesBetweenUpdates { get; private set; }
         public int AverageFramesBetweenUpdates { get; private set; }
-
-        public Texture2D Texture { get; private set; }
+        public RenderTexture Texture { get; private set; }
 
         public bool IsCameraRunning => Texture != null && _webcamTexture != null && _webcamTexture.isPlaying;
         public bool CameraUpdatedThisFrame => Texture != null && _webcamTexture != null && _webcamTexture.didUpdateThisFrame;
@@ -46,7 +54,7 @@ namespace VirtualShowcase.FaceTracking
             {
                 CalculateAverageFramesBetweenUpdates();
                 FramesBetweenUpdates = 0;
-                UpdateTexture2D();
+                CopyToRenderTexture();
                 MyEvents.CameraUpdated.Invoke(gameObject);
             }
             else
@@ -98,7 +106,7 @@ namespace VirtualShowcase.FaceTracking
             else if (_webcamTexture.deviceName != device.name)
             {
                 _webcamTexture.Stop();
-                _webcamTexture.deviceName = device.name;
+                _webcamTexture = new WebCamTexture(device.name);
                 _webcamTexture.requestedFPS = int.MaxValue;
                 _webcamTexture.Play();
             }
@@ -113,23 +121,16 @@ namespace VirtualShowcase.FaceTracking
                 await Task.Yield();
             }
 
-            Initialize();
+            // Initialize target texture.
+            int largerDimension = Math.Max(_webcamTexture.width, _webcamTexture.height);
+            Texture = new RenderTexture(largerDimension, largerDimension, 24);
+            Texture.enableRandomWrite = true;
+            Texture.Create();
 
             print($"Webcam resolution: {_webcamTexture.width}x{_webcamTexture.height}");
             print($"Webcam is mirrored: {_isMirrored}");
-        }
 
-        private void Initialize()
-        {
-            int largerDimension = Math.Max(_webcamTexture.width, _webcamTexture.height);
-
-            // Initialize target texture.
-            Texture = new Texture2D(largerDimension, largerDimension, TextureFormat.RGBA32, false);
-            Color32[] pixels = Enumerable.Repeat(new Color32(0, 0, 0, 150), Texture.width * Texture.height).ToArray();
-            Texture.SetPixels32(pixels);
-
-            // Initialize color buffer.
-            _colorBuffer = new Color32[_webcamTexture.width * _webcamTexture.height];
+            CameraChanged.Invoke();
         }
 
         private void CalculateAverageFramesBetweenUpdates()
@@ -150,37 +151,23 @@ namespace VirtualShowcase.FaceTracking
                 .Max();
         }
 
-        private void UpdateTexture2D()
+        private void CopyToRenderTexture()
         {
+            // Black bars on the sides.
             int startY = (Texture.height - _webcamTexture.height) / 2;
-            _webcamTexture.GetPixels32(_colorBuffer);
 
-            if (_isMirrored)
-            {
-                var job = new MirrorJob
-                {
-                    Width = _webcamTexture.width,
-                };
-                JobHandle jobHandle = job.Schedule(_webcamTexture.height, 10);
-                jobHandle.Complete();
-            }
+            int kernelMain = webcamToRenderTextureShader.FindKernel("CSMain");
 
-            Texture.SetPixels32(0, startY, _webcamTexture.width, _webcamTexture.height, _colorBuffer);
-            Texture.Apply();
-        }
+            webcamToRenderTextureShader.SetInt("sourceWidth", _webcamTexture.width);
+            webcamToRenderTextureShader.SetInt("sourceHeight", _webcamTexture.height);
+            webcamToRenderTextureShader.SetInt("targetWidth", Texture.width);
+            webcamToRenderTextureShader.SetInt("targetHeight", Texture.height);
+            webcamToRenderTextureShader.SetInt("startY", startY);
+            webcamToRenderTextureShader.SetBool("mirror", _isMirrored);
+            webcamToRenderTextureShader.SetTexture(kernelMain, "InputImage", _webcamTexture);
+            webcamToRenderTextureShader.SetTexture(kernelMain, "OutputImage", Texture);
 
-        private struct MirrorJob : IJobParallelFor
-        {
-            #region Serialized Fields
-
-            public int Width;
-
-            #endregion
-
-            public void Execute(int index)
-            {
-                Array.Reverse(Instance._colorBuffer, index * Width, Width);
-            }
+            webcamToRenderTextureShader.Dispatch(kernelMain, Texture.width / 8, Texture.height / 8, 1);
         }
     }
 }

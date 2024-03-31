@@ -10,8 +10,11 @@ namespace VirtualShowcase.FaceTracking
     {
         #region Serialized Fields
 
-        [SerializeField] private ResourceSet resources;
-        [SerializeField] private KeyPointsUpdater keyPointsUpdater;
+        [SerializeField]
+        private ResourceSet resources;
+
+        [SerializeField]
+        private KeyPointsUpdater keyPointsUpdater;
 
         #endregion
 
@@ -52,9 +55,11 @@ namespace VirtualShowcase.FaceTracking
             if (faceFound)
 
                 // Get detection with largest bounding box.
+            {
                 KeyPointsUpdater.Detection = detections
                     .OrderByDescending(x => x.extent.magnitude)
                     .First();
+            }
 
             return faceFound;
         }
