@@ -12,13 +12,13 @@ namespace VirtualShowcase.FaceTracking.GlassesCheck
 {
     public class ColourChecker : MonoBehaviour
     {
-        private Texture2D colorOverlayTexture;
+        private Texture2D _colorOverlayTexture;
 
         #region Event Functions
 
         private void Start()
         {
-            colorOverlayTexture = new Texture2D(1, 1);
+            _colorOverlayTexture = new Texture2D(1, 1);
         }
 
         #endregion
@@ -78,14 +78,14 @@ namespace VirtualShowcase.FaceTracking.GlassesCheck
             cBox.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
 
             // Resize texture.
-            colorOverlayTexture.Reinitialize(boxWidth, boxHeight);
+            _colorOverlayTexture.Reinitialize(boxWidth, boxHeight);
 
             // Set found pixels to white (from FindPixels method).
-            colorOverlayTexture.SetPixels32(foundPixelsArr);
+            _colorOverlayTexture.SetPixels32(foundPixelsArr);
 
             // Apply and set the texture.
-            colorOverlayTexture.Apply();
-            colorOverlay.texture = colorOverlayTexture;
+            _colorOverlayTexture.Apply();
+            colorOverlay.texture = _colorOverlayTexture;
 
             return passed;
         }
@@ -163,14 +163,14 @@ namespace VirtualShowcase.FaceTracking.GlassesCheck
         public NativeCounter.ParallelWriter Counter;
         [ReadOnly] public int HueThresh;
         [ReadOnly] public int TargetHue;
-        [ReadOnly] private static readonly Color32 Colour = Color.white;
+        [ReadOnly] private static readonly Color32 COLOUR = Color.white;
 
         public void Execute(int index)
         {
             Color pixel = TextureColours[index];
             if (PixelInThreshold(pixel, HueThresh, TargetHue))
             {
-                FoundPixelsArr[index] = Colour;
+                FoundPixelsArr[index] = COLOUR;
                 Counter.Increment();
             }
         }

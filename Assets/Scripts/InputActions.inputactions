@@ -60,15 +60,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Reset transform real",
-                    "type": "Button",
-                    "id": "352caa59-a492-4b36-9d36-59be90d12718",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Move X Y",
                     "type": "PassThrough",
                     "id": "eb076d61-2e57-4d47-af20-4b23524561f4",
@@ -149,17 +140,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "Previous model",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "87c91e3c-4bd4-4b24-9817-9cd969fa8e56",
-                    "path": "<Keyboard>/t",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Reset transform real",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -322,8 +302,41 @@
         {
             "name": "Menu",
             "id": "1fc7ee5b-c8b1-4f02-9cd1-930825db0e0a",
-            "actions": [],
-            "bindings": []
+            "actions": [
+                {
+                    "name": "Back",
+                    "type": "Button",
+                    "id": "462395f1-d2a9-4ab1-b518-f12c1c64127c",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "42ef5255-602a-47e8-8787-49bd08a9f505",
+                    "path": "<Keyboard>/backspace",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Back",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ce09ae2a-fc52-4f37-9281-75cc38e514f9",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Back",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         },
         {
             "name": "Calibration",
@@ -447,15 +460,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Main scene switch",
-                    "type": "Button",
-                    "id": "8fb0f13d-6536-4309-94ae-c21eddad426b",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Stereo toggle",
                     "type": "Button",
                     "id": "eeadb41b-cfa2-483c-affa-65860267cca9",
@@ -481,6 +485,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Next scene",
+                    "type": "Button",
+                    "id": "7502a058-0e66-4ce9-9067-b65ffd4faf8f",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Previous scene",
+                    "type": "Button",
+                    "id": "410f8fc5-297c-4d6d-9ad5-033328be114e",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -492,17 +514,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "Calibration toggle",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "99814d18-3a4c-4035-bd16-84339d9a1d71",
-                    "path": "<Keyboard>/s",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Main scene switch",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -536,6 +547,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Menu toggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b83ac940-599a-4b22-890b-d34ad4810802",
+                    "path": "<Keyboard>/upArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Next scene",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "858478b7-59e3-484a-b9b0-607dbaba1fbe",
+                    "path": "<Keyboard>/downArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Previous scene",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

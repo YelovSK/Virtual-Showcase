@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
 using UnityEngine.UI;
 using VirtualShowcase.Enums;
-using VirtualShowcase.MainScene;
+using VirtualShowcase.Showcase;
 using VirtualShowcase.Utilities;
 
 namespace VirtualShowcase.Core
@@ -15,25 +15,40 @@ namespace VirtualShowcase.Core
         #region Serialized Fields
 
         [Header("Scene objects")]
-        [SerializeField] private ShowcaseInitializer showcaseInitializer;
-        [SerializeField] private CalibrationManager calibrationManager;
+        [SerializeField]
+        private CameraPreview cameraPreview;
+
+        [SerializeField]
+        private HeadCameras cameras;
+
+        [SerializeField]
+        private CalibrationController calibrationController;
 
         [Header("Rotation images")]
-        [SerializeField] private Image rotationImage;
-        [SerializeField] private Sprite[] rotationImages;
+        [SerializeField]
+        private Image rotationImage;
+
+        [SerializeField]
+        private Sprite[] rotationImages;
 
         #endregion
 
+        private ERotationImage _currentRotationImage;
+
         private InputActions _inputActions;
-        private eRotationImage _currentRotationImage;
         private KeyControl[] _rotationKeys;
-        
+
         #region Event Functions
 
         private void Awake()
         {
             _inputActions = new InputActions();
-            _rotationKeys = new[] {Keyboard.current.xKey, Keyboard.current.yKey, Keyboard.current.zKey};
+            _rotationKeys = new[] { Keyboard.current.xKey, Keyboard.current.yKey, Keyboard.current.zKey };
+        }
+
+        private void Update()
+        {
+            ShowRotationImage();
         }
 
         private void OnEnable()
@@ -41,7 +56,7 @@ namespace VirtualShowcase.Core
             _inputActions.Enable();
 
             _inputActions.Model.Get().SetEnabled(!MySceneManager.Instance.IsInMenu);
-            _inputActions.Calibration.Get().SetEnabled(calibrationManager.Enabled);
+            _inputActions.Calibration.Get().SetEnabled(calibrationController.Enabled);
             _inputActions.MainGeneral.Get().SetEnabled(true);
 
             SubscribeToInputActions();
@@ -53,49 +68,69 @@ namespace VirtualShowcase.Core
             _inputActions.Dispose();
         }
 
+        #endregion
+
         private void SubscribeToInputActions()
         {
             // Enable/disable action maps depending on the state.
-            Events.MenuSceneOpened.AddListener(_ => _inputActions.Model.Disable());
-            Events.MainSceneOpened.AddListener(_ => _inputActions.Model.Enable());
-            Events.CameraPreviewChanged.AddListener((sender, isEnabled) =>
+            MyEvents.MenuSceneOpened.AddListener(_ => _inputActions.Model.Disable());
+            MyEvents.MainSceneOpened.AddListener(_ => _inputActions.Model.Enable());
+            MyEvents.CameraPreviewChanged.AddListener((sender, isEnabled) =>
             {
                 _inputActions.Calibration.Get().SetEnabled(!isEnabled);
                 _inputActions.Model.Get().SetEnabled(!isEnabled);
                 _inputActions.MainGeneral.Calibrationtoggle.SetEnabled(!isEnabled);
+                _inputActions.MainGeneral.Nextscene.SetEnabled(!isEnabled);
+                _inputActions.MainGeneral.Previousscene.SetEnabled(!isEnabled);
             });
-            Events.CalibrationChanged.AddListener((sender, isEnabled) =>
+            MyEvents.CalibrationChanged.AddListener((sender, isEnabled) =>
             {
                 _inputActions.Calibration.Get().SetEnabled(isEnabled);
                 _inputActions.Model.Get().SetEnabled(!isEnabled);
                 _inputActions.MainGeneral.Previewtoggle.SetEnabled(!isEnabled);
+                _inputActions.MainGeneral.Nextscene.SetEnabled(!isEnabled);
+                _inputActions.MainGeneral.Previousscene.SetEnabled(!isEnabled);
             });
 
             // Subscribe to input actions.
-            _inputActions.MainGeneral.Mainsceneswitch.performed += _ => MySceneManager.Instance.SwitchToNextMainScene();
+            _inputActions.MainGeneral.Nextscene.performed += _ => MySceneManager.Instance.LoadNextShowcaseScene();
+            _inputActions.MainGeneral.Previousscene.performed += _ => MySceneManager.Instance.LoadPreviousShowcaseScene();
             _inputActions.MainGeneral.Previewtoggle.performed += _ =>
             {
                 MyPrefs.PreviewOn = !MyPrefs.PreviewOn;
-                showcaseInitializer.SetCameraPreviewEnabled(MyPrefs.PreviewOn);
+                if (MyPrefs.PreviewOn)
+                {
+                    cameraPreview.ShowLargePreview();
+                }
+                else
+                {
+                    cameraPreview.Disable();
+                }
             };
             _inputActions.MainGeneral.Stereotoggle.performed += _ =>
             {
                 MyPrefs.StereoOn = !MyPrefs.StereoOn;
-                showcaseInitializer.SetStereo(MyPrefs.StereoOn);
+                if (MyPrefs.StereoOn)
+                {
+                    cameras.EnableStereo();
+                }
+                else
+                {
+                    cameras.DisableStereo();
+                }
             };
-            _inputActions.MainGeneral.Calibrationtoggle.performed += _ => calibrationManager.ToggleCalibrationUI();
+            _inputActions.MainGeneral.Calibrationtoggle.performed += _ => calibrationController.ToggleCalibrationUI();
             _inputActions.MainGeneral.Menutoggle.performed += _ => MySceneManager.Instance.ToggleMenu();
 
-            _inputActions.Calibration.Nextcalibration.performed += _ => calibrationManager.SetNextState();
-            _inputActions.Calibration.Topedge.performed += _ => calibrationManager.SetState(eCalibrationState.Top);
-            _inputActions.Calibration.Bottomedge.performed += _ => calibrationManager.SetState(eCalibrationState.Bottom);
-            _inputActions.Calibration.Leftedge.performed += _ => calibrationManager.SetState(eCalibrationState.Left);
-            _inputActions.Calibration.Rightedge.performed += _ => calibrationManager.SetState(eCalibrationState.Right);
+            _inputActions.Calibration.Nextcalibration.performed += _ => calibrationController.SetNextState();
+            _inputActions.Calibration.Topedge.performed += _ => calibrationController.SetState(CalibrationState.Top);
+            _inputActions.Calibration.Bottomedge.performed += _ => calibrationController.SetState(CalibrationState.Bottom);
+            _inputActions.Calibration.Leftedge.performed += _ => calibrationController.SetState(CalibrationState.Left);
+            _inputActions.Calibration.Rightedge.performed += _ => calibrationController.SetState(CalibrationState.Right);
 
-            _inputActions.Model.Resettransformreal.performed += _ => ModelLoader.Instance.ResetTransform(showRealSize: true);
-            _inputActions.Model.Resettransform.performed += _ => ModelLoader.Instance.ResetTransform(showRealSize: false);
-            _inputActions.Model.Nextmodel.performed += _ => ModelLoader.Instance.SwitchActiveModel();
-            _inputActions.Model.Previousmodel.performed += _ => ModelLoader.Instance.SwitchActiveModel(false);
+            _inputActions.Model.Resettransform.performed += _ => ModelLoader.Instance.ResetTransform();
+            _inputActions.Model.Nextmodel.performed += _ => ModelLoader.Instance.CycleActiveModel();
+            _inputActions.Model.Previousmodel.performed += _ => ModelLoader.Instance.CycleActiveModel(false);
 
             _inputActions.Model.MoveXY.performed += ctx =>
             {
@@ -109,6 +144,12 @@ namespace VirtualShowcase.Core
             };
             _inputActions.Model.Scale.performed += ctx =>
             {
+                // Wouldn't be "real" size if scaled (:
+                if (MyPrefs.ShowRealModelSize)
+                {
+                    return;
+                }
+
                 var delta = ctx.ReadValue<float>();
                 float scale = delta > 0
                     ? 1.1f
@@ -131,11 +172,6 @@ namespace VirtualShowcase.Core
                 ModelLoader.Instance.Models.ForEach(model => model.transform.Rotate(0, 0, -delta, Space.World));
             };
         }
-        
-        private void Update()
-        {
-            ShowRotationImage();
-        }
 
         private void ShowRotationImage()
         {
@@ -145,17 +181,17 @@ namespace VirtualShowcase.Core
             rotationImage.gameObject.SetActive(pressedKey != null);
 
             if (pressedKey == null)
+            {
                 return;
+            }
 
-            var rotation = (eRotationImage)Enum.Parse(typeof(eRotationImage), pressedKey.name.ToUpper());
+            var rotation = (ERotationImage)Enum.Parse(typeof(ERotationImage), pressedKey.name.ToUpper());
             if (rotation != _currentRotationImage)
             {
                 _currentRotationImage = rotation;
-                rotationImage.sprite = rotationImages[(int) rotation];
+                rotationImage.sprite = rotationImages[(int)rotation];
             }
         }
-
-        #endregion
 
         public void ResetAllBindings()
         {
@@ -163,7 +199,7 @@ namespace VirtualShowcase.Core
             MyPrefs.Rebinds = null;
         }
 
-        private enum eRotationImage
+        private enum ERotationImage
         {
             X = 0,
             Y = 1,

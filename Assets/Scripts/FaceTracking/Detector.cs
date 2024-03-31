@@ -16,18 +16,18 @@ namespace VirtualShowcase.FaceTracking
         #endregion
 
         // Barracuda face detector
-        private FaceDetector detector;
+        private FaceDetector _detector;
 
         #region Event Functions
 
         private void Start()
         {
-            detector = new FaceDetector(resources);
+            _detector = new FaceDetector(resources);
         }
 
         private void OnDestroy()
         {
-            detector?.Dispose();
+            _detector?.Dispose();
         }
 
         #endregion
@@ -40,10 +40,10 @@ namespace VirtualShowcase.FaceTracking
         public bool RunDetector(Texture input)
         {
             // Face detection.
-            detector.ProcessImage(input, MyPrefs.DetectionThreshold);
+            _detector.ProcessImage(input, MyPrefs.DetectionThreshold);
 
             // Check if any detections were found.
-            Detection[] detections = detector.Detections.ToArray();
+            Detection[] detections = _detector.Detections.ToArray();
             bool faceFound = detections.Any();
 
             // Activate/Deactivate marker if face was/wasn't found.

@@ -17,7 +17,8 @@ Assets/Objects/*
 !Assets/Objects/studio.obj
 !Assets/Objects/studio.obj.meta
 !Assets/Objects/uploads_files_873805_studio_objs.fbx.meta
-Packages/jp.keijiro.mediapipe.blazeface
+Assets/BigFurniturePack/*
+Assets/TextMesh Pro
 
 # Visual Studio cache directory
 .vs/

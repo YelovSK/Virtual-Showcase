@@ -16,31 +16,38 @@ namespace VirtualShowcase
     {
         #region Serialized Fields
 
-        [SerializeField] private RawImage previewUI;
-        [SerializeField] private Texture2D defaultCamTexture;
-        [SerializeField] private CameraTransform cameraTransform;
-        [SerializeField] private KeyPointsUpdater keyPointsUpdater;
+        [SerializeField]
+        private RawImage previewUI;
+
+        [SerializeField]
+        private Texture2D defaultCamTexture;
+
+        [SerializeField]
+        private CameraTransform cameraTransform;
+
+        [SerializeField]
+        private KeyPointsUpdater keyPointsUpdater;
 
         #endregion
 
-        private ColourChecker colorChecker;
-        private RawImage colorOverlay;
-        private Detector detector;
-        private TMP_Text distanceText;
-        private EyeTracker eyeTracker;
+        private ColourChecker _colorChecker;
+        private RawImage _colorOverlay;
+        private Detector _detector;
+        private TMP_Text _distanceText;
+        private EyeTracker _eyeTracker;
 
         #region Event Functions
 
         private void Awake()
         {
-            Events.CameraUpdated.AddListener(_ => HandleCameraUpdate());
+            MyEvents.CameraUpdated.AddListener(_ => HandleCameraUpdate());
 
-            colorChecker = GetComponent<ColourChecker>();
-            eyeTracker = GetComponent<EyeTracker>();
-            detector = GetComponent<Detector>();
+            _colorChecker = GetComponent<ColourChecker>();
+            _eyeTracker = GetComponent<EyeTracker>();
+            _detector = GetComponent<Detector>();
 
-            distanceText = previewUI.GetComponentInChildren<TMP_Text>();
-            colorOverlay = previewUI.GetComponentsInChildren<RawImage>().First(x => x.gameObject != previewUI.gameObject);
+            _distanceText = previewUI.GetComponentInChildren<TMP_Text>();
+            _colorOverlay = previewUI.GetComponentsInChildren<RawImage>().First(x => x.gameObject != previewUI.gameObject);
         }
 
         private void Start()
@@ -49,14 +56,18 @@ namespace VirtualShowcase
 
             // Broken webcam, image set to "NO WEBCAM SHOWING".
             if (!WebcamInput.Instance.IsCameraRunning)
+            {
                 previewUI.texture = defaultCamTexture;
+            }
         }
+
+        #endregion
 
         private void HandleCameraUpdate()
         {
             previewUI.texture = WebcamInput.Instance.Texture;
 
-            bool faceFound = detector.RunDetector(WebcamInput.Instance.Texture);
+            bool faceFound = _detector.RunDetector(WebcamInput.Instance.Texture);
 
             if (!faceFound)
             {
@@ -64,39 +75,43 @@ namespace VirtualShowcase
                 return;
             }
 
-            eyeTracker.SmoothEyes();
+            _eyeTracker.SmoothEyes();
 
             keyPointsUpdater.UpdateKeyPoints();
 
-            if (MyPrefs.GlassesCheck == false) HideColorOverlay();
+            if (MyPrefs.GlassesCheck == false)
+            {
+                HideColorOverlay();
+            }
 
-            bool glassesOn = MyPrefs.GlassesCheck == false || colorChecker.CheckGlassesOn(WebcamInput.Instance.Texture, colorOverlay, distanceText);
+            bool glassesOn = MyPrefs.GlassesCheck == false ||
+                             _colorChecker.CheckGlassesOn(WebcamInput.Instance.Texture, _colorOverlay, _distanceText);
 
             UpdateHeadDistanceUI();
 
             if (glassesOn && MySceneManager.Instance.IsInMainScene)
+            {
                 cameraTransform.Transform();
+            }
         }
-
-        #endregion
 
         private void HideColorOverlay()
         {
-            distanceText.text = string.Empty;
-            colorOverlay.gameObject.SetActive(false);
+            _distanceText.text = string.Empty;
+            _colorOverlay.gameObject.SetActive(false);
         }
 
         private void UpdateHeadDistanceUI()
         {
             // Threshold in cm for distance to be considered "close" to the calibrated distance.
             const int threshold = 10;
-            var currentDistance = (int) EyeTracker.GetRealHeadDistance();
+            var currentDistance = (int)EyeTracker.GetRealHeadDistance();
             int calibratedDistance = MyPrefs.ScreenDistance;
 
             // Uncalibrated.
             if (currentDistance == 0)
             {
-                distanceText.text = "<size=50><color=red>Uncalibrated</color></size>";
+                _distanceText.text = "<size=50><color=red>Uncalibrated</color></size>";
                 return;
             }
 
@@ -107,13 +122,15 @@ namespace VirtualShowcase
             int difference = currentDistance - calibratedDistance;
             string differenceText = difference + "cm";
             if (difference > 0)
+            {
                 differenceText = "+" + differenceText;
+            }
 
             // Update UI. Text in brackets is smaller. Difference and current distance is coloured.
-            float size = distanceText.fontSize / 2.2f;
-            distanceText.text =
+            float size = _distanceText.fontSize / 2.2f;
+            _distanceText.text =
                 $"<color={color}>{differenceText}</color> <size={size}>(<color={color}>{currentDistance}cm</color> vs {calibratedDistance}cm)</size>";
-            distanceText.ForceMeshUpdate();
+            _distanceText.ForceMeshUpdate();
         }
     }
 }

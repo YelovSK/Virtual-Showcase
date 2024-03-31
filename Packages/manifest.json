@@ -34,7 +34,7 @@
     "com.unity.ugui": "1.0.0",
     "com.whinarn.unitymeshsimplifier": "https://github.com/Whinarn/UnityMeshSimplifier.git",
     "com.yasirkula.simplefilebrowser": "https://github.com/yasirkula/UnitySimpleFileBrowser.git",
-    "jp.keijiro.klak.testtools": "1.0.4",
+    "jp.keijiro.klak.testtools": "3.1.0",
     "jp.keijiro.mediapipe.blazeface": "https://github.com/keijiro/BlazeFaceBarracuda.git?path=/Packages/jp.keijiro.mediapipe.blazeface",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",

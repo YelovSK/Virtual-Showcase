@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
-using VirtualShowcase.MainScene;
+using UnityEngine.Serialization;
+using VirtualShowcase.Showcase;
 using VirtualShowcase.Utilities;
 
 namespace VirtualShowcase.FaceTracking.Transform
@@ -9,8 +10,12 @@ namespace VirtualShowcase.FaceTracking.Transform
     {
         #region Serialized Fields
 
-        [SerializeField] private Projection projection;
-        [SerializeField] private CalibrationManager calibrationManager;
+        [SerializeField]
+        private Projection projection;
+
+        [FormerlySerializedAs("calibrationManager")]
+        [SerializeField]
+        private CalibrationController calibrationController;
 
         #endregion
 
@@ -33,7 +38,10 @@ namespace VirtualShowcase.FaceTracking.Transform
         /// <param name="start2">Start of the target range</param>
         /// <param name="stop2">End of the target range</param>
         /// <returns>Mapped value</returns>
-        public static float Map(float n, float start1, float stop1, float start2, float stop2) => (n - start1) / (stop1 - start1) * (stop2 - start2) + start2;
+        public static float Map(float n, float start1, float stop1, float start2, float stop2)
+        {
+            return (n - start1) / (stop1 - start1) * (stop2 - start2) + start2;
+        }
 
 
         public void Transform()
@@ -48,8 +56,11 @@ namespace VirtualShowcase.FaceTracking.Transform
             float y = (centerY - 0.5f) * Projection.ScreenHeight;
 
             // Update head position.
-            if (MyPrefs.InterpolatedPosition && !calibrationManager.Enabled && WebcamInput.Instance.AverageFramesBetweenUpdates >= 2)
+            if (MyPrefs.TrackingInterpolation && !calibrationController.Enabled &&
+                WebcamInput.Instance.AverageFramesBetweenUpdates >= 2)
+            {
                 StartCoroutine(SmoothTranslation(new Vector3(x, y, transform.localPosition.z)));
+            }
             else
             {
                 transform.localPosition = new Vector3(x, y, transform.localPosition.z);
@@ -74,7 +85,9 @@ namespace VirtualShowcase.FaceTracking.Transform
 
                 // Sometimes new Webcam frame might come earlier than expected.
                 if (WebcamInput.Instance.CameraUpdatedThisFrame)
+                {
                     yield break;
+                }
             }
         }
     }

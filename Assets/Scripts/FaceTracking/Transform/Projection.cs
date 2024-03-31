@@ -11,17 +11,28 @@ namespace VirtualShowcase.FaceTracking.Transform
     [ExecuteInEditMode]
     public sealed class Projection : MonoBehaviour
     {
+        private const float EYE_SEPARATION_CM = 6f;
+
         #region Serialized Fields
 
-        [SerializeField] private bool drawGizmos;
-        [SerializeField] private Camera[] cameras;
-        [SerializeField] private GameObject virtualWindow;
+        [SerializeField]
+        private bool drawGizmos;
+
+        [SerializeField]
+        private UnityEngine.Camera[] cameras;
+
+        [SerializeField]
+        private GameObject virtualWindow;
 
         #endregion
 
-        public static float ScreenWidth => DiagonalToWidthAndHeight(Constants.SCREEN_BASE_DIAGONAL_INCHES, Constants.SCREEN_ASPECT_RATIO).x;
-        public static float ScreenHeight => DiagonalToWidthAndHeight(Constants.SCREEN_BASE_DIAGONAL_INCHES, Constants.SCREEN_ASPECT_RATIO).y;
-        private IEnumerable<Camera> ActiveCameras => cameras.Where(x => x.isActiveAndEnabled);
+        public static float ScreenWidth =>
+            DiagonalToWidthAndHeight(Constants.SCREEN_BASE_DIAGONAL_INCHES, Constants.SCREEN_ASPECT_RATIO).x;
+
+        public static float ScreenHeight =>
+            DiagonalToWidthAndHeight(Constants.SCREEN_BASE_DIAGONAL_INCHES, Constants.SCREEN_ASPECT_RATIO).y;
+
+        private IEnumerable<UnityEngine.Camera> ActiveCameras => cameras.Where(x => x.isActiveAndEnabled);
 
         #region Event Functions
 
@@ -31,13 +42,15 @@ namespace VirtualShowcase.FaceTracking.Transform
         private void Update()
         {
             if (!Application.isPlaying)
+            {
                 UpdateCameraProjection();
+            }
         }
 
         private void OnEnable()
         {
-            Events.ScreenSizeChanged.AddListener((sender, size) => SetCameraDistance());
-            Events.ScreenDistanceChanged.AddListener((sender, distance) => SetCameraDistance());
+            MyEvents.ScreenSizeChanged.AddListener((sender, size) => SetCameraDistance());
+            MyEvents.ScreenDistanceChanged.AddListener((sender, distance) => SetCameraDistance());
         }
 
         /// <summary>
@@ -46,13 +59,15 @@ namespace VirtualShowcase.FaceTracking.Transform
         private void OnDrawGizmos()
         {
             if (!drawGizmos)
+            {
                 return;
+            }
 
             // Draw lines to show the screen.
             DrawScreen();
 
             // Draw lines from cameras to screen corners.
-            foreach (Camera cam in ActiveCameras)
+            foreach (UnityEngine.Camera cam in ActiveCameras)
             {
                 DrawCameraGizmos(cam);
             }
@@ -66,7 +81,7 @@ namespace VirtualShowcase.FaceTracking.Transform
             const float cms_in_inch = 2.54f;
             double height = diagonalInches / Math.Sqrt(aspectRatio * aspectRatio + 1);
             double width = aspectRatio * height;
-            return new Vector2((float) (width * cms_in_inch), (float) (height * cms_in_inch));
+            return new Vector2((float)(width * cms_in_inch), (float)(height * cms_in_inch));
         }
 
         public void SetCameraDistance()
@@ -75,17 +90,18 @@ namespace VirtualShowcase.FaceTracking.Transform
             // and scaling the scene according to the screen size, the screen size stays
             // the same and only the head distance changes. The field of view is the same
             // as if the scene/screen got scaled to the new size.
-            float sizeRatio = (float) Constants.SCREEN_BASE_DIAGONAL_INCHES / MyPrefs.ScreenSize;
+            float sizeRatio = (float)Constants.SCREEN_BASE_DIAGONAL_INCHES / MyPrefs.ScreenSize;
             float headDistance = MyPrefs.ScreenDistance * sizeRatio;
             transform.localPosition = new Vector3(0, 0, -headDistance);
 
             // Likewise, eye separation needs to be adjusted with the same ratio.
-            cameras[(int)eCamera.Left].transform.localPosition = new Vector3(3 * sizeRatio, 0, 0); // right eye
-            cameras[(int)eCamera.Right].transform.localPosition = new Vector3(-3 * sizeRatio, 0, 0); // left eye
+            cameras[(int)Camera.Left].transform.localPosition = new Vector3(EYE_SEPARATION_CM / 2 * sizeRatio, 0, 0); // Right eye
+            cameras[(int)Camera.Right].transform.localPosition =
+                new Vector3(-(EYE_SEPARATION_CM / 2) * sizeRatio, 0, 0); // Left eye
 
             // Set the camera's near according to the distance
             // because Unity's fog is affected by the camera's near.
-            foreach (Camera cam in cameras)
+            foreach (UnityEngine.Camera cam in cameras)
             {
                 cam.nearClipPlane = Math.Max(headDistance - 30f, 0.1f);
                 cam.farClipPlane = headDistance + 200;
@@ -97,13 +113,13 @@ namespace VirtualShowcase.FaceTracking.Transform
 
         public void UpdateCameraProjection()
         {
-            foreach (Camera cam in cameras)
+            foreach (UnityEngine.Camera cam in cameras)
             {
                 SetCameraFrustum(cam);
             }
         }
 
-        private void SetCameraFrustum(Camera cam)
+        private void SetCameraFrustum(UnityEngine.Camera cam)
         {
             // Cache variables.
             float width = ScreenWidth;
@@ -198,7 +214,7 @@ namespace VirtualShowcase.FaceTracking.Transform
             rightTop = screen.position + screen.right * 0.5f * width + screen.up * 0.5f * height;
         }
 
-        private enum eCamera
+        private enum Camera
         {
             Main = 0,
             Left = 1,

@@ -15,15 +15,15 @@ namespace VirtualShowcase.FaceTracking.Marker
 
         #endregion
 
-        private RectTransform parent;
-        private RectTransform xform;
+        private RectTransform _parent;
+        private RectTransform _xform;
 
         #region Event Functions
 
         private void Awake()
         {
-            xform = GetComponent<RectTransform>();
-            parent = (RectTransform) xform.parent;
+            _xform = GetComponent<RectTransform>();
+            _parent = (RectTransform) _xform.parent;
         }
 
         #endregion
@@ -32,13 +32,13 @@ namespace VirtualShowcase.FaceTracking.Marker
         public void UpdateKeyPoints()
         {
             // Bounding box center.
-            Rect rect = parent.rect;
-            xform.anchoredPosition = Detection.center * rect.size;
+            Rect rect = _parent.rect;
+            _xform.anchoredPosition = Detection.center * rect.size;
 
             // Bounding box size.
             Vector2 size = Detection.extent * rect.size;
-            xform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
-            xform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+            _xform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
+            _xform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
 
             // print(detection.center + " | " + detection.extent);
 
@@ -58,7 +58,7 @@ namespace VirtualShowcase.FaceTracking.Marker
 
         private void SetKeyPoint(RectTransform form, Vector2 point)
         {
-            form.anchoredPosition = point * parent.rect.size - xform.anchoredPosition;
+            form.anchoredPosition = point * _parent.rect.size - _xform.anchoredPosition;
         }
     }
 }

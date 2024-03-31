@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Unity.Jobs;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using VirtualShowcase.Core;
 using VirtualShowcase.Utilities;
 
@@ -11,47 +12,55 @@ namespace VirtualShowcase.FaceTracking
 {
     public class WebcamInput : MonoSingleton<WebcamInput>
     {
-        private readonly List<int> framesBetweenUpdatesHistory = new();
-        private Color32[] colorBuffer;
-        private bool isMirrored;
-        private WebCamTexture webcamTexture;
+        private readonly List<int> _framesBetweenUpdatesHistory = new();
+        private Color32[] _colorBuffer;
+        private bool _isMirrored;
+        private WebCamTexture _webcamTexture;
 
         public int FramesBetweenUpdates { get; private set; }
         public int AverageFramesBetweenUpdates { get; private set; }
 
         public Texture2D Texture { get; private set; }
 
-        public bool IsCameraRunning => Texture != null && webcamTexture != null && webcamTexture.isPlaying;
-        public bool CameraUpdatedThisFrame => Texture != null && webcamTexture != null && webcamTexture.didUpdateThisFrame;
-        public string DeviceName => webcamTexture?.deviceName;
+        public bool IsCameraRunning => Texture != null && _webcamTexture != null && _webcamTexture.isPlaying;
+        public bool CameraUpdatedThisFrame => Texture != null && _webcamTexture != null && _webcamTexture.didUpdateThisFrame;
+        public string DeviceName => _webcamTexture?.deviceName;
 
         #region Event Functions
 
         private void Start()
         {
-            Events.CameraChanged.AddListener((sender, cameraName) => ChangeWebcam(cameraName));
-            Events.CameraUpdated.AddListener(_ => UpdateTexture2D());
+            MyEvents.CameraChanged.AddListener((sender, cameraName) => ChangeWebcam(cameraName));
             // Webcam gets paused when switching scenes.
-            UnityEngine.SceneManagement.SceneManager.sceneLoaded += (scene, mode) => webcamTexture?.Play();
+            SceneManager.sceneLoaded += (scene, mode) => _webcamTexture?.Play();
         }
 
         private void Update()
         {
-            if (webcamTexture.didUpdateThisFrame)
+            if (_webcamTexture is null || !_webcamTexture.isPlaying)
+            {
+                return;
+            }
+
+            if (_webcamTexture.didUpdateThisFrame)
             {
                 CalculateAverageFramesBetweenUpdates();
                 FramesBetweenUpdates = 0;
-                Events.CameraUpdated.Invoke(gameObject);
+                UpdateTexture2D();
+                MyEvents.CameraUpdated.Invoke(gameObject);
             }
-            else FramesBetweenUpdates++;
+            else
+            {
+                FramesBetweenUpdates++;
+            }
         }
 
         private void OnDestroy()
         {
-            if (webcamTexture != null)
+            if (_webcamTexture != null)
             {
-                webcamTexture.Stop();
-                Destroy(webcamTexture);
+                _webcamTexture.Stop();
+                Destroy(_webcamTexture);
             }
 
             if (Texture != null)
@@ -68,7 +77,7 @@ namespace VirtualShowcase.FaceTracking
             {
                 return;
             }
-            
+
             WebCamDevice[] devices = WebCamTexture.devices;
             if (devices.Length == 0)
             {
@@ -77,39 +86,42 @@ namespace VirtualShowcase.FaceTracking
             }
 
             WebCamDevice device = devices.First(x => x.name == deviceName);
-            
-            isMirrored = device.isFrontFacing;
 
-            if (webcamTexture == null)
+            _isMirrored = device.isFrontFacing;
+
+            if (_webcamTexture == null)
             {
-                webcamTexture = new WebCamTexture(device.name);
-                webcamTexture.requestedFPS = int.MaxValue;
-                webcamTexture.Play();
+                _webcamTexture = new WebCamTexture(device.name);
+                _webcamTexture.requestedFPS = int.MaxValue;
+                _webcamTexture.Play();
             }
-            else if (webcamTexture.deviceName != device.name)
+            else if (_webcamTexture.deviceName != device.name)
             {
-                webcamTexture.Stop();
-                webcamTexture.deviceName = device.name;
-                webcamTexture.requestedFPS = int.MaxValue;
-                webcamTexture.Play();
+                _webcamTexture.Stop();
+                _webcamTexture.deviceName = device.name;
+                _webcamTexture.requestedFPS = int.MaxValue;
+                _webcamTexture.Play();
             }
-            else if (!webcamTexture.isPlaying) webcamTexture.Play();
+            else if (!_webcamTexture.isPlaying)
+            {
+                _webcamTexture.Play();
+            }
 
             // Might take a bit for the webcam to initialize (thanks Unity).
-            while (webcamTexture.width == 16 || webcamTexture.height == 16)
+            while (_webcamTexture.width == 16 || _webcamTexture.height == 16)
             {
                 await Task.Yield();
             }
 
             Initialize();
 
-            print($"Webcam resolution: {webcamTexture.width}x{webcamTexture.height}");
-            print($"Webcam is mirrored: {isMirrored}");
+            print($"Webcam resolution: {_webcamTexture.width}x{_webcamTexture.height}");
+            print($"Webcam is mirrored: {_isMirrored}");
         }
 
         private void Initialize()
         {
-            int largerDimension = Math.Max(webcamTexture.width, webcamTexture.height);
+            int largerDimension = Math.Max(_webcamTexture.width, _webcamTexture.height);
 
             // Initialize target texture.
             Texture = new Texture2D(largerDimension, largerDimension, TextureFormat.RGBA32, false);
@@ -117,20 +129,22 @@ namespace VirtualShowcase.FaceTracking
             Texture.SetPixels32(pixels);
 
             // Initialize color buffer.
-            colorBuffer = new Color32[webcamTexture.width * webcamTexture.height];
+            _colorBuffer = new Color32[_webcamTexture.width * _webcamTexture.height];
         }
 
         private void CalculateAverageFramesBetweenUpdates()
         {
             const int history_count = 10;
-            if (framesBetweenUpdatesHistory.Count == history_count)
-                framesBetweenUpdatesHistory.RemoveAt(0);
+            if (_framesBetweenUpdatesHistory.Count == history_count)
+            {
+                _framesBetweenUpdatesHistory.RemoveAt(0);
+            }
 
-            framesBetweenUpdatesHistory.Add(FramesBetweenUpdates);
+            _framesBetweenUpdatesHistory.Add(FramesBetweenUpdates);
 
             // Take the highest from the lowest 80% to avoid outliers.
             // Technically not average, but naming is difficult.
-            AverageFramesBetweenUpdates = framesBetweenUpdatesHistory
+            AverageFramesBetweenUpdates = _framesBetweenUpdatesHistory
                 .OrderByDescending(framesCount => framesCount)
                 .TakeLast(history_count - 2)
                 .Max();
@@ -138,30 +152,34 @@ namespace VirtualShowcase.FaceTracking
 
         private void UpdateTexture2D()
         {
-            int startY = (Texture.height - webcamTexture.height) / 2;
-            webcamTexture.GetPixels32(colorBuffer);
+            int startY = (Texture.height - _webcamTexture.height) / 2;
+            _webcamTexture.GetPixels32(_colorBuffer);
 
-            if (isMirrored)
+            if (_isMirrored)
             {
                 var job = new MirrorJob
                 {
-                    Width = webcamTexture.width,
+                    Width = _webcamTexture.width,
                 };
-                JobHandle jobHandle = job.Schedule(webcamTexture.height, 10);
+                JobHandle jobHandle = job.Schedule(_webcamTexture.height, 10);
                 jobHandle.Complete();
             }
 
-            Texture.SetPixels32(0, startY, webcamTexture.width, webcamTexture.height, colorBuffer);
+            Texture.SetPixels32(0, startY, _webcamTexture.width, _webcamTexture.height, _colorBuffer);
             Texture.Apply();
         }
 
         private struct MirrorJob : IJobParallelFor
         {
+            #region Serialized Fields
+
             public int Width;
+
+            #endregion
 
             public void Execute(int index)
             {
-                Array.Reverse(Instance.colorBuffer, index * Width, Width);
+                Array.Reverse(Instance._colorBuffer, index * Width, Width);
             }
         }
     }

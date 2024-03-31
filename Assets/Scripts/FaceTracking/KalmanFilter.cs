@@ -10,20 +10,20 @@ namespace VirtualShowcase.FaceTracking
         // Constants:
         //-----------------------------------------------------------------------------------------
 
-        public const float DefaultQ = 0.000001f;
-        public const float DefaultR = 0.01f;
+        public const float DEFAULT_Q = 0.000001f;
+        public const float DEFAULT_R = 0.01f;
 
-        public const float DefaultP = 1f;
-        private float k;
-        private float p = DefaultP;
+        public const float DEFAULT_P = 1f;
+        private float _k;
+        private float _p = DEFAULT_P;
 
         //-----------------------------------------------------------------------------------------
         // Private Fields:
         //-----------------------------------------------------------------------------------------
 
-        private float q;
-        private float r;
-        private T x;
+        private float _q;
+        private float _r;
+        private T _x;
 
         //-----------------------------------------------------------------------------------------
         // Constructors:
@@ -31,14 +31,14 @@ namespace VirtualShowcase.FaceTracking
 
         // N.B. passing in DEFAULT_Q is necessary, even though we have the same value (as an optional parameter), because this
         // defines a parameterless constructor, allowing us to be new()'d in generics contexts.
-        public KalmanFilter() : this(DefaultQ)
+        public KalmanFilter() : this(DEFAULT_Q)
         {
         }
 
-        public KalmanFilter(float aQ = DefaultQ, float aR = DefaultR)
+        public KalmanFilter(float aQ = DEFAULT_Q, float aR = DEFAULT_R)
         {
-            q = aQ;
-            r = aR;
+            _q = aQ;
+            _r = aR;
         }
 
         //-----------------------------------------------------------------------------------------
@@ -48,19 +48,19 @@ namespace VirtualShowcase.FaceTracking
         public T Update(T measurement, float? newQ = null, float? newR = null)
         {
             // update values if supplied.
-            if (newQ != null && q != newQ) q = (float) newQ;
-            if (newR != null && r != newR) r = (float) newR;
+            if (newQ != null && _q != newQ) _q = (float) newQ;
+            if (newR != null && _r != newR) _r = (float) newR;
 
             // update measurement.
             {
-                k = (p + q) / (p + q + r);
-                p = r * (p + q) / (r + p + q);
+                _k = (_p + _q) / (_p + _q + _r);
+                _p = _r * (_p + _q) / (_r + _p + _q);
             }
 
             // filter result back into calculation.
             dynamic dynamicMeasurement = measurement;
-            dynamic result = x + (dynamicMeasurement - x) * k;
-            x = result;
+            dynamic result = _x + (dynamicMeasurement - _x) * _k;
+            _x = result;
             return result;
         }
 
@@ -86,9 +86,9 @@ namespace VirtualShowcase.FaceTracking
 
         public void Reset()
         {
-            p = 1;
-            x = default;
-            k = 0;
+            _p = 1;
+            _x = default;
+            _k = 0;
         }
     }
 }
