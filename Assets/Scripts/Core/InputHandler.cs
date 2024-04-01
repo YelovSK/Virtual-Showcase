@@ -187,7 +187,6 @@ namespace VirtualShowcase.Core
             // I want to show the image even if only the modifier is pressed,
             // and unfortunately the input system only sends an event when the mouse is moving.
             KeyControl pressedKey = _rotationKeys.FirstOrDefault(x => x.IsPressed());
-            canvas.gameObject.SetActive(pressedKey != null);
             rotationImage.gameObject.SetActive(pressedKey != null);
 
             if (pressedKey == null)

@@ -28,7 +28,13 @@ namespace VirtualShowcase.Showcase
 
         private void Start()
         {
-            MyEvents.ScreenSizeChanged.AddListener((sender, size) => ResetTransform());
+            MyEvents.ScreenSizeChanged.AddListener((sender, size) =>
+            {
+                if (MyPrefs.ShowRealModelSize)
+                {
+                    ResetTransform();
+                }
+            });
             MyEvents.ModelAdded.AddListener(async (sender, path) => await LoadModels());
             MyEvents.ModelRemoved.AddListener((sender, path) => DeleteModel(path));
             MyEvents.ModelsRemoveRequest.AddListener(sender => DeleteModels());
