@@ -24,6 +24,9 @@ namespace VirtualShowcase.Core
         [SerializeField]
         private CalibrationController calibrationController;
 
+        [SerializeField]
+        private Canvas canvas;
+
         [Header("Rotation images")]
         [SerializeField]
         private Image rotationImage;
@@ -33,7 +36,7 @@ namespace VirtualShowcase.Core
 
         #endregion
 
-        private ERotationImage _currentRotationImage;
+        private RotationImage _currentRotationImage;
 
         private InputActions _inputActions;
         private KeyControl[] _rotationKeys;
@@ -100,10 +103,12 @@ namespace VirtualShowcase.Core
                 MyPrefs.PreviewOn = !MyPrefs.PreviewOn;
                 if (MyPrefs.PreviewOn)
                 {
+                    canvas.gameObject.SetActive(true);
                     cameraPreview.ShowLargePreview();
                 }
                 else
                 {
+                    canvas.gameObject.SetActive(false);
                     cameraPreview.Disable();
                 }
             };
@@ -119,7 +124,11 @@ namespace VirtualShowcase.Core
                     cameras.DisableStereo();
                 }
             };
-            _inputActions.MainGeneral.Calibrationtoggle.performed += _ => calibrationController.ToggleCalibrationUI();
+            _inputActions.MainGeneral.Calibrationtoggle.performed += _ =>
+            {
+                canvas.gameObject.SetActive(!canvas.gameObject.activeSelf);
+                calibrationController.ToggleCalibrationUI();
+            };
             _inputActions.MainGeneral.Menutoggle.performed += _ => MySceneManager.Instance.ToggleMenu();
 
             _inputActions.Calibration.Nextcalibration.performed += _ => calibrationController.SetNextState();
@@ -185,7 +194,7 @@ namespace VirtualShowcase.Core
                 return;
             }
 
-            var rotation = (ERotationImage)Enum.Parse(typeof(ERotationImage), pressedKey.name.ToUpper());
+            var rotation = (RotationImage)Enum.Parse(typeof(RotationImage), pressedKey.name.ToUpper());
             if (rotation != _currentRotationImage)
             {
                 _currentRotationImage = rotation;
@@ -193,13 +202,7 @@ namespace VirtualShowcase.Core
             }
         }
 
-        public void ResetAllBindings()
-        {
-            _inputActions.Model.Get().RemoveAllBindingOverrides();
-            MyPrefs.Rebinds = null;
-        }
-
-        private enum ERotationImage
+        private enum RotationImage
         {
             X = 0,
             Y = 1,

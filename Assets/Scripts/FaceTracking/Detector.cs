@@ -43,7 +43,7 @@ namespace VirtualShowcase.FaceTracking
         public bool RunDetector(Texture input)
         {
             // Face detection.
-            _detector.ProcessImage(input, MyPrefs.DetectionThreshold);
+            _detector.ProcessImage(input, (float)MyPrefs.DetectionThreshold / 100);
 
             // Check if any detections were found.
             Detection[] detections = _detector.Detections.ToArray();
@@ -53,9 +53,8 @@ namespace VirtualShowcase.FaceTracking
             keyPointsUpdater.gameObject.SetActive(faceFound);
 
             if (faceFound)
-
-                // Get detection with largest bounding box.
             {
+                // Get detection with largest bounding box.
                 KeyPointsUpdater.Detection = detections
                     .OrderByDescending(x => x.extent.magnitude)
                     .First();

@@ -56,7 +56,7 @@ void CSInit(uint3 id : SV_DispatchThreadID)
     ColorCounter[0] = 0;
 }
 
-[numthreads(8,8,1)]
+[numthreads(16, 16, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
     if (id.x < StartX || id.x >= EndX || id.y < StartY || id.y >= EndY)

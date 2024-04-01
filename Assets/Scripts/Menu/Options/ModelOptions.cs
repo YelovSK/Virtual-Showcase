@@ -49,9 +49,17 @@ namespace VirtualShowcase.Menu.Options
         private void SetDefaults()
         {
             simplifyMeshToggle.isOn = MyPrefs.SimplifyMesh;
+            SetSimplifyMesh(simplifyMeshToggle);
+
             maxTriCountSlider.value = MyPrefs.MaxTriCount;
+            SetMaxTriCount(maxTriCountSlider);
+
             showRealSizeToggle.isOn = MyPrefs.ShowRealModelSize;
+            SetShowRealSize(showRealSizeToggle);
+
             loadImmediatelyToggle.isOn = MyPrefs.LoadModelImmediately;
+            SetLoadImmediately(loadImmediatelyToggle);
+
             foreach (string model in MyPrefs.ModelPaths)
             {
                 InstantiateModelRow(model);

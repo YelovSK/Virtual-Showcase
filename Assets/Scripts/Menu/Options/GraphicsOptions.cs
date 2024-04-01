@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -10,7 +9,7 @@ using VirtualShowcase.Utilities;
 
 namespace VirtualShowcase.Menu.Options
 {
-    public class GraphicsOptions : MonoBehaviour, IDisabledOnAwake
+    public class GraphicsOptions : MonoBehaviour
     {
         #region Serialized Fields
 
@@ -50,28 +49,28 @@ namespace VirtualShowcase.Menu.Options
 
         #endregion
 
-        public void Initialize()
-        {
-            throw new NotImplementedException();
-        }
-
         private void SetDefaults()
         {
             // Resolution
             int ix = resolutionDropdown.options.FindIndex(option => option.text == MyPrefs.Resolution.ToString());
             resolutionDropdown.value = ix == -1 ? 0 : ix;
+            SetResolution(resolutionDropdown);
 
             // Quality
             qualityDropdown.value = (int)MyPrefs.Quality;
+            SetQuality(qualityDropdown);
 
             // FPS Limit
             fpsLimitSlider.value = MyPrefs.FpsLimit;
+            SetFpsLimit(fpsLimitSlider);
 
             // Vsync
             vsyncToggle.isOn = MyPrefs.Vsync;
+            SetVsync(vsyncToggle);
 
             // Screen mode
             screenModeDropdown.value = (int)MyPrefs.ScreenMode;
+            SetScreenMode(screenModeDropdown);
         }
 
         private void AddScreenModeOptions()

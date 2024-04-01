@@ -32,7 +32,6 @@ namespace VirtualShowcase.FaceTracking
 
         #endregion
 
-
         public void SmoothEyes()
         {
             switch (MyPrefs.SmoothingType)

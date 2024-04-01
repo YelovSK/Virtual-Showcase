@@ -91,7 +91,7 @@ namespace VirtualShowcase.FaceTracking.GlassesCheck
             colorCounterShader.SetVector("InRangeColor", inRangeColor);
 
             colorCounterShader.Dispatch(kernelInit, 1, 1, 1);
-            colorCounterShader.Dispatch(kernelMain, texture.width / 8, texture.height / 8, 1);
+            colorCounterShader.Dispatch(kernelMain, texture.width / 16, texture.height / 16, 1);
 
             cBuffer.GetData(count);
             cBuffer.Release();

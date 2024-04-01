@@ -50,58 +50,6 @@ namespace VirtualShowcase.Utilities
 
             // Set binds back.
             Rebinds = binds;
-            SetDefaultPlayerPrefs();
-        }
-
-        private static void SetDefaultPlayerPrefs()
-        {
-            // Default main scene.
-            MainScene = MainScenes.MainRoom.ToString();
-
-            // Eyes smoothing types.
-            SmoothingType = SmoothingType.Off;
-
-            // Smoothing values.
-            FramesSmoothed = 8;
-            KalmanQ = 0.002f;
-            KalmanR = 0.04f;
-
-            // Webcam names.
-            CameraName = WebCamTexture.devices.First().name;
-
-            // Threshold for face detection confidence.
-            DetectionThreshold = 0.5f;
-
-            // Hue range for glasses detection.
-            Hue = 240;
-            HueThreshold = 20;
-
-            // Path to .obj file to get loaded.
-            ModelPaths = null;
-
-            // Checks.
-            PreviewOn = false;
-            StereoOn = false;
-            UpdateHeadDistance = false;
-            GlassesCheck = false;
-            TrackingInterpolation = false;
-
-            // Calibration screen edge values.
-            BottomCalibration = 0.0f;
-            TopCalibration = 1.0f;
-            LeftCalibration = 0.0f;
-            RightCalibration = 1.0f;
-
-            // Calibration screen parameters.
-            MyEvents.ScreenSizeChanged?.Invoke(null, 27);
-            ScreenSize = 27;
-            ScreenDistance = 80;
-
-            // Focal length for face distance.
-            FocalLength = EyeTracker.GetFocalLength(ScreenDistance);
-
-            // Default quality of 2 is the highest.
-            Quality = GraphicsQuality.High;
         }
 
         #region Properties
@@ -127,13 +75,13 @@ namespace VirtualShowcase.Utilities
 
         public static string MainScene
         {
-            get => PlayerPrefs.GetString("mainScene");
+            get => PlayerPrefs.GetString("mainScene", MySceneManager.ROOM_SCENE_NAME);
             set => PlayerPrefs.SetString("mainScene", value);
         }
 
         public static SmoothingType SmoothingType
         {
-            get => (SmoothingType)PlayerPrefs.GetInt("SmoothingType", (int)SmoothingType.Off);
+            get => (SmoothingType)PlayerPrefs.GetInt("SmoothingType", (int)SmoothingType.Average);
             set => PlayerPrefs.SetInt("SmoothingType", (int)value);
         }
 
@@ -153,7 +101,7 @@ namespace VirtualShowcase.Utilities
 
         public static float KalmanQ
         {
-            get => PlayerPrefs.GetFloat("kalmanQ");
+            get => PlayerPrefs.GetFloat("kalmanQ", 0.002f);
             set
             {
                 if (value is >= 0.00000001f and <= 0.01f)
@@ -165,7 +113,7 @@ namespace VirtualShowcase.Utilities
 
         public static float KalmanR
         {
-            get => PlayerPrefs.GetFloat("kalmanR");
+            get => PlayerPrefs.GetFloat("kalmanR", 0.04f);
             set
             {
                 if (value is >= 0.0001f and <= 0.5f)
@@ -177,25 +125,25 @@ namespace VirtualShowcase.Utilities
 
         public static string CameraName
         {
-            get => PlayerPrefs.GetString("cam");
+            get => PlayerPrefs.GetString("cam", WebCamTexture.devices.First().name);
             set => PlayerPrefs.SetString("cam", value);
         }
 
-        public static float DetectionThreshold
+        public static int DetectionThreshold
         {
-            get => PlayerPrefs.GetFloat("threshold");
+            get => PlayerPrefs.GetInt("threshold", 50);
             set
             {
-                if (value is >= 0.0f and <= 1.0f)
+                if (value is >= 1 and <= 100)
                 {
-                    PlayerPrefs.SetFloat("threshold", value);
+                    PlayerPrefs.SetInt("threshold", value);
                 }
             }
         }
 
         public static int Hue
         {
-            get => PlayerPrefs.GetInt("hue");
+            get => PlayerPrefs.GetInt("hue", 180);
             set
             {
                 if (value is >= 0 and <= 360)
@@ -207,7 +155,7 @@ namespace VirtualShowcase.Utilities
 
         public static int HueThreshold
         {
-            get => PlayerPrefs.GetInt("hueThresh");
+            get => PlayerPrefs.GetInt("hueThresh", 25);
             set
             {
                 if (value is >= 1 and <= 100)
@@ -268,7 +216,7 @@ namespace VirtualShowcase.Utilities
 
         public static bool PreviewOn
         {
-            get => PlayerPrefs.GetInt("previewOn").ToBool();
+            get => PlayerPrefs.GetInt("previewOn", 0).ToBool();
             set
             {
                 PlayerPrefs.SetInt("previewOn", value.ToInt());
@@ -278,13 +226,13 @@ namespace VirtualShowcase.Utilities
 
         public static bool StereoOn
         {
-            get => PlayerPrefs.GetInt("stereoOn").ToBool();
+            get => PlayerPrefs.GetInt("stereoOn", 0).ToBool();
             set => PlayerPrefs.SetInt("stereoOn", value.ToInt());
         }
 
         public static bool GlassesCheck
         {
-            get => PlayerPrefs.GetInt("glassesCheck").ToBool();
+            get => PlayerPrefs.GetInt("glassesCheck", 0).ToBool();
             set => PlayerPrefs.SetInt("glassesCheck", value.ToInt());
         }
 
@@ -338,7 +286,7 @@ namespace VirtualShowcase.Utilities
 
         public static int ScreenSize
         {
-            get => PlayerPrefs.GetInt("screenDiagonalInches");
+            get => PlayerPrefs.GetInt("screenDiagonalInches", 24);
             set
             {
                 if (value > 1)
@@ -350,7 +298,7 @@ namespace VirtualShowcase.Utilities
 
         public static int ScreenDistance
         {
-            get => PlayerPrefs.GetInt("distanceFromScreenCm");
+            get => PlayerPrefs.GetInt("distanceFromScreenCm", 100);
             set
             {
                 if (value > 1)
@@ -362,13 +310,13 @@ namespace VirtualShowcase.Utilities
 
         public static float FocalLength
         {
-            get => PlayerPrefs.GetFloat("focalLength");
+            get => PlayerPrefs.GetFloat("focalLength", EyeTracker.GetFocalLength(ScreenDistance));
             set => PlayerPrefs.SetFloat("focalLength", value);
         }
 
         public static GraphicsQuality Quality
         {
-            get => (GraphicsQuality)PlayerPrefs.GetInt("qualityIndex");
+            get => (GraphicsQuality)PlayerPrefs.GetInt("qualityIndex", (int)GraphicsQuality.High);
             set => PlayerPrefs.SetInt("qualityIndex", (int)value);
         }
 
@@ -388,12 +336,6 @@ namespace VirtualShowcase.Utilities
         {
             get => (FullScreenMode)PlayerPrefs.GetInt("screenMode", (int)FullScreenMode.FullScreenWindow);
             set => PlayerPrefs.SetInt("screenMode", (int)value);
-        }
-
-        public static bool UpdateHeadDistance
-        {
-            get => PlayerPrefs.GetInt("updateHeadDistance").ToBool();
-            set => PlayerPrefs.SetInt("updateHeadDistance", value.ToInt());
         }
 
         public static bool TrackingInterpolation

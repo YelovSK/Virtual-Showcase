@@ -10,55 +10,62 @@ namespace VirtualShowcase.FaceTracking.Marker
 
         #region Serialized Fields
 
-        [SerializeField] private RectTransform[] keyPoints;
-        [SerializeField] private TMP_Text confidenceText;
+        [SerializeField]
+        private RectTransform[] keyPoints;
+
+        [SerializeField]
+        private TMP_Text confidenceText;
+
+        [SerializeField]
+        private RectTransform parent;
+
+        [SerializeField]
+        private RectTransform xForm;
 
         #endregion
-
-        private RectTransform _parent;
-        private RectTransform _xform;
 
         #region Event Functions
 
         private void Awake()
         {
-            _xform = GetComponent<RectTransform>();
-            _parent = (RectTransform) _xform.parent;
+            xForm = GetComponent<RectTransform>();
+            parent = (RectTransform)xForm.parent;
         }
 
         #endregion
 
-
         public void UpdateKeyPoints()
         {
             // Bounding box center.
-            Rect rect = _parent.rect;
-            _xform.anchoredPosition = Detection.center * rect.size;
+            Rect rect = parent.rect;
+            xForm.anchoredPosition = Detection.center * rect.size;
 
             // Bounding box size.
             Vector2 size = Detection.extent * rect.size;
-            _xform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
-            _xform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+            xForm.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
+            xForm.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
 
             // print(detection.center + " | " + detection.extent);
 
             // Key points
             SetKeyPoint(keyPoints[0], EyeTracker.LeftEyeSmoothed);
             SetKeyPoint(keyPoints[1], EyeTracker.RightEyeSmoothed);
-
             // SetKeyPoint(keyPoints[2], Detection.mouth);
             // SetKeyPoint(keyPoints[3], Detection.nose);
             // SetKeyPoint(keyPoints[4], Detection.leftEar);
             // SetKeyPoint(keyPoints[5], Detection.rightEar);
 
             // Label.
-            confidenceText.text = $"{(int) (Detection.score * 100)}%";
+            confidenceText.text = $"{(int)(Detection.score * 100)}%";
         }
 
 
         private void SetKeyPoint(RectTransform form, Vector2 point)
         {
-            form.anchoredPosition = point * _parent.rect.size - _xform.anchoredPosition;
+            form.anchoredPosition = point * parent.rect.size - xForm.anchoredPosition;
         }
+
+        // private RectTransform parent;
+        // private RectTransform xForm;
     }
 }

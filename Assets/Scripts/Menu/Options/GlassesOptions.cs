@@ -35,12 +35,15 @@ namespace VirtualShowcase.Menu.Options
         {
             // Hue
             hueSlider.value = MyPrefs.Hue;
+            SetHue(hueSlider);
 
             // Hue Threshold
             hueThresholdSlider.value = MyPrefs.HueThreshold;
+            SetHueThreshold(hueThresholdSlider);
 
             // Check Glasses
             checkGlassesToggle.isOn = MyPrefs.GlassesCheck;
+            SetCheckGlasses(checkGlassesToggle);
         }
 
         public void SetHue(Slider sender)

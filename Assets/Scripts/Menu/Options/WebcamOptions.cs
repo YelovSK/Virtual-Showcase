@@ -30,7 +30,16 @@ namespace VirtualShowcase.Menu.Options
         private GameObject kalmanOptions;
 
         [SerializeField]
+        private Slider kalmanQSlider;
+
+        [SerializeField]
+        private Slider kalmanRSlider;
+
+        [SerializeField]
         private GameObject averageOptions;
+
+        [SerializeField]
+        private Slider framesSmoothedSlider;
 
         #endregion
 
@@ -51,16 +60,32 @@ namespace VirtualShowcase.Menu.Options
             // Webcam
             int ix = webcamDropdown.options.FindIndex(option => option.text == MyPrefs.CameraName);
             webcamDropdown.value = ix == -1 ? 0 : ix;
+            SetWebcam(webcamDropdown);
 
             // Threshold
             detectionThresholdSlider.value = MyPrefs.DetectionThreshold;
+            SetThreshold(detectionThresholdSlider);
 
             // Smoothing
             ix = smoothingDropdown.options.FindIndex(option => option.text == MyPrefs.SmoothingType.ToString());
             smoothingDropdown.value = ix == -1 ? 0 : ix;
+            SetSmoothing(smoothingDropdown);
+
+            // Kalman Q
+            kalmanQSlider.value = MyPrefs.KalmanQ;
+            SetKalmanQ(kalmanQSlider);
+
+            // Kalman R
+            kalmanRSlider.value = MyPrefs.KalmanR;
+            SetKalmanR(kalmanRSlider);
+
+            // Smoothed Frames
+            framesSmoothedSlider.value = MyPrefs.FramesSmoothed;
+            SetSmoothedFrames(framesSmoothedSlider);
 
             // Interpolation
             interpolationToggle.isOn = MyPrefs.TrackingInterpolation;
+            SetInterpolation(interpolationToggle);
         }
 
         public void SetWebcam(TMP_Dropdown sender)
@@ -101,7 +126,22 @@ namespace VirtualShowcase.Menu.Options
 
         public void SetThreshold(Slider sender)
         {
-            MyPrefs.DetectionThreshold = sender.value;
+            MyPrefs.DetectionThreshold = (int)sender.value;
+        }
+
+        public void SetKalmanQ(Slider sender)
+        {
+            MyPrefs.KalmanQ = sender.value;
+        }
+
+        public void SetKalmanR(Slider sender)
+        {
+            MyPrefs.KalmanR = sender.value;
+        }
+
+        public void SetSmoothedFrames(Slider sender)
+        {
+            MyPrefs.FramesSmoothed = (int)sender.value;
         }
 
         private void AddSmoothingOptions()

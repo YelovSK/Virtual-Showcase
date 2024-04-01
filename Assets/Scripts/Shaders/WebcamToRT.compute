@@ -16,7 +16,7 @@ uint sourceHeight;
 uint targetWidth;
 uint targetHeight;
 
-[numthreads(8, 8, 1)]
+[numthreads(16, 16, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
     const float gamma_fix = 1.0 / 2.2;

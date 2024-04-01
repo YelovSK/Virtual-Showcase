@@ -167,7 +167,7 @@ namespace VirtualShowcase.FaceTracking
             webcamToRenderTextureShader.SetTexture(kernelMain, "InputImage", _webcamTexture);
             webcamToRenderTextureShader.SetTexture(kernelMain, "OutputImage", Texture);
 
-            webcamToRenderTextureShader.Dispatch(kernelMain, Texture.width / 8, Texture.height / 8, 1);
+            webcamToRenderTextureShader.Dispatch(kernelMain, Texture.width / 16, Texture.height / 16, 1);
         }
     }
 }

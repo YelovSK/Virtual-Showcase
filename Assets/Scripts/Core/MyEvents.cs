@@ -39,6 +39,11 @@ namespace VirtualShowcase.Core
         public static CustomGameEvent ModelsLoadingEnd = new();
         public static CustomGameEvent<float> SceneLoadProgress = new();
 
+        /// <summary>
+        ///     True if found any faces, false otherwise.
+        /// </summary>
+        public static CustomGameEvent<bool> FaceDetectionDone = new();
+
         // wtf
         public static CustomGameEvent ModelsRemoveRequest = new();
 
