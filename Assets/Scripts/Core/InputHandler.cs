@@ -116,6 +116,7 @@ namespace VirtualShowcase.Core
             _inputActions.MainGeneral.Calibrationtoggle.performed += _ =>
             {
                 canvas.gameObject.SetActive(!canvas.gameObject.activeSelf);
+                calibrationController.gameObject.SetActive(!calibrationController.gameObject.activeSelf);
                 calibrationController.ToggleCalibrationUI();
             };
             _inputActions.MainGeneral.Menutoggle.performed += _ => MySceneManager.Instance.ToggleMenu();

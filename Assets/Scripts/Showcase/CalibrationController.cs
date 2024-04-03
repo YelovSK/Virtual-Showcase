@@ -19,16 +19,10 @@ namespace VirtualShowcase.Showcase
         private Canvas canvas;
 
         [SerializeField]
-        private GameObject calibrationUI;
-
-        [SerializeField]
         private Image monitorImage;
 
         [SerializeField]
         private Sprite[] monitorSprites;
-
-        [SerializeField]
-        private Transform cameraPreviewTransform;
 
         [SerializeField]
         private TMP_Text guideText;
@@ -59,9 +53,6 @@ namespace VirtualShowcase.Showcase
         private void Start()
         {
             _nextStateKeybind = new InputActions().Calibration.Nextcalibration.GetBindingDisplayString();
-
-            // Make UI invisible/disabled.
-            calibrationUI.SetActive(false);
 
             // Set sliders to the player prefs.
             distanceSlider.value = MyPrefs.ScreenDistance;
@@ -204,7 +195,6 @@ namespace VirtualShowcase.Showcase
 
         private void TurnOnPreview()
         {
-            calibrationUI.SetActive(true);
             canvas.gameObject.SetActive(true);
 
             // Enable camera preview.
@@ -213,7 +203,6 @@ namespace VirtualShowcase.Showcase
 
         private void TurnOffPreview()
         {
-            calibrationUI.SetActive(false);
             canvas.gameObject.SetActive(false);
 
             // Disable camera preview.

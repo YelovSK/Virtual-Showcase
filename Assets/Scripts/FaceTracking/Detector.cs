@@ -188,6 +188,17 @@ namespace VirtualShowcase.FaceTracking
         {
             return EyesDistance * distanceFromScreen / Constants.EYE_SEPARATION_CM;
         }
+
+        /// <returns>Detection with some random values.</returns>
+        public static FaceDetection GetDefault()
+        {
+            return new FaceDetection
+            {
+                LeftEye = new Vector2(1.0f, 0.5f),
+                RightEye = new Vector2(0.0f, 0.5f),
+                Score = 0.0f,
+            };
+        }
     }
 
     public class Eyes

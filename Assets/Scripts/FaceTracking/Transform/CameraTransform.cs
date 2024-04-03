@@ -58,12 +58,8 @@ namespace VirtualShowcase.FaceTracking.Transform
 
         public void Transform()
         {
-            if (detector.LastDetection is null)
-            {
-                Debug.LogError("No cached detection");
-            }
-
-            Transform(detector.LastDetection);
+            FaceDetection detection = detector.LastDetection ?? FaceDetection.GetDefault();
+            Transform(detection);
         }
 
         /// <summary>
