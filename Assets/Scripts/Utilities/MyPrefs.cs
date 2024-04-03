@@ -3,7 +3,6 @@ using System.Linq;
 using UnityEngine;
 using VirtualShowcase.Core;
 using VirtualShowcase.Enums;
-using VirtualShowcase.FaceTracking;
 
 namespace VirtualShowcase.Utilities
 {
@@ -308,9 +307,9 @@ namespace VirtualShowcase.Utilities
             }
         }
 
-        public static float FocalLength
+        public static float CalibratedFocalLength
         {
-            get => PlayerPrefs.GetFloat("focalLength", EyeTracker.GetFocalLength(ScreenDistance));
+            get => PlayerPrefs.GetFloat("focalLength", -1);
             set => PlayerPrefs.SetFloat("focalLength", value);
         }
 

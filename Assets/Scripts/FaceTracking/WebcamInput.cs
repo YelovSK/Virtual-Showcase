@@ -12,6 +12,12 @@ namespace VirtualShowcase.FaceTracking
 {
     public class WebcamInput : MonoSingleton<WebcamInput>
     {
+        [NonSerialized]
+        public static UnityEvent CameraChanged = new();
+
+        [NonSerialized]
+        public static UnityEvent CameraUpdated = new();
+
         #region Serialized Fields
 
         [SerializeField]
@@ -20,11 +26,8 @@ namespace VirtualShowcase.FaceTracking
         #endregion
 
         private readonly List<int> _framesBetweenUpdatesHistory = new();
-        private bool _isMirrored;
+        private bool _isFrontFacing;
         private WebCamTexture _webcamTexture;
-
-        [NonSerialized]
-        public UnityEvent CameraChanged = new();
 
         public int FramesBetweenUpdates { get; private set; }
         public int AverageFramesBetweenUpdates { get; private set; }
@@ -38,6 +41,7 @@ namespace VirtualShowcase.FaceTracking
 
         private void Start()
         {
+            ChangeWebcam(MyPrefs.CameraName);
             MyEvents.CameraChanged.AddListener((sender, cameraName) => ChangeWebcam(cameraName));
             // Webcam gets paused when switching scenes.
             SceneManager.sceneLoaded += (scene, mode) => _webcamTexture?.Play();
@@ -50,17 +54,16 @@ namespace VirtualShowcase.FaceTracking
                 return;
             }
 
-            if (_webcamTexture.didUpdateThisFrame)
-            {
-                CalculateAverageFramesBetweenUpdates();
-                FramesBetweenUpdates = 0;
-                CopyToRenderTexture();
-                MyEvents.CameraUpdated.Invoke(gameObject);
-            }
-            else
+            if (!_webcamTexture.didUpdateThisFrame)
             {
                 FramesBetweenUpdates++;
+                return;
             }
+
+            CalculateAverageFramesBetweenUpdates();
+            FramesBetweenUpdates = 0;
+            CopyToRenderTexture();
+            CameraUpdated.Invoke();
         }
 
         private void OnDestroy()
@@ -89,13 +92,13 @@ namespace VirtualShowcase.FaceTracking
             WebCamDevice[] devices = WebCamTexture.devices;
             if (devices.Length == 0)
             {
-                print("No webcam devices were found");
+                Debug.LogWarning("No webcam devices were found");
                 return;
             }
 
             WebCamDevice device = devices.First(x => x.name == deviceName);
 
-            _isMirrored = device.isFrontFacing;
+            _isFrontFacing = device.isFrontFacing;
 
             if (_webcamTexture == null)
             {
@@ -128,7 +131,7 @@ namespace VirtualShowcase.FaceTracking
             Texture.Create();
 
             print($"Webcam resolution: {_webcamTexture.width}x{_webcamTexture.height}");
-            print($"Webcam is mirrored: {_isMirrored}");
+            print($"Webcam is mirrored: {_isFrontFacing}");
 
             CameraChanged.Invoke();
         }
@@ -153,21 +156,23 @@ namespace VirtualShowcase.FaceTracking
 
         private void CopyToRenderTexture()
         {
-            // Black bars on the sides.
             int startY = (Texture.height - _webcamTexture.height) / 2;
 
-            int kernelMain = webcamToRenderTextureShader.FindKernel("CSMain");
+            int kernel = _isFrontFacing
+                ? webcamToRenderTextureShader.FindKernel("CopyMirrored")
+                : webcamToRenderTextureShader.FindKernel("Copy");
 
-            webcamToRenderTextureShader.SetInt("sourceWidth", _webcamTexture.width);
-            webcamToRenderTextureShader.SetInt("sourceHeight", _webcamTexture.height);
-            webcamToRenderTextureShader.SetInt("targetWidth", Texture.width);
-            webcamToRenderTextureShader.SetInt("targetHeight", Texture.height);
-            webcamToRenderTextureShader.SetInt("startY", startY);
-            webcamToRenderTextureShader.SetBool("mirror", _isMirrored);
-            webcamToRenderTextureShader.SetTexture(kernelMain, "InputImage", _webcamTexture);
-            webcamToRenderTextureShader.SetTexture(kernelMain, "OutputImage", Texture);
+            webcamToRenderTextureShader.SetTexture(kernel, "InputImage", _webcamTexture);
+            webcamToRenderTextureShader.SetTexture(kernel, "OutputImage", Texture);
 
-            webcamToRenderTextureShader.Dispatch(kernelMain, Texture.width / 16, Texture.height / 16, 1);
+            webcamToRenderTextureShader.SetInt("SourceWidth", _webcamTexture.width);
+            webcamToRenderTextureShader.SetInt("SourceHeight", _webcamTexture.height);
+            webcamToRenderTextureShader.SetInt("TargetWidth", Texture.width);
+            webcamToRenderTextureShader.SetInt("TargetHeight", Texture.height);
+            webcamToRenderTextureShader.SetInt("StartY", startY);
+
+            const int shader_threads = 16;
+            webcamToRenderTextureShader.Dispatch(kernel, Texture.width / shader_threads, Texture.height / shader_threads, 1);
         }
     }
 }

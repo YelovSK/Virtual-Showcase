@@ -27,19 +27,23 @@ namespace VirtualShowcase.Showcase
 
         private RawImage _image;
 
+        private Vector2 _originalPivot;
         private Vector3 _originalPosition;
-        private Vector3 _originalScale;
+        private RectTransform _rectTransform;
 
         #region Event Functions
 
         private void Awake()
         {
-            _originalScale = transform.localScale;
-            _originalPosition = transform.localPosition;
             _image = GetComponent<RawImage>();
+            _rectTransform = GetComponent<RectTransform>();
 
-            WebcamInput.Instance.CameraChanged.AddListener(OnCameraChanged);
-            MyEvents.FaceDetectionDone.AddListener(UpdateUI);
+            _originalPivot = _rectTransform.pivot;
+            _originalPosition = _rectTransform.position;
+
+            WebcamInput.CameraChanged.AddListener(OnCameraChanged);
+            Detector.FaceDetected.AddListener(OnFaceDetected);
+            Detector.FaceNotDetected.AddListener(OnFaceNotDetected);
 
             if (MyPrefs.PreviewOn)
             {
@@ -60,16 +64,19 @@ namespace VirtualShowcase.Showcase
 
         #endregion
 
-        private void UpdateUI(GameObject sender, bool faceFound)
+        private void OnFaceNotDetected()
         {
-            if (faceFound)
-            {
-                keyPointsUpdater.UpdateKeyPoints();
-                UpdateHeadDistanceUI();
-            }
+            distanceText.gameObject.SetActive(false);
+            keyPointsUpdater.gameObject.SetActive(false);
+        }
 
-            distanceText.gameObject.SetActive(faceFound);
-            keyPointsUpdater.gameObject.SetActive(faceFound);
+        private void OnFaceDetected(FaceDetection detection)
+        {
+            keyPointsUpdater.UpdateKeyPoints(detection);
+            UpdateHeadDistanceUI(detection);
+
+            distanceText.gameObject.SetActive(true);
+            keyPointsUpdater.gameObject.SetActive(true);
         }
 
         /// <summary>
@@ -80,16 +87,18 @@ namespace VirtualShowcase.Showcase
             Enable();
 
             // Stupid.
+            _rectTransform.pivot = new Vector2(0, 0);
+            _rectTransform.position = new Vector3(0, 0, 0);
             transform.localScale = Vector3.one * 0.5f;
-            transform.localPosition = new Vector3(-710, -310, 0);
         }
 
         public void ShowLargePreview()
         {
             Enable();
 
-            transform.localScale = _originalScale;
-            transform.localPosition = _originalPosition;
+            _rectTransform.pivot = _originalPivot;
+            _rectTransform.position = _originalPosition;
+            transform.localScale = Vector3.one;
         }
 
         public void Enable()
@@ -118,25 +127,24 @@ namespace VirtualShowcase.Showcase
             }
         }
 
-        private void UpdateHeadDistanceUI()
+        private void UpdateHeadDistanceUI(FaceDetection detection)
         {
-            // Threshold in cm for distance to be considered "close" to the calibrated distance.
-            const int threshold = 10;
-            var currentDistance = (int)EyeTracker.GetRealHeadDistance();
-            int calibratedDistance = MyPrefs.ScreenDistance;
-
             // Uncalibrated.
-            if (currentDistance == 0)
+            if (MyPrefs.CalibratedFocalLength.EqualsWithDelta(-1))
             {
                 distanceText.text = "<size=50><color=red>Uncalibrated</color></size>";
                 return;
             }
 
+            // Threshold in cm for distance to be considered "close" to the calibrated distance.
+            const int threshold = 10;
+            var currentDistance = (int)detection.GetRealHeadDistance(MyPrefs.CalibratedFocalLength);
+
             // Green text if within threshold, else red.
-            string color = Math.Abs(currentDistance - calibratedDistance) <= threshold ? "green" : "red";
+            string color = Math.Abs(currentDistance - MyPrefs.ScreenDistance) <= threshold ? "green" : "red";
 
             // Difference in cm, show "+" if too far, "-" if too close.
-            int difference = currentDistance - calibratedDistance;
+            int difference = currentDistance - MyPrefs.ScreenDistance;
             string differenceText = difference + "cm";
             if (difference > 0)
             {
@@ -146,7 +154,7 @@ namespace VirtualShowcase.Showcase
             // Update UI. Text in brackets is smaller. Difference and current distance is coloured.
             float size = distanceText.fontSize / 2.2f;
             distanceText.text =
-                $"<color={color}>{differenceText}</color> <size={size}>(<color={color}>{currentDistance}cm</color> vs {calibratedDistance}cm)</size>";
+                $"<color={color}>{differenceText}</color> <size={size}>(<color={color}>{currentDistance}cm</color> vs {MyPrefs.ScreenDistance}cm)</size>";
             distanceText.ForceMeshUpdate();
         }
     }

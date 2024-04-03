@@ -10,9 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6938027245835659937}
   - component: {fileID: 7812021950053757122}
-  - component: {fileID: 6106036576034832082}
   - component: {fileID: 5428982965342325994}
-  - component: {fileID: 7398908018952484068}
   m_Layer: 0
   m_Name: FaceTracking
   m_TagString: Face tracking
@@ -48,19 +46,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resources: {fileID: 11400000, guid: 5594fd2934aca864980b90fe058f4161, type: 2}
-  keyPointsUpdater: {fileID: 0}
---- !u!114 &6106036576034832082
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 178426139709489057}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8c2ecc40021ea1f4785a619c62fc732a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &5428982965342325994
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -74,19 +59,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   colorCounterShader: {fileID: 7200000, guid: be1a443aaaf53c948b11c4e99cbe5e5f, type: 3}
---- !u!114 &7398908018952484068
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 178426139709489057}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ffa12ca5a7f22047817498981206b49, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  previewUI: {fileID: 0}
-  defaultCamTexture: {fileID: 2800000, guid: 206ba24cdf772b24e979bf09f3ec3461, type: 3}
-  cameraTransform: {fileID: 0}
-  keyPointsUpdater: {fileID: 0}

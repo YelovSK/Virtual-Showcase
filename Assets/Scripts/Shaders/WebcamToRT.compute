@@ -1,39 +1,49 @@
-#pragma kernel CSMain
+#pragma kernel Copy
+#pragma kernel CopyMirrored
 
 // Textures
 Texture2D<float4> InputImage;
 RWTexture2D<float4> OutputImage;
 
-// Stuff
-uint startY;
-bool mirror;
+// Pos
+uint StartY;
 
 // Source
-uint sourceWidth;
-uint sourceHeight;
+uint SourceWidth;
+uint SourceHeight;
 
 // Target
-uint targetWidth;
-uint targetHeight;
+uint TargetWidth;
+uint TargetHeight;
+
+// Constants
+static const float GAMMA_FIX = 1.0 / 2.2;
+static const float4 BLACK = float4(0, 0, 0, 1);
 
 [numthreads(16, 16, 1)]
-void CSMain(uint3 id : SV_DispatchThreadID)
+void Copy(uint3 id : SV_DispatchThreadID)
 {
-    const float gamma_fix = 1.0 / 2.2;
-
     // Outside of the source image -> black borders.
-    if (id.y >= sourceHeight + startY || id.y <= startY)
+    if (id.y >= SourceHeight + StartY || id.y <= StartY)
     {
-        OutputImage[id.xy] = float4(0, 0, 0, 1);
+        OutputImage[id.xy] = BLACK;
         return;
     }
 
-    if (mirror)
+    const float4 color = InputImage[float2(id.x, id.y - StartY)];
+    OutputImage[id.xy] = pow(color, GAMMA_FIX);
+}
+
+[numthreads(16, 16, 1)]
+void CopyMirrored(uint3 id : SV_DispatchThreadID)
+{
+    // Outside of the source image -> black borders.
+    if (id.y >= SourceHeight + StartY || id.y <= StartY)
     {
-        OutputImage[id.xy] = pow(InputImage[float2(targetWidth - id.x, id.y - startY)], gamma_fix);
+        OutputImage[id.xy] = BLACK;
+        return;
     }
-    else
-    {
-        OutputImage[id.xy] = pow(InputImage[float2(id.x, id.y - startY)], gamma_fix);
-    }
+
+    const float4 color = InputImage[float2(TargetWidth - id.x, id.y - StartY)];
+    OutputImage[id.xy] = pow(color, GAMMA_FIX);
 }

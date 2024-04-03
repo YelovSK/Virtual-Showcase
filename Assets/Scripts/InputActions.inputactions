@@ -85,6 +85,33 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Rotate X modifier",
+                    "type": "Value",
+                    "id": "d65797ce-0bdb-4569-ab0c-b115250c3463",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Hold(duration=1.401298E-45,pressPoint=1.401298E-45)",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Rotate Y modifier",
+                    "type": "Value",
+                    "id": "bb8570a2-f861-4ee5-b0cc-31ea0034f8a3",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Hold(duration=1.401298E-45,pressPoint=1.401298E-45)",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Rotate Z modifier",
+                    "type": "Value",
+                    "id": "5be42f98-d337-4f36-ab72-d1b4b195cb20",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Hold(duration=1.401298E-45,pressPoint=1.401298E-45)",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -296,6 +323,39 @@
                     "action": "Rotate Z",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "c3ecab2f-50bf-43f9-8bb3-1f4010166129",
+                    "path": "<Keyboard>/x",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotate X modifier",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "363cf070-6c46-4772-adea-866603c611f0",
+                    "path": "<Keyboard>/y",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotate Y modifier",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ca93f4df-d48b-4747-ac14-e5037487eae6",
+                    "path": "<Keyboard>/z",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotate Z modifier",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },

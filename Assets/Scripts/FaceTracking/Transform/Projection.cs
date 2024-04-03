@@ -11,8 +11,6 @@ namespace VirtualShowcase.FaceTracking.Transform
     [ExecuteInEditMode]
     public sealed class Projection : MonoBehaviour
     {
-        private const float EYE_SEPARATION_CM = 6f;
-
         #region Serialized Fields
 
         [SerializeField]
@@ -95,9 +93,10 @@ namespace VirtualShowcase.FaceTracking.Transform
             transform.localPosition = new Vector3(0, 0, -headDistance);
 
             // Likewise, eye separation needs to be adjusted with the same ratio.
-            cameras[(int)Camera.Left].transform.localPosition = new Vector3(EYE_SEPARATION_CM / 2 * sizeRatio, 0, 0); // Right eye
+            cameras[(int)Camera.Left].transform.localPosition =
+                new Vector3(Constants.EYE_SEPARATION_CM / 2 * sizeRatio, 0, 0); // Right eye
             cameras[(int)Camera.Right].transform.localPosition =
-                new Vector3(-(EYE_SEPARATION_CM / 2) * sizeRatio, 0, 0); // Left eye
+                new Vector3(-(Constants.EYE_SEPARATION_CM / 2) * sizeRatio, 0, 0); // Left eye
 
             // Set the camera's near according to the distance
             // because Unity's fog is affected by the camera's near.

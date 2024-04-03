@@ -1,6 +1,6 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Serialization;
+using VirtualShowcase.FaceTracking.GlassesCheck;
 using VirtualShowcase.Showcase;
 using VirtualShowcase.Utilities;
 
@@ -13,9 +13,11 @@ namespace VirtualShowcase.FaceTracking.Transform
         [SerializeField]
         private Projection projection;
 
-        [FormerlySerializedAs("calibrationManager")]
         [SerializeField]
         private CalibrationController calibrationController;
+
+        [SerializeField]
+        private Detector detector;
 
         #endregion
 
@@ -23,33 +25,19 @@ namespace VirtualShowcase.FaceTracking.Transform
 
         private void Start()
         {
+            ColourChecker.GlassesCheckSkipped.AddListener(Transform);
+            ColourChecker.GlassesCheckPassed.AddListener(Transform);
             projection.UpdateCameraProjection();
         }
 
         #endregion
 
-
-        /// <summary>
-        ///     Maps a value from a range to another range.
-        /// </summary>
-        /// <param name="n">Value to map</param>
-        /// <param name="start1">Start of the original range</param>
-        /// <param name="stop1">End of the original range</param>
-        /// <param name="start2">Start of the target range</param>
-        /// <param name="stop2">End of the target range</param>
-        /// <returns>Mapped value</returns>
-        public static float Map(float n, float start1, float stop1, float start2, float stop2)
-        {
-            return (n - start1) / (stop1 - start1) * (stop2 - start2) + start2;
-        }
-
-
-        public void Transform()
+        public void Transform(FaceDetection detection)
         {
             // Map coords based on the calibration.
             // Middle of the screen is 0.0f, left is -0.5f, right is 0.5f.
-            float centerX = Map(EyeTracker.EyeCenter.x, MyPrefs.LeftCalibration, MyPrefs.RightCalibration, 0.0f, 1.0f);
-            float centerY = Map(EyeTracker.EyeCenter.y, MyPrefs.BottomCalibration, MyPrefs.TopCalibration, 0.0f, 1.0f);
+            float centerX = detection.EyesCenter.x.Map(MyPrefs.LeftCalibration, MyPrefs.RightCalibration, 0.0f, 1.0f);
+            float centerY = detection.EyesCenter.y.Map(MyPrefs.BottomCalibration, MyPrefs.TopCalibration, 0.0f, 1.0f);
 
             // Get local x, y coordinates of the head.
             float x = (centerX - 0.5f) * Projection.ScreenWidth;
@@ -59,7 +47,7 @@ namespace VirtualShowcase.FaceTracking.Transform
             if (MyPrefs.TrackingInterpolation && !calibrationController.Enabled &&
                 WebcamInput.Instance.AverageFramesBetweenUpdates >= 2)
             {
-                StartCoroutine(SmoothTranslation(new Vector3(x, y, transform.localPosition.z)));
+                StartCoroutine(InterpolateCamera(new Vector3(x, y, transform.localPosition.z)));
             }
             else
             {
@@ -68,12 +56,22 @@ namespace VirtualShowcase.FaceTracking.Transform
             }
         }
 
+        public void Transform()
+        {
+            if (detector.LastDetection is null)
+            {
+                Debug.LogError("No cached detection");
+            }
+
+            Transform(detector.LastDetection);
+        }
+
         /// <summary>
         ///     Smooths out the translation of the head over multiple frames, but not longer than the frametime of the webcam.
         /// </summary>
         /// <param name="target">Final position</param>
         /// <returns></returns>
-        private IEnumerator SmoothTranslation(Vector3 target)
+        private IEnumerator InterpolateCamera(Vector3 target)
         {
             int positionCount = WebcamInput.Instance.AverageFramesBetweenUpdates + 1;
             for (var i = 1; i <= positionCount; i++)

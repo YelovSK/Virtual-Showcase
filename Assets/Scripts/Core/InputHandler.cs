@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Controls;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using VirtualShowcase.Enums;
 using VirtualShowcase.Showcase;
@@ -39,19 +35,12 @@ namespace VirtualShowcase.Core
         private RotationImage _currentRotationImage;
 
         private InputActions _inputActions;
-        private KeyControl[] _rotationKeys;
 
         #region Event Functions
 
         private void Awake()
         {
             _inputActions = new InputActions();
-            _rotationKeys = new[] { Keyboard.current.xKey, Keyboard.current.yKey, Keyboard.current.zKey };
-        }
-
-        private void Update()
-        {
-            ShowRotationImage();
         }
 
         private void OnEnable()
@@ -170,36 +159,34 @@ namespace VirtualShowcase.Core
                 var delta = ctx.ReadValue<float>();
                 ModelLoader.Instance.Models.ForEach(model => model.transform.Rotate(delta, 0, 0, Space.World));
             };
+            _inputActions.Model.RotateXmodifier.performed += ctx =>
+            {
+                rotationImage.gameObject.SetActive(true);
+                rotationImage.sprite = rotationImages[(int)RotationImage.X];
+            };
+            _inputActions.Model.RotateXmodifier.canceled += ctx => { rotationImage.gameObject.SetActive(false); };
             _inputActions.Model.RotateY.performed += ctx =>
             {
                 var delta = ctx.ReadValue<float>();
                 ModelLoader.Instance.Models.ForEach(model => model.transform.Rotate(0, -delta, 0, Space.World));
             };
+            _inputActions.Model.RotateYmodifier.performed += ctx =>
+            {
+                rotationImage.gameObject.SetActive(true);
+                rotationImage.sprite = rotationImages[(int)RotationImage.Y];
+            };
+            _inputActions.Model.RotateYmodifier.canceled += ctx => { rotationImage.gameObject.SetActive(false); };
             _inputActions.Model.RotateZ.performed += ctx =>
             {
                 var delta = ctx.ReadValue<float>();
                 ModelLoader.Instance.Models.ForEach(model => model.transform.Rotate(0, 0, -delta, Space.World));
             };
-        }
-
-        private void ShowRotationImage()
-        {
-            // I want to show the image even if only the modifier is pressed,
-            // and unfortunately the input system only sends an event when the mouse is moving.
-            KeyControl pressedKey = _rotationKeys.FirstOrDefault(x => x.IsPressed());
-            rotationImage.gameObject.SetActive(pressedKey != null);
-
-            if (pressedKey == null)
+            _inputActions.Model.RotateZmodifier.performed += ctx =>
             {
-                return;
-            }
-
-            var rotation = (RotationImage)Enum.Parse(typeof(RotationImage), pressedKey.name.ToUpper());
-            if (rotation != _currentRotationImage)
-            {
-                _currentRotationImage = rotation;
-                rotationImage.sprite = rotationImages[(int)rotation];
-            }
+                rotationImage.gameObject.SetActive(true);
+                rotationImage.sprite = rotationImages[(int)RotationImage.Z];
+            };
+            _inputActions.Model.RotateZmodifier.canceled += ctx => { rotationImage.gameObject.SetActive(false); };
         }
 
         private enum RotationImage

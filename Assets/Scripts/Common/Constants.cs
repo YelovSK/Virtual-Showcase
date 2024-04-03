@@ -14,5 +14,7 @@
         // Screen
         public const int SCREEN_BASE_DIAGONAL_INCHES = 24;
         public const float SCREEN_ASPECT_RATIO = 16 / 9f;
+
+        public const float EYE_SEPARATION_CM = 6f;
     }
 }

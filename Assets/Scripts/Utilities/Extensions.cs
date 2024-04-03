@@ -257,6 +257,25 @@ namespace VirtualShowcase.Utilities
                 action.Disable();
             }
         }
+
+        /// <summary>
+        ///     Maps a value from a range to another range.
+        /// </summary>
+        /// <param name="n">Value to map</param>
+        /// <param name="start1">Start of the original range</param>
+        /// <param name="stop1">End of the original range</param>
+        /// <param name="start2">Start of the target range</param>
+        /// <param name="stop2">End of the target range</param>
+        /// <returns>Mapped value</returns>
+        public static float Map(this float n, float start1, float stop1, float start2, float stop2)
+        {
+            return (n - start1) / (stop1 - start1) * (stop2 - start2) + start2;
+        }
+
+        public static bool EqualsWithDelta(this float value, float other, float delta = 0.0001f)
+        {
+            return Mathf.Abs(value - other) < delta;
+        }
     }
 
     public class CopyTransform

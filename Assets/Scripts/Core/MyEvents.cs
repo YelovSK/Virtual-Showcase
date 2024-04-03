@@ -42,11 +42,11 @@ namespace VirtualShowcase.Core
         /// <summary>
         ///     True if found any faces, false otherwise.
         /// </summary>
-        public static CustomGameEvent<bool> FaceDetectionDone = new();
+        // public static CustomGameEvent<bool> FaceDetectionDone = new();
 
         // wtf
         public static CustomGameEvent ModelsRemoveRequest = new();
 
-        public static CustomGameEvent CameraUpdated = new();
+        // public static CustomGameEvent CameraUpdated = new();
     }
 }

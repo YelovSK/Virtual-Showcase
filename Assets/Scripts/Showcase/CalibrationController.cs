@@ -16,6 +16,9 @@ namespace VirtualShowcase.Showcase
 
         [Header("UI Elements")]
         [SerializeField]
+        private Canvas canvas;
+
+        [SerializeField]
         private GameObject calibrationUI;
 
         [SerializeField]
@@ -40,6 +43,9 @@ namespace VirtualShowcase.Showcase
         [Header("Display size sliders")]
         [SerializeField]
         private Slider sizeSlider;
+
+        [SerializeField]
+        private Detector detector;
 
         #endregion
 
@@ -131,7 +137,7 @@ namespace VirtualShowcase.Showcase
                 case CalibrationState.Right:
                     if (updatePrefs)
                     {
-                        MyPrefs.LeftCalibration = EyeTracker.EyeCenter.x;
+                        MyPrefs.LeftCalibration = detector.LastDetection.EyesCenter.x;
                     }
 
                     SetGuideText("right");
@@ -142,7 +148,7 @@ namespace VirtualShowcase.Showcase
                 case CalibrationState.Bottom:
                     if (updatePrefs)
                     {
-                        MyPrefs.RightCalibration = EyeTracker.EyeCenter.x;
+                        MyPrefs.RightCalibration = detector.LastDetection.EyesCenter.x;
                     }
 
                     SetGuideText("bottom");
@@ -153,7 +159,7 @@ namespace VirtualShowcase.Showcase
                 case CalibrationState.Top:
                     if (updatePrefs)
                     {
-                        MyPrefs.BottomCalibration = EyeTracker.EyeCenter.y;
+                        MyPrefs.BottomCalibration = detector.LastDetection.EyesCenter.y;
                     }
 
                     SetGuideText("top");
@@ -164,7 +170,7 @@ namespace VirtualShowcase.Showcase
                 case CalibrationState.Sliders:
                     if (updatePrefs)
                     {
-                        MyPrefs.TopCalibration = EyeTracker.EyeCenter.y;
+                        MyPrefs.TopCalibration = detector.LastDetection.EyesCenter.y;
                     }
 
                     guideText.text =
@@ -174,7 +180,7 @@ namespace VirtualShowcase.Showcase
 
                 // Set focal length and hide UI.
                 case CalibrationState.Reset:
-                    MyPrefs.FocalLength = EyeTracker.GetFocalLength(distanceSlider.value);
+                    MyPrefs.CalibratedFocalLength = detector.LastDetection.GetFocalLength(distanceSlider.value);
                     TurnOffPreview();
                     _calibrationState = CalibrationState.Off;
                     break;
@@ -199,6 +205,7 @@ namespace VirtualShowcase.Showcase
         private void TurnOnPreview()
         {
             calibrationUI.SetActive(true);
+            canvas.gameObject.SetActive(true);
 
             // Enable camera preview.
             cameraPreview.ShowSmallPreview();
@@ -207,6 +214,7 @@ namespace VirtualShowcase.Showcase
         private void TurnOffPreview()
         {
             calibrationUI.SetActive(false);
+            canvas.gameObject.SetActive(false);
 
             // Disable camera preview.
             cameraPreview.Disable();

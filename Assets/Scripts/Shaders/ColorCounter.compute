@@ -8,43 +8,58 @@ uint Hue;
 uint HueThreshold;
 uint StartX;
 uint StartY;
-uint EndX;
-uint EndY;
 float4 InRangeColor;
 
 // Outputs
 RWStructuredBuffer<uint> ColorCounter;
 
+// Constants
+static const float MIN_VALUE = 0.2;
+static const float MIN_SATURATION = 0.3;
+
 float3 rgb_to_hsv_no_clip(float3 RGB)
 {
     float3 HSV;
 
-    float minChannel, maxChannel;
+    float min_channel;
+    float max_channel;
+
     if (RGB.x > RGB.y)
     {
-        maxChannel = RGB.x;
-        minChannel = RGB.y;
+        max_channel = RGB.x;
+        min_channel = RGB.y;
     }
     else
     {
-        maxChannel = RGB.y;
-        minChannel = RGB.x;
+        max_channel = RGB.y;
+        min_channel = RGB.x;
     }
 
-    if (RGB.z > maxChannel) maxChannel = RGB.z;
-    if (RGB.z < minChannel) minChannel = RGB.z;
+    if (RGB.z > max_channel) max_channel = RGB.z;
+    if (RGB.z < min_channel) min_channel = RGB.z;
 
     HSV.xy = 0;
-    HSV.z = maxChannel;
-    float delta = maxChannel - minChannel;
+    HSV.z = max_channel;
+
+    const float delta = max_channel - min_channel;
+
     if (delta != 0)
     {
         HSV.y = delta / HSV.z;
-        float3 delRGB;
-        delRGB = (HSV.zzz - RGB + 3 * delta) / (6.0 * delta);
-        if (RGB.x == HSV.z) HSV.x = delRGB.z - delRGB.y;
-        else if (RGB.y == HSV.z) HSV.x = (1.0 / 3.0) + delRGB.x - delRGB.z;
-        else if (RGB.z == HSV.z) HSV.x = (2.0 / 3.0) + delRGB.y - delRGB.x;
+        const float3 delta_RGB = (HSV.zzz - RGB + 3 * delta) / (6.0 * delta);
+
+        if (RGB.x == HSV.z)
+        {
+            HSV.x = delta_RGB.z - delta_RGB.y;
+        }
+        else if (RGB.y == HSV.z)
+        {
+            HSV.x = (1.0 / 3.0) + delta_RGB.x - delta_RGB.z;
+        }
+        else if (RGB.z == HSV.z)
+        {
+            HSV.x = (2.0 / 3.0) + delta_RGB.y - delta_RGB.x;
+        }
     }
 
     return HSV;
@@ -59,21 +74,17 @@ void CSInit(uint3 id : SV_DispatchThreadID)
 [numthreads(16, 16, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
-    if (id.x < StartX || id.x >= EndX || id.y < StartY || id.y >= EndY)
-    {
-        return;
-    }
+    const float2 pos = float2(id.x + StartX, id.y + StartY);
 
-    float4 color = InputImage[id.xy];
-    float3 hsv = rgb_to_hsv_no_clip(color.rgb);
+    const float4 color = InputImage[pos];
+    const float3 hsv = rgb_to_hsv_no_clip(color.rgb);
 
     const float hue = hsv.x * 360.0f;
     const float saturation = hsv.y;
     const float value = hsv.z;
 
     // Dark or unsaturated colors are meh.
-    // Random hard-coded values.
-    if (value < 0.2 || saturation < 0.3)
+    if (value < MIN_VALUE || saturation < MIN_SATURATION)
     {
         return;
     }
@@ -86,7 +97,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 
     if (difference <= HueThreshold)
     {
-        InputImage[id.xy] = InRangeColor;
+        InputImage[pos] = InRangeColor;
         InterlockedAdd(ColorCounter[0], 1);
     }
 }

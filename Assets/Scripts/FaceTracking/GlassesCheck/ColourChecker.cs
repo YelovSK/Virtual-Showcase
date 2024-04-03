@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 using VirtualShowcase.Utilities;
 
 namespace VirtualShowcase.FaceTracking.GlassesCheck
@@ -8,6 +9,12 @@ namespace VirtualShowcase.FaceTracking.GlassesCheck
     {
         private const float MIN_COLORS_IN_RANGE_PERCENT = 0.05f;
 
+        [NonSerialized]
+        public static UnityEvent<FaceDetection> GlassesCheckSkipped = new();
+
+        [NonSerialized]
+        public static UnityEvent<FaceDetection> GlassesCheckPassed = new();
+
         #region Serialized Fields
 
         [SerializeField]
@@ -15,32 +22,46 @@ namespace VirtualShowcase.FaceTracking.GlassesCheck
 
         #endregion
 
-        /// <summary>
-        ///     Checks pixels in the color box and updates the text to show the number of pixels
-        /// </summary>
-        /// <returns>True if threshold passed</returns>
-        public bool CheckGlassesOn(RenderTexture texture)
+        #region Event Functions
+
+        private void Awake()
         {
-            var resolution = new Vector2(texture.width, texture.height);
+            Detector.FaceDetected.AddListener(CheckColors);
+        }
+
+        #endregion
+
+        private void CheckColors(FaceDetection detection)
+        {
+            if (!MyPrefs.GlassesCheck)
+            {
+                GlassesCheckSkipped.Invoke(detection);
+                return;
+            }
+
+            var resolution = new Vector2(WebcamInput.Instance.Texture.width, WebcamInput.Instance.Texture.height);
 
             // Map coords from 0.0 - 1.0 to width and height of WebcamTexture.
             var leftEye = new Vector2(
-                EyeTracker.LeftEyeSmoothed.x * resolution.x,
-                EyeTracker.LeftEyeSmoothed.y * resolution.y);
+                detection.LeftEye.x * resolution.x,
+                detection.LeftEye.y * resolution.y);
             var rightEye = new Vector2(
-                EyeTracker.RightEyeSmoothed.x * resolution.x,
-                EyeTracker.RightEyeSmoothed.y * resolution.y);
+                detection.RightEye.x * resolution.x,
+                detection.RightEye.y * resolution.y);
 
             // Check only in area around detected eyes.
             Box box = GetSearchAreaBox(resolution, leftEye, rightEye);
 
             // Shader
-            int count = CountPixelsInRange(texture, MyPrefs.Hue, MyPrefs.HueThreshold, box, Color.green);
+            int count = CountPixelsInRange(WebcamInput.Instance.Texture, MyPrefs.Hue, MyPrefs.HueThreshold, box, Color.green);
 
             // Check if threshold was passed.
             bool passed = (float)count / box.Count > MIN_COLORS_IN_RANGE_PERCENT;
 
-            return passed;
+            if (passed)
+            {
+                GlassesCheckPassed.Invoke(detection);
+            }
         }
 
         private Box GetSearchAreaBox(Vector2 resolution, Vector2 leftEye, Vector2 rightEye)
@@ -72,7 +93,6 @@ namespace VirtualShowcase.FaceTracking.GlassesCheck
 
         private int CountPixelsInRange(Texture texture, int hue, int hueThreshold, Box box, Color inRangeColor)
         {
-            // Shader
             var count = new int[1];
             var cBuffer = new ComputeBuffer(1, sizeof(int));
 
@@ -85,13 +105,20 @@ namespace VirtualShowcase.FaceTracking.GlassesCheck
             colorCounterShader.SetInt("Hue", hue);
             colorCounterShader.SetInt("HueThreshold", hueThreshold);
             colorCounterShader.SetInt("StartX", box.StartX);
-            colorCounterShader.SetInt("EndX", box.EndX);
             colorCounterShader.SetInt("StartY", box.StartY);
-            colorCounterShader.SetInt("EndY", box.EndY);
             colorCounterShader.SetVector("InRangeColor", inRangeColor);
 
+            const int shader_threads = 16;
+
+            // Full image: width/threads, height/threads
+            // Box: width/threads/widthRatio, height/threads/heightRatio
+            float widthRatio = (float)texture.width / box.Width;
+            float heightRatio = (float)texture.height / box.Height;
+            var groupsX = (int)((float)texture.width / shader_threads / widthRatio);
+            var groupsY = (int)((float)texture.height / shader_threads / heightRatio);
+
             colorCounterShader.Dispatch(kernelInit, 1, 1, 1);
-            colorCounterShader.Dispatch(kernelMain, texture.width / 16, texture.height / 16, 1);
+            colorCounterShader.Dispatch(kernelMain, groupsX, groupsY, 1);
 
             cBuffer.GetData(count);
             cBuffer.Release();
@@ -107,6 +134,8 @@ namespace VirtualShowcase.FaceTracking.GlassesCheck
             public int StartY;
 
             public int Count => (EndX - StartX) * (EndY - StartY);
+            public int Width => EndX - StartX;
+            public int Height => EndY - StartY;
         }
     }
 }

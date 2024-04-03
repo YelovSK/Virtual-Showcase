@@ -14,12 +14,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Utilities;
-using VirtualShowcase.Utilities;
 
 public partial class @InputActions: IInputActionCollection2, IDisposable
 {
     public InputActionAsset asset { get; }
-
     public @InputActions()
     {
         asset = InputActionAsset.FromJson(@"{
@@ -108,6 +106,33 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""expectedControlType"": ""Axis"",
                     ""processors"": """",
                     ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Rotate X modifier"",
+                    ""type"": ""Value"",
+                    ""id"": ""d65797ce-0bdb-4569-ab0c-b115250c3463"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Hold(duration=1.401298E-45,pressPoint=1.401298E-45)"",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Rotate Y modifier"",
+                    ""type"": ""Value"",
+                    ""id"": ""bb8570a2-f861-4ee5-b0cc-31ea0034f8a3"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Hold(duration=1.401298E-45,pressPoint=1.401298E-45)"",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Rotate Z modifier"",
+                    ""type"": ""Value"",
+                    ""id"": ""5be42f98-d337-4f36-ab72-d1b4b195cb20"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Hold(duration=1.401298E-45,pressPoint=1.401298E-45)"",
                     ""initialStateCheck"": true
                 }
             ],
@@ -320,6 +345,39 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Rotate Z"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c3ecab2f-50bf-43f9-8bb3-1f4010166129"",
+                    ""path"": ""<Keyboard>/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rotate X modifier"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""363cf070-6c46-4772-adea-866603c611f0"",
+                    ""path"": ""<Keyboard>/y"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rotate Y modifier"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ca93f4df-d48b-4747-ac14-e5037487eae6"",
+                    ""path"": ""<Keyboard>/z"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rotate Z modifier"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -612,6 +670,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_Model_MoveXY = m_Model.FindAction("Move X Y", throwIfNotFound: true);
         m_Model_MoveYZ = m_Model.FindAction("Move Y Z", throwIfNotFound: true);
         m_Model_Scale = m_Model.FindAction("Scale", throwIfNotFound: true);
+        m_Model_RotateXmodifier = m_Model.FindAction("Rotate X modifier", throwIfNotFound: true);
+        m_Model_RotateYmodifier = m_Model.FindAction("Rotate Y modifier", throwIfNotFound: true);
+        m_Model_RotateZmodifier = m_Model.FindAction("Rotate Z modifier", throwIfNotFound: true);
         // Menu
         m_Menu = asset.FindActionMap("Menu", throwIfNotFound: true);
         m_Menu_Back = m_Menu.FindAction("Back", throwIfNotFound: true);
@@ -700,6 +761,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Model_MoveXY;
     private readonly InputAction m_Model_MoveYZ;
     private readonly InputAction m_Model_Scale;
+    private readonly InputAction m_Model_RotateXmodifier;
+    private readonly InputAction m_Model_RotateYmodifier;
+    private readonly InputAction m_Model_RotateZmodifier;
     public struct ModelActions
     {
         private @InputActions m_Wrapper;
@@ -713,6 +777,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         public InputAction @MoveXY => m_Wrapper.m_Model_MoveXY;
         public InputAction @MoveYZ => m_Wrapper.m_Model_MoveYZ;
         public InputAction @Scale => m_Wrapper.m_Model_Scale;
+        public InputAction @RotateXmodifier => m_Wrapper.m_Model_RotateXmodifier;
+        public InputAction @RotateYmodifier => m_Wrapper.m_Model_RotateYmodifier;
+        public InputAction @RotateZmodifier => m_Wrapper.m_Model_RotateZmodifier;
         public InputActionMap Get() { return m_Wrapper.m_Model; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -749,6 +816,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Scale.started += instance.OnScale;
             @Scale.performed += instance.OnScale;
             @Scale.canceled += instance.OnScale;
+            @RotateXmodifier.started += instance.OnRotateXmodifier;
+            @RotateXmodifier.performed += instance.OnRotateXmodifier;
+            @RotateXmodifier.canceled += instance.OnRotateXmodifier;
+            @RotateYmodifier.started += instance.OnRotateYmodifier;
+            @RotateYmodifier.performed += instance.OnRotateYmodifier;
+            @RotateYmodifier.canceled += instance.OnRotateYmodifier;
+            @RotateZmodifier.started += instance.OnRotateZmodifier;
+            @RotateZmodifier.performed += instance.OnRotateZmodifier;
+            @RotateZmodifier.canceled += instance.OnRotateZmodifier;
         }
 
         private void UnregisterCallbacks(IModelActions instance)
@@ -780,6 +856,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Scale.started -= instance.OnScale;
             @Scale.performed -= instance.OnScale;
             @Scale.canceled -= instance.OnScale;
+            @RotateXmodifier.started -= instance.OnRotateXmodifier;
+            @RotateXmodifier.performed -= instance.OnRotateXmodifier;
+            @RotateXmodifier.canceled -= instance.OnRotateXmodifier;
+            @RotateYmodifier.started -= instance.OnRotateYmodifier;
+            @RotateYmodifier.performed -= instance.OnRotateYmodifier;
+            @RotateYmodifier.canceled -= instance.OnRotateYmodifier;
+            @RotateZmodifier.started -= instance.OnRotateZmodifier;
+            @RotateZmodifier.performed -= instance.OnRotateZmodifier;
+            @RotateZmodifier.canceled -= instance.OnRotateZmodifier;
         }
 
         public void RemoveCallbacks(IModelActions instance)
@@ -1018,6 +1103,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         void OnMoveXY(InputAction.CallbackContext context);
         void OnMoveYZ(InputAction.CallbackContext context);
         void OnScale(InputAction.CallbackContext context);
+        void OnRotateXmodifier(InputAction.CallbackContext context);
+        void OnRotateYmodifier(InputAction.CallbackContext context);
+        void OnRotateZmodifier(InputAction.CallbackContext context);
     }
     public interface IMenuActions
     {
