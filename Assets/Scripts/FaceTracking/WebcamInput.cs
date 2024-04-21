@@ -25,6 +25,7 @@ namespace VirtualShowcase.FaceTracking
 
         #endregion
 
+        private const int MAX_TEXTURE_SIZE = 1000;
         private readonly List<int> _framesBetweenUpdatesHistory = new();
         private bool _isFrontFacing;
         private WebCamTexture _webcamTexture;
@@ -126,7 +127,8 @@ namespace VirtualShowcase.FaceTracking
 
             // Initialize target texture.
             int largerDimension = Math.Max(_webcamTexture.width, _webcamTexture.height);
-            Texture = new RenderTexture(largerDimension, largerDimension, 24);
+            int size = Math.Min(MAX_TEXTURE_SIZE, largerDimension);
+            Texture = new RenderTexture(size, size, 24);
             Texture.enableRandomWrite = true;
             Texture.Create();
 
@@ -156,23 +158,13 @@ namespace VirtualShowcase.FaceTracking
 
         private void CopyToRenderTexture()
         {
-            int startY = (Texture.height - _webcamTexture.height) / 2;
+            float scaleY = (float)_webcamTexture.width / _webcamTexture.height /
+                           ((float)Texture.width / Texture.height);
+            float offsetY = -(scaleY - 1f) / 2f;
 
-            int kernel = _isFrontFacing
-                ? webcamToRenderTextureShader.FindKernel("CopyMirrored")
-                : webcamToRenderTextureShader.FindKernel("Copy");
-
-            webcamToRenderTextureShader.SetTexture(kernel, "InputImage", _webcamTexture);
-            webcamToRenderTextureShader.SetTexture(kernel, "OutputImage", Texture);
-
-            webcamToRenderTextureShader.SetInt("SourceWidth", _webcamTexture.width);
-            webcamToRenderTextureShader.SetInt("SourceHeight", _webcamTexture.height);
-            webcamToRenderTextureShader.SetInt("TargetWidth", Texture.width);
-            webcamToRenderTextureShader.SetInt("TargetHeight", Texture.height);
-            webcamToRenderTextureShader.SetInt("StartY", startY);
-
-            const int shader_threads = 16;
-            webcamToRenderTextureShader.Dispatch(kernel, Texture.width / shader_threads, Texture.height / shader_threads, 1);
+            Graphics.Blit(_webcamTexture, Texture,
+                new Vector2(_isFrontFacing ? -1f : 1f, scaleY),
+                new Vector2(_isFrontFacing ? 1f : 0f, offsetY));
         }
     }
 }

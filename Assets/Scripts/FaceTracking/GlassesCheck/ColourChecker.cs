@@ -93,7 +93,6 @@ namespace VirtualShowcase.FaceTracking.GlassesCheck
 
         private int CountPixelsInRange(Texture texture, int hue, int hueThreshold, Box box, Color inRangeColor)
         {
-            var count = new int[1];
             var cBuffer = new ComputeBuffer(1, sizeof(int));
 
             int kernelMain = colorCounterShader.FindKernel("CSMain");
@@ -110,16 +109,10 @@ namespace VirtualShowcase.FaceTracking.GlassesCheck
 
             const int shader_threads = 16;
 
-            // Full image: width/threads, height/threads
-            // Box: width/threads/widthRatio, height/threads/heightRatio
-            float widthRatio = (float)texture.width / box.Width;
-            float heightRatio = (float)texture.height / box.Height;
-            var groupsX = (int)((float)texture.width / shader_threads / widthRatio);
-            var groupsY = (int)((float)texture.height / shader_threads / heightRatio);
-
             colorCounterShader.Dispatch(kernelInit, 1, 1, 1);
-            colorCounterShader.Dispatch(kernelMain, groupsX, groupsY, 1);
+            colorCounterShader.Dispatch(kernelMain, box.Width / shader_threads, box.Height / shader_threads, 1);
 
+            var count = new int[1];
             cBuffer.GetData(count);
             cBuffer.Release();
 

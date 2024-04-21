@@ -9,6 +9,13 @@
       },
       "url": "https://package.openupm.com"
     },
+    "com.handzlikchris.fastscriptreload": {
+      "version": "https://github.com/handzlikchris/FastScriptReload.git?path=Assets",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "42a3a100f456dfcfbd7084a2333801b94101731d"
+    },
     "com.unity.ai.navigation": {
       "version": "1.1.5",
       "depth": 0,
