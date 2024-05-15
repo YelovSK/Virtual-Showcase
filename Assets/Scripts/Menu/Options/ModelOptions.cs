@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using GLTFast.Schema;
 using SimpleFileBrowser;
 using UnityEngine;
 using UnityEngine.UI;
@@ -62,6 +64,11 @@ namespace VirtualShowcase.Menu.Options
 
             foreach (string model in MyPrefs.ModelPaths)
             {
+                if (!File.Exists(model))
+                {
+                    MyPrefs.RemoveModelPath(model);
+                    continue;
+                }
                 InstantiateModelRow(model);
             }
         }
