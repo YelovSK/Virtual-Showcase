@@ -2,53 +2,37 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using VirtualShowcase.Common;
+using VirtualShowcase.Core;
+using VirtualShowcase.Utilities;
 
-namespace VirtualVitrine.FaceTracking.Transform
+namespace VirtualShowcase.FaceTracking.Transform
 {
     [ExecuteInEditMode]
     public sealed class Projection : MonoBehaviour
     {
-        private const int base_screen_diagonal = 24;
-        private const float aspect_ratio = 16 / 9f;
-
         #region Serialized Fields
 
-        [SerializeField] private bool drawGizmos;
-        [SerializeField] private Camera[] cameras;
-        [SerializeField] private GameObject virtualWindow;
+        [SerializeField]
+        private bool drawGizmos;
+
+        [SerializeField]
+        private UnityEngine.Camera[] cameras;
+
+        [SerializeField]
+        private GameObject virtualWindow;
 
         #endregion
 
-        public int ScreenDistance
-        {
-            get => MyPrefs.ScreenDistance;
-            set
-            {
-                MyPrefs.ScreenDistance = value;
-                SetCameraDistance();
-            }
-        }
+        public static float ScreenWidth =>
+            DiagonalToWidthAndHeight(Constants.SCREEN_BASE_DIAGONAL_INCHES, Constants.SCREEN_ASPECT_RATIO).x;
 
-        public int ScreenSize
-        {
-            get => MyPrefs.ScreenSize;
-            set
-            {
-                MyPrefs.ScreenSize = value;
-                SetCameraDistance();
-            }
-        }
+        public static float ScreenHeight =>
+            DiagonalToWidthAndHeight(Constants.SCREEN_BASE_DIAGONAL_INCHES, Constants.SCREEN_ASPECT_RATIO).y;
 
-        public static float ScreenWidth => DiagonalToWidthAndHeight(base_screen_diagonal, aspect_ratio).x;
-        public static float ScreenHeight => DiagonalToWidthAndHeight(base_screen_diagonal, aspect_ratio).y;
-        private IEnumerable<Camera> ActiveCameras => cameras.Where(x => x.isActiveAndEnabled);
+        private IEnumerable<UnityEngine.Camera> ActiveCameras => cameras.Where(x => x.isActiveAndEnabled);
 
         #region Event Functions
-
-        private void Start()
-        {
-            SetCameraDistance();
-        }
 
         /// <summary>
         ///     This update runs only in the editor so that the frustum can be updated in real time
@@ -56,9 +40,16 @@ namespace VirtualVitrine.FaceTracking.Transform
         private void Update()
         {
             if (!Application.isPlaying)
+            {
                 UpdateCameraProjection();
+            }
         }
 
+        private void OnEnable()
+        {
+            MyEvents.ScreenSizeChanged.AddListener((sender, size) => SetCameraDistance());
+            MyEvents.ScreenDistanceChanged.AddListener((sender, distance) => SetCameraDistance());
+        }
 
         /// <summary>
         ///     Draws gizmos in the Edit window.
@@ -66,30 +57,29 @@ namespace VirtualVitrine.FaceTracking.Transform
         private void OnDrawGizmos()
         {
             if (!drawGizmos)
+            {
                 return;
+            }
 
             // Draw lines to show the screen.
             DrawScreen();
 
             // Draw lines from cameras to screen corners.
-            foreach (Camera cam in ActiveCameras)
+            foreach (UnityEngine.Camera cam in ActiveCameras)
+            {
                 DrawCameraGizmos(cam);
+            }
         }
 
         #endregion
 
-        /// <summary>
-        ///     Returns width and height of display in centimeters from diagonal inches.
-        /// </summary>
-        /// <param name="diagonalInches"></param>
-        /// <param name="aspectRatio"></param>
-        /// <returns></returns>
+        /// <returns>Width and height of display in centimeters from diagonal inches.</returns>
         public static Vector2 DiagonalToWidthAndHeight(int diagonalInches, float aspectRatio)
         {
             const float cms_in_inch = 2.54f;
             double height = diagonalInches / Math.Sqrt(aspectRatio * aspectRatio + 1);
             double width = aspectRatio * height;
-            return new Vector2((float) (width * cms_in_inch), (float) (height * cms_in_inch));
+            return new Vector2((float)(width * cms_in_inch), (float)(height * cms_in_inch));
         }
 
         public void SetCameraDistance()
@@ -98,17 +88,19 @@ namespace VirtualVitrine.FaceTracking.Transform
             // and scaling the scene according to the screen size, the screen size stays
             // the same and only the head distance changes. The field of view is the same
             // as if the scene/screen got scaled to the new size.
-            float sizeRatio = (float) base_screen_diagonal / ScreenSize;
-            float headDistance = ScreenDistance * sizeRatio;
+            float sizeRatio = (float)Constants.SCREEN_BASE_DIAGONAL_INCHES / MyPrefs.ScreenSize;
+            float headDistance = MyPrefs.ScreenDistance * sizeRatio;
             transform.localPosition = new Vector3(0, 0, -headDistance);
 
             // Likewise, eye separation needs to be adjusted with the same ratio.
-            cameras[1].transform.localPosition = new Vector3(3 * sizeRatio, 0, 0); // right eye
-            cameras[2].transform.localPosition = new Vector3(-3 * sizeRatio, 0, 0); // left eye
+            cameras[(int)Camera.Left].transform.localPosition =
+                new Vector3(Constants.EYE_SEPARATION_CM / 2 * sizeRatio, 0, 0); // Right eye
+            cameras[(int)Camera.Right].transform.localPosition =
+                new Vector3(-(Constants.EYE_SEPARATION_CM / 2) * sizeRatio, 0, 0); // Left eye
 
             // Set the camera's near according to the distance
             // because Unity's fog is affected by the camera's near.
-            foreach (Camera cam in cameras)
+            foreach (UnityEngine.Camera cam in cameras)
             {
                 cam.nearClipPlane = Math.Max(headDistance - 30f, 0.1f);
                 cam.farClipPlane = headDistance + 200;
@@ -120,11 +112,13 @@ namespace VirtualVitrine.FaceTracking.Transform
 
         public void UpdateCameraProjection()
         {
-            foreach (Camera cam in cameras)
+            foreach (UnityEngine.Camera cam in cameras)
+            {
                 SetCameraFrustum(cam);
+            }
         }
 
-        private void SetCameraFrustum(Camera cam)
+        private void SetCameraFrustum(UnityEngine.Camera cam)
         {
             // Cache variables.
             float width = ScreenWidth;
@@ -217,6 +211,13 @@ namespace VirtualVitrine.FaceTracking.Transform
             leftTop = screen.position - screen.right * 0.5f * width + screen.up * 0.5f * height;
             rightBottom = screen.position + screen.right * 0.5f * width - screen.up * 0.5f * height;
             rightTop = screen.position + screen.right * 0.5f * width + screen.up * 0.5f * height;
+        }
+
+        private enum Camera
+        {
+            Main = 0,
+            Left = 1,
+            Right = 2,
         }
     }
 }

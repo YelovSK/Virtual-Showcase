@@ -1,141 +1,200 @@
 ﻿using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using VirtualVitrine.MainScene;
+using VirtualShowcase.Enums;
+using VirtualShowcase.Showcase;
+using VirtualShowcase.Utilities;
 
-namespace VirtualVitrine
+namespace VirtualShowcase.Core
 {
     public class InputHandler : MonoBehaviour
     {
         #region Serialized Fields
 
-        [Header("Input")]
-        [SerializeField] private PlayerInput playerInput;
-        [SerializeField] private InputActionAsset inputActions;
-
         [Header("Scene objects")]
-        [SerializeField] private ShowcaseInitializer showcaseInitializer;
-        [SerializeField] private CalibrationManager calibrationManager;
+        [SerializeField]
+        private CameraPreview cameraPreview;
+
+        [SerializeField]
+        private HeadCameras cameras;
+
+        [SerializeField]
+        private CalibrationController calibrationController;
+
+        [SerializeField]
+        private Canvas canvas;
 
         [Header("Rotation images")]
-        [SerializeField] private Image rotationImage;
-        [SerializeField] private Sprite[] rotationImages;
+        [SerializeField]
+        private Image rotationImage;
+
+        [SerializeField]
+        private Sprite[] rotationImages;
 
         #endregion
+
+        private RotationImage _currentRotationImage;
+
+        private InputActions _inputActions;
 
         #region Event Functions
 
         private void Awake()
         {
-            CalibrationManager.NextStateKeybind = playerInput.actions["Next calibration"].GetBindingDisplayString();
+            _inputActions = new InputActions();
         }
 
-        private void Update()
+        private void OnEnable()
         {
-            // Toggle menu/main scene.
-            if (Keyboard.current.escapeKey.wasPressedThisFrame)
-                SceneSwitcher.ToggleMenu();
+            _inputActions.Enable();
 
-            if (SceneSwitcher.InMenu)
-                return;
+            _inputActions.Model.Get().SetEnabled(!MySceneManager.Instance.IsInMenu);
+            _inputActions.Calibration.Get().SetEnabled(calibrationController.Enabled);
+            _inputActions.MainGeneral.Get().SetEnabled(true);
 
-            if (playerInput.actions["Main scene switch"].WasPressedThisFrame())
-                SceneSwitcher.SwitchDifferentMain();
+            SubscribeToInputActions();
+        }
 
-            // Toggle webcam preview (ignore if calibration is active).
-            if (playerInput.actions["Preview toggle"].WasPressedThisFrame() && !CalibrationManager.Enabled)
-                showcaseInitializer.SetCamPreview(true);
-
-            // Toggle stereo/mono.
-            if (playerInput.actions["Stereo toggle"].WasPressedThisFrame())
-                showcaseInitializer.SetStereo(true);
-
-            // Toggle calibration UI.
-            if (playerInput.actions["Calibration toggle"].WasPressedThisFrame())
-                calibrationManager.ToggleCalibrationUI();
-
-            // Go to next calibration state.
-            if (playerInput.actions["Next calibration"].WasPressedThisFrame())
-                calibrationManager.SetNextState();
-
-            // Go to specific calibration step. Arrow keys for edge and spacebar for the center.
-            if (Keyboard.current.leftArrowKey.wasPressedThisFrame)
-                calibrationManager.SetState(CalibrationManager.States.Left);
-            else if (Keyboard.current.rightArrowKey.wasPressedThisFrame)
-                calibrationManager.SetState(CalibrationManager.States.Right);
-            else if (Keyboard.current.upArrowKey.wasPressedThisFrame)
-                calibrationManager.SetState(CalibrationManager.States.Top);
-            else if (Keyboard.current.downArrowKey.wasPressedThisFrame)
-                calibrationManager.SetState(CalibrationManager.States.Bottom);
-            else if (Keyboard.current.spaceKey.wasPressedThisFrame)
-                calibrationManager.SetState(CalibrationManager.States.Sliders);
-
-            // Reset loaded object position.
-            if (playerInput.actions["Reset transform"].WasPressedThisFrame())
-                ModelLoader.ResetTransform();
-
-            // Loaded object gets controlled with mouse input.
-            if (!CalibrationManager.Enabled)
-                HandleMouseInput();
+        private void OnDisable()
+        {
+            _inputActions.Disable();
+            _inputActions.Dispose();
         }
 
         #endregion
 
-        public void ResetAllBindings()
+        private void SubscribeToInputActions()
         {
-            foreach (InputActionMap map in inputActions.actionMaps)
-                map.RemoveAllBindingOverrides();
-            PlayerPrefs.DeleteKey("rebinds");
+            // Enable/disable action maps depending on the state.
+            MyEvents.MenuSceneOpened.AddListener(_ => _inputActions.Model.Disable());
+            MyEvents.MainSceneOpened.AddListener(_ => _inputActions.Model.Enable());
+            MyEvents.CameraPreviewChanged.AddListener((sender, isEnabled) =>
+            {
+                _inputActions.Calibration.Get().SetEnabled(!isEnabled);
+                _inputActions.Model.Get().SetEnabled(!isEnabled);
+                _inputActions.MainGeneral.Calibrationtoggle.SetEnabled(!isEnabled);
+                _inputActions.MainGeneral.Nextscene.SetEnabled(!isEnabled);
+                _inputActions.MainGeneral.Previousscene.SetEnabled(!isEnabled);
+            });
+            MyEvents.CalibrationChanged.AddListener((sender, isEnabled) =>
+            {
+                _inputActions.Calibration.Get().SetEnabled(isEnabled);
+                _inputActions.Model.Get().SetEnabled(!isEnabled);
+                _inputActions.MainGeneral.Previewtoggle.SetEnabled(!isEnabled);
+                _inputActions.MainGeneral.Nextscene.SetEnabled(!isEnabled);
+                _inputActions.MainGeneral.Previousscene.SetEnabled(!isEnabled);
+            });
+
+            // Subscribe to input actions.
+            _inputActions.MainGeneral.Nextscene.performed += _ => MySceneManager.Instance.LoadNextShowcaseScene();
+            _inputActions.MainGeneral.Previousscene.performed += _ => MySceneManager.Instance.LoadPreviousShowcaseScene();
+            _inputActions.MainGeneral.Previewtoggle.performed += _ =>
+            {
+                MyPrefs.PreviewOn = !MyPrefs.PreviewOn;
+                if (MyPrefs.PreviewOn)
+                {
+                    canvas.gameObject.SetActive(true);
+                    cameraPreview.ShowLargePreview();
+                }
+                else
+                {
+                    canvas.gameObject.SetActive(false);
+                    cameraPreview.Disable();
+                }
+            };
+            _inputActions.MainGeneral.Stereotoggle.performed += _ =>
+            {
+                MyPrefs.StereoOn = !MyPrefs.StereoOn;
+                if (MyPrefs.StereoOn)
+                {
+                    cameras.EnableStereo();
+                }
+                else
+                {
+                    cameras.DisableStereo();
+                }
+            };
+            _inputActions.MainGeneral.Calibrationtoggle.performed += _ =>
+            {
+                canvas.gameObject.SetActive(!canvas.gameObject.activeSelf);
+                calibrationController.gameObject.SetActive(!calibrationController.gameObject.activeSelf);
+                calibrationController.ToggleCalibrationUI();
+            };
+            _inputActions.MainGeneral.Menutoggle.performed += _ => MySceneManager.Instance.ToggleMenu();
+
+            _inputActions.Calibration.Nextcalibration.performed += _ => calibrationController.SetNextState();
+            _inputActions.Calibration.Topedge.performed += _ => calibrationController.SetState(CalibrationState.Top);
+            _inputActions.Calibration.Bottomedge.performed += _ => calibrationController.SetState(CalibrationState.Bottom);
+            _inputActions.Calibration.Leftedge.performed += _ => calibrationController.SetState(CalibrationState.Left);
+            _inputActions.Calibration.Rightedge.performed += _ => calibrationController.SetState(CalibrationState.Right);
+
+            _inputActions.Model.Resettransform.performed += _ => ModelLoader.Instance.ResetTransform();
+            _inputActions.Model.Nextmodel.performed += _ => ModelLoader.Instance.CycleActiveModel();
+            _inputActions.Model.Previousmodel.performed += _ => ModelLoader.Instance.CycleActiveModel(false);
+
+            _inputActions.Model.MoveXY.performed += ctx =>
+            {
+                var delta = ctx.ReadValue<Vector2>();
+                ModelLoader.Instance.Models.ForEach(model => model.transform.Translate(delta.x, delta.y, 0, Space.World));
+            };
+            _inputActions.Model.MoveYZ.performed += ctx =>
+            {
+                var delta = ctx.ReadValue<Vector2>();
+                ModelLoader.Instance.Models.ForEach(model => model.transform.Translate(delta.x, 0, delta.y, Space.World));
+            };
+            _inputActions.Model.Scale.performed += ctx =>
+            {
+                // Wouldn't be "real" size if scaled (:
+                if (MyPrefs.ShowRealModelSize)
+                {
+                    return;
+                }
+
+                var delta = ctx.ReadValue<float>();
+                float scale = delta > 0
+                    ? 1.1f
+                    : 0.9f;
+                ModelLoader.Instance.Models.ForEach(model => model.transform.localScale *= scale);
+            };
+            _inputActions.Model.RotateX.performed += ctx =>
+            {
+                var delta = ctx.ReadValue<float>();
+                ModelLoader.Instance.Models.ForEach(model => model.transform.Rotate(delta, 0, 0, Space.World));
+            };
+            _inputActions.Model.RotateXmodifier.performed += ctx =>
+            {
+                rotationImage.gameObject.SetActive(true);
+                rotationImage.sprite = rotationImages[(int)RotationImage.X];
+            };
+            _inputActions.Model.RotateXmodifier.canceled += ctx => { rotationImage.gameObject.SetActive(false); };
+            _inputActions.Model.RotateY.performed += ctx =>
+            {
+                var delta = ctx.ReadValue<float>();
+                ModelLoader.Instance.Models.ForEach(model => model.transform.Rotate(0, -delta, 0, Space.World));
+            };
+            _inputActions.Model.RotateYmodifier.performed += ctx =>
+            {
+                rotationImage.gameObject.SetActive(true);
+                rotationImage.sprite = rotationImages[(int)RotationImage.Y];
+            };
+            _inputActions.Model.RotateYmodifier.canceled += ctx => { rotationImage.gameObject.SetActive(false); };
+            _inputActions.Model.RotateZ.performed += ctx =>
+            {
+                var delta = ctx.ReadValue<float>();
+                ModelLoader.Instance.Models.ForEach(model => model.transform.Rotate(0, 0, -delta, Space.World));
+            };
+            _inputActions.Model.RotateZmodifier.performed += ctx =>
+            {
+                rotationImage.gameObject.SetActive(true);
+                rotationImage.sprite = rotationImages[(int)RotationImage.Z];
+            };
+            _inputActions.Model.RotateZmodifier.canceled += ctx => { rotationImage.gameObject.SetActive(false); };
         }
 
-        private void HandleMouseInput()
+        private enum RotationImage
         {
-            if (ModelLoader.Model == null)
-                return;
-
-            const float move_sens = 0.015f;
-            const float rotation_sens = 0.075f;
-            float mouseX = Mouse.current.delta.ReadValue().x;
-            float mouseY = Mouse.current.delta.ReadValue().y;
-
-            // Left mouse button pressed => move object.
-            if (playerInput.actions["Move on ground"].IsPressed())
-                ModelLoader.Model.transform.Translate(mouseX * move_sens, 0, mouseY * move_sens, Space.World);
-
-            // Right mouse button pressed => lower/raise object.
-            else if (playerInput.actions["Move vertically"].IsPressed())
-                ModelLoader.Model.transform.Translate(0, mouseY * move_sens, 0, Space.World);
-
-            // X pressed => rotate object around X-axis.
-            else if (playerInput.actions["Rotate X"].IsPressed())
-            {
-                ModelLoader.Model.transform.Rotate(mouseY * rotation_sens, 0, 0, Space.World);
-                rotationImage.gameObject.SetActive(true);
-                rotationImage.sprite = rotationImages[0];
-            }
-
-            // Y pressed => rotate object around Y-axis.
-            else if (playerInput.actions["Rotate Y"].IsPressed())
-            {
-                ModelLoader.Model.transform.Rotate(0, -mouseX * rotation_sens, 0, Space.World);
-                rotationImage.gameObject.SetActive(true);
-                rotationImage.sprite = rotationImages[1];
-            }
-
-            // Z pressed => rotate object around Z-axis.
-            else if (playerInput.actions["Rotate Z"].IsPressed())
-            {
-                ModelLoader.Model.transform.Rotate(0, 0, -mouseX * rotation_sens, Space.World);
-                rotationImage.gameObject.SetActive(true);
-                rotationImage.sprite = rotationImages[2];
-            }
-            else
-                rotationImage.gameObject.SetActive(false);
-
-            // Mouse wheel => scale object.
-            float scroll = Mouse.current.scroll.ReadValue().y;
-            if (scroll > 0f) ModelLoader.Model.transform.localScale *= 1.1f;
-            if (scroll < 0f) ModelLoader.Model.transform.localScale *= 0.9f;
+            X = 0,
+            Y = 1,
+            Z = 2,
         }
     }
 }

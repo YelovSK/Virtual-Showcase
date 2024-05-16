@@ -3,11 +3,11 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace VirtualVitrine.Menu.Tooltip
+namespace VirtualShowcase.Menu.Tooltip
 {
     public class Tooltip : MonoBehaviour
     {
-        private static Tooltip instance;
+        private static Tooltip _instance;
 
         #region Serialized Fields
 
@@ -28,9 +28,9 @@ namespace VirtualVitrine.Menu.Tooltip
 
         private void Awake()
         {
-            if (instance != null)
+            if (_instance != null)
                 return;
-            instance = this;
+            _instance = this;
             gameObject.SetActive(false);
         }
 
@@ -38,41 +38,41 @@ namespace VirtualVitrine.Menu.Tooltip
 
         public static void Show(string content, string header = "")
         {
-            instance.gameObject.SetActive(true);
+            _instance.gameObject.SetActive(true);
             if (string.IsNullOrEmpty(header))
-                instance.headerField.gameObject.SetActive(false);
+                _instance.headerField.gameObject.SetActive(false);
             else
             {
-                instance.headerField.gameObject.SetActive(true);
-                instance.headerField.text = header;
+                _instance.headerField.gameObject.SetActive(true);
+                _instance.headerField.text = header;
             }
 
-            instance.contentField.text = content;
-            instance.layoutElement.enabled = Math.Max(instance.headerField.preferredWidth, instance.contentField.preferredWidth) >=
-                                             instance.layoutElement.preferredWidth;
-            instance.contentField.ForceMeshUpdate();
+            _instance.contentField.text = content;
+            _instance.layoutElement.enabled = Math.Max(_instance.headerField.preferredWidth, _instance.contentField.preferredWidth) >=
+                                             _instance.layoutElement.preferredWidth;
+            _instance.contentField.ForceMeshUpdate();
         }
 
         public static void Hide()
         {
-            instance.gameObject.SetActive(false);
+            _instance.gameObject.SetActive(false);
         }
 
         public static void UpdatePosition(Vector2 position)
         {
             // Position on the canvas.
-            Vector2 anchoredPosition = position / instance.canvasRect.localScale.x;
-            float tooltipRight = anchoredPosition.x + instance.rectTransform.sizeDelta.x;
-            float tooltipBottom = anchoredPosition.y + instance.rectTransform.sizeDelta.y;
+            Vector2 anchoredPosition = position / _instance.canvasRect.localScale.x;
+            float tooltipRight = anchoredPosition.x + _instance.rectTransform.sizeDelta.x;
+            float tooltipBottom = anchoredPosition.y + _instance.rectTransform.sizeDelta.y;
 
             // Check if the tooltip is out of the screen and adjust the position.
-            if (tooltipRight > instance.canvasRect.sizeDelta.x)
-                position.x -= (tooltipRight - instance.canvasRect.sizeDelta.x) * instance.canvasRect.localScale.x;
-            if (tooltipBottom > instance.canvasRect.sizeDelta.y)
-                position.y -= (tooltipBottom - instance.canvasRect.sizeDelta.y) * instance.canvasRect.localScale.y;
+            if (tooltipRight > _instance.canvasRect.sizeDelta.x)
+                position.x -= (tooltipRight - _instance.canvasRect.sizeDelta.x) * _instance.canvasRect.localScale.x;
+            if (tooltipBottom > _instance.canvasRect.sizeDelta.y)
+                position.y -= (tooltipBottom - _instance.canvasRect.sizeDelta.y) * _instance.canvasRect.localScale.y;
 
             // Update position.
-            instance.transform.position = position;
+            _instance.transform.position = position;
         }
     }
 }

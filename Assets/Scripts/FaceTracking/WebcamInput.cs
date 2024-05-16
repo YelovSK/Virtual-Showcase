@@ -2,130 +2,169 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Unity.Jobs;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.SceneManagement;
+using VirtualShowcase.Core;
+using VirtualShowcase.Utilities;
 
-namespace VirtualVitrine.FaceTracking
+namespace VirtualShowcase.FaceTracking
 {
-    public sealed class WebcamInput : MonoBehaviour
+    public class WebcamInput : MonoSingleton<WebcamInput>
     {
-        private static bool mirrored;
-        private static Color32[] colorBuffer;
-        public static int FramesBetweenUpdates;
-        public static int AverageFramesBetweenUpdates;
+        [NonSerialized]
+        public static UnityEvent CameraChanged = new();
 
-        private readonly List<int> framesBetweenUpdatesHistory = new();
+        [NonSerialized]
+        public static UnityEvent CameraUpdated = new();
 
-        public static Texture2D FinalTexture { get; private set; }
-        public static WebCamTexture WebcamTexture { get; private set; }
-        public static bool IsCameraRunning => FinalTexture != null && WebcamTexture.isPlaying;
-        public static bool CameraUpdated => FinalTexture != null && WebcamTexture.didUpdateThisFrame;
+        #region Serialized Fields
+
+        [SerializeField]
+        private ComputeShader webcamToRenderTextureShader;
+
+        #endregion
+
+        private const int MAX_TEXTURE_SIZE = 1000;
+        private readonly List<int> _framesBetweenUpdatesHistory = new();
+        private bool _isFrontFacing;
+        private WebCamTexture _webcamTexture;
+
+        public int FramesBetweenUpdates { get; private set; }
+        public int AverageFramesBetweenUpdates { get; private set; }
+        public RenderTexture Texture { get; private set; }
+
+        public bool IsCameraRunning => Texture != null && _webcamTexture != null && _webcamTexture.isPlaying;
+        public bool CameraUpdatedThisFrame => Texture != null && _webcamTexture != null && _webcamTexture.didUpdateThisFrame;
+        public string DeviceName => _webcamTexture?.deviceName;
 
         #region Event Functions
 
-        private void Awake()
+        private void Start()
         {
-            ChangeWebcam();
-
-            print($"Webcam resolution: {WebcamTexture.width}x{WebcamTexture.height}");
-            print($"Webcam is mirrored: {mirrored}");
+            ChangeWebcam(MyPrefs.CameraName);
+            MyEvents.CameraChanged.AddListener((sender, cameraName) => ChangeWebcam(cameraName));
+            // Webcam gets paused when switching scenes.
+            SceneManager.sceneLoaded += (scene, mode) => _webcamTexture?.Play();
         }
 
-        private void LateUpdate()
+        private void Update()
         {
-            if (WebcamTexture.didUpdateThisFrame)
+            if (_webcamTexture is null || !_webcamTexture.isPlaying)
             {
-                CalculateAverageFramesBetweenUpdates();
-                FramesBetweenUpdates = 0;
+                return;
             }
-            else FramesBetweenUpdates++;
+
+            if (!_webcamTexture.didUpdateThisFrame)
+            {
+                FramesBetweenUpdates++;
+                return;
+            }
+
+            CalculateAverageFramesBetweenUpdates();
+            FramesBetweenUpdates = 0;
+            CopyToRenderTexture();
+            CameraUpdated.Invoke();
         }
 
         private void OnDestroy()
         {
-            WebcamTexture.Stop();
-            Destroy(WebcamTexture);
-            Destroy(FinalTexture);
+            if (_webcamTexture != null)
+            {
+                _webcamTexture.Stop();
+                Destroy(_webcamTexture);
+            }
+
+            if (Texture != null)
+            {
+                Destroy(Texture);
+            }
         }
 
         #endregion
 
-        private static void Initialize()
+        public async void ChangeWebcam(string deviceName)
         {
-            int largerDimension = Math.Max(WebcamTexture.width, WebcamTexture.height);
+            if (DeviceName == deviceName)
+            {
+                return;
+            }
+
+            WebCamDevice[] devices = WebCamTexture.devices;
+            if (devices.Length == 0)
+            {
+                Debug.LogWarning("No webcam devices were found");
+                return;
+            }
+
+            WebCamDevice device = devices.First(x => x.name == deviceName);
+
+            _isFrontFacing = device.isFrontFacing;
+
+            if (_webcamTexture == null)
+            {
+                _webcamTexture = new WebCamTexture(device.name);
+                _webcamTexture.requestedFPS = int.MaxValue;
+                _webcamTexture.Play();
+            }
+            else if (_webcamTexture.deviceName != device.name)
+            {
+                _webcamTexture.Stop();
+                _webcamTexture = new WebCamTexture(device.name);
+                _webcamTexture.requestedFPS = int.MaxValue;
+                _webcamTexture.Play();
+            }
+            else if (!_webcamTexture.isPlaying)
+            {
+                _webcamTexture.Play();
+            }
+
+            // Might take a bit for the webcam to initialize (thanks Unity).
+            while (_webcamTexture.width == 16 || _webcamTexture.height == 16)
+            {
+                await Task.Yield();
+            }
 
             // Initialize target texture.
-            FinalTexture = new Texture2D(largerDimension, largerDimension, TextureFormat.RGBA32, false);
-            var borderCol = new Color32(0, 0, 0, 150);
-            Color32[] pixels = Enumerable.Repeat(borderCol, FinalTexture.width * FinalTexture.height).ToArray();
-            FinalTexture.SetPixels32(pixels);
+            int largerDimension = Math.Max(_webcamTexture.width, _webcamTexture.height);
+            int size = Math.Min(MAX_TEXTURE_SIZE, largerDimension);
+            Texture = new RenderTexture(size, size, 24);
+            Texture.enableRandomWrite = true;
+            Texture.Create();
 
-            // Initialize color buffer.
-            colorBuffer = new Color32[WebcamTexture.width * WebcamTexture.height];
+            print($"Webcam resolution: {_webcamTexture.width}x{_webcamTexture.height}");
+            print($"Webcam is mirrored: {_isFrontFacing}");
 
-            // Check if device is mirrored.
-            WebCamDevice device = WebCamTexture.devices.FirstOrDefault(x => x.name == WebcamTexture.deviceName);
-            mirrored = device.isFrontFacing;
+            CameraChanged.Invoke();
         }
 
         private void CalculateAverageFramesBetweenUpdates()
         {
             const int history_count = 10;
-            if (framesBetweenUpdatesHistory.Count == history_count)
-                framesBetweenUpdatesHistory.RemoveAt(0);
+            if (_framesBetweenUpdatesHistory.Count == history_count)
+            {
+                _framesBetweenUpdatesHistory.RemoveAt(0);
+            }
 
-            framesBetweenUpdatesHistory.Add(FramesBetweenUpdates);
+            _framesBetweenUpdatesHistory.Add(FramesBetweenUpdates);
 
             // Take the highest from the lowest 80% to avoid outliers.
             // Technically not average, but naming is difficult.
-            AverageFramesBetweenUpdates = framesBetweenUpdatesHistory
-                .OrderByDescending(x => x)
+            AverageFramesBetweenUpdates = _framesBetweenUpdatesHistory
+                .OrderByDescending(framesCount => framesCount)
                 .TakeLast(history_count - 2)
                 .Max();
         }
 
-        public static async void ChangeWebcam()
+        private void CopyToRenderTexture()
         {
-            if (WebcamTexture == null) WebcamTexture = new WebCamTexture(MyPrefs.CameraName);
-            WebcamTexture.Stop();
-            WebcamTexture.deviceName = MyPrefs.CameraName;
-            WebcamTexture.requestedFPS = 500; // This should hopefully get the highest FPS of the webcam.
-            WebcamTexture.Play();
+            float scaleY = (float)_webcamTexture.width / _webcamTexture.height /
+                           ((float)Texture.width / Texture.height);
+            float offsetY = -(scaleY - 1f) / 2f;
 
-            // Might take a bit for the webcam to initialize (thanks Unity).
-            while (WebcamTexture.width == 16 || WebcamTexture.height == 16)
-                await Task.Yield();
-
-            Initialize();
-        }
-
-        public static void SetAspectRatio()
-        {
-            int startY = (FinalTexture.height - WebcamTexture.height) / 2;
-            WebcamTexture.GetPixels32(colorBuffer);
-
-            if (mirrored)
-            {
-                var job = new MirrorJob
-                {
-                    Width = WebcamTexture.width
-                };
-                JobHandle jobHandle = job.Schedule(WebcamTexture.height, 10);
-                jobHandle.Complete();
-            }
-
-            FinalTexture.SetPixels32(0, startY, WebcamTexture.width, WebcamTexture.height, colorBuffer);
-            FinalTexture.Apply();
-        }
-
-        private struct MirrorJob : IJobParallelFor
-        {
-            public int Width;
-
-            public void Execute(int index)
-            {
-                Array.Reverse(colorBuffer, index * Width, Width);
-            }
+            Graphics.Blit(_webcamTexture, Texture,
+                new Vector2(_isFrontFacing ? -1f : 1f, scaleY),
+                new Vector2(_isFrontFacing ? 1f : 0f, offsetY));
         }
     }
 }

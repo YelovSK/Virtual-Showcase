@@ -1,0 +1,85 @@
+#pragma kernel CSMain
+#pragma kernel CSInit
+
+// Inputs
+RWTexture2D<float4> InputImage;
+uint Hue;
+uint HueThreshold;
+uint StartX;
+uint StartY;
+float4 InRangeColor;
+
+// Outputs
+RWStructuredBuffer<uint> ColorCounter;
+
+// Constants
+static const float MIN_VALUE = 0.2;
+static const float MIN_SATURATION = 0.3;
+
+float3 rgb_to_hsv(float3 rgb)
+{
+    const float min_channel = min(min(rgb.x, rgb.y), rgb.z);
+    const float max_channel = max(max(rgb.x, rgb.y), rgb.z);
+    const float delta = max_channel - min_channel;
+
+    float3 hsv = float3(0, 0, max_channel);
+
+    if (delta == 0)
+    {
+        return hsv;
+    }
+
+    hsv.y = delta / max_channel;
+
+    const float3 delta_rgb = (hsv.zzz - rgb + 3 * delta) / (6.0 * delta);
+
+    if (rgb.x == max_channel)
+    {
+        hsv.x = delta_rgb.z - delta_rgb.y;
+    }
+    else if (rgb.y == max_channel)
+    {
+        hsv.x = (1.0 / 3.0) + delta_rgb.x - delta_rgb.z;
+    }
+    else if (rgb.z == max_channel)
+    {
+        hsv.x = (2.0 / 3.0) + delta_rgb.y - delta_rgb.x;
+    }
+
+    return hsv;
+}
+
+[numthreads(1, 1, 1)]
+void CSInit(uint3 id : SV_DispatchThreadID)
+{
+    ColorCounter[0] = 0;
+}
+
+[numthreads(16, 16, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    const float2 pos = float2(id.x + StartX,
+                              id.y + StartY);
+    const float3 hsv = rgb_to_hsv(InputImage[pos].rgb);
+
+    const float hue = hsv.x * 360.0f;
+    const float saturation = hsv.y;
+    const float value = hsv.z;
+
+    if (value < MIN_VALUE || saturation < MIN_SATURATION)
+    {
+        return;
+    }
+
+    int difference = abs(Hue - hue);
+    if (difference > 180)
+    {
+        difference = 360 - difference;
+    }
+
+    if (difference <= HueThreshold)
+    {
+        InputImage[pos] = InRangeColor;
+        InterlockedAdd(ColorCounter[0], 1);
+    }
+}

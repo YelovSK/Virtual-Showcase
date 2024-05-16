@@ -10,9 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6938027245835659937}
   - component: {fileID: 7812021950053757122}
-  - component: {fileID: 6106036576034832082}
   - component: {fileID: 5428982965342325994}
-  - component: {fileID: 7398908018952484068}
   m_Layer: 0
   m_Name: FaceTracking
   m_TagString: Face tracking
@@ -27,13 +25,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 178426139709489057}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7812021950053757122
 MonoBehaviour:
@@ -48,19 +46,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resources: {fileID: 11400000, guid: 5594fd2934aca864980b90fe058f4161, type: 2}
-  keyPointsUpdater: {fileID: 0}
---- !u!114 &6106036576034832082
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 178426139709489057}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8c2ecc40021ea1f4785a619c62fc732a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &5428982965342325994
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73,24 +58,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2aa86cbb9525024ab5edc805a0aefc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  offsetTest: 0
-  offsetTestX: 0
-  offsetTestY: 0
-  colorBox: {fileID: 0}
-  pixelCountText: {fileID: 0}
---- !u!114 &7398908018952484068
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 178426139709489057}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ffa12ca5a7f22047817498981206b49, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  previewUI: {fileID: 0}
-  defaultCamTexture: {fileID: 2800000, guid: 206ba24cdf772b24e979bf09f3ec3461, type: 3}
-  cameraTransform: {fileID: 0}
-  keyPointsUpdater: {fileID: 0}
+  colorCounterShader: {fileID: 7200000, guid: be1a443aaaf53c948b11c4e99cbe5e5f, type: 3}

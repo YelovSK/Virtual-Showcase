@@ -8,6 +8,7 @@ TagManager:
   - ColorBox
   - virtualWindow
   - head
+  - Don't destroy on load
   layers:
   - Default
   - TransparentFX
