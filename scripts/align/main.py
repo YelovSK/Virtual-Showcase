@@ -2,8 +2,7 @@ import open3d as o3d
 import numpy as np
 import os
 import argparse
-from global_registration import GlobalRegistration
-from icp_registration import ICPRegistration
+from registration import GlobalRegistration, ICPRegistration
 from helpers import draw_registration_result, decompose_transformation_matrix
 
 DEFAULT_POINT_CLOUD_VERTEX_COUNT = 100_000

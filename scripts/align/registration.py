@@ -30,7 +30,7 @@ class GlobalRegistration(Registration):
                 o3d.pipelines.registration.CorrespondenceCheckerBasedOnEdgeLength(0.1),
                 o3d.pipelines.registration.CorrespondenceCheckerBasedOnDistance(distance_threshold)
             ],
-            o3d.pipelines.registration.RANSACConvergenceCriteria(100_000, 0.999)
+            o3d.pipelines.registration.RANSACConvergenceCriteria(max_iteration=100_000, confidence=0.999)
         )
 
         return result
@@ -63,7 +63,7 @@ class ICPRegistration(Registration):
             self.initial_transformation,
             o3d.pipelines.registration.TransformationEstimationPointToPoint(with_scaling=True),
             o3d.pipelines.registration.ICPConvergenceCriteria(
-                max_iteration=1000,
+                max_iteration=100,
                 relative_fitness=1e-6,
                 relative_rmse=1e-6,
             ),
