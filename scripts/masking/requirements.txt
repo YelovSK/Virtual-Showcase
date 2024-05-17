@@ -1,0 +1,6 @@
+imageio~=2.34.0
+numpy~=1.26.4
+opencv_python~=4.9.0.80
+rawpy~=0.19.1
+rembg~=2.0.56
+Requests~=2.31.0
