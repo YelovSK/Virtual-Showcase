@@ -1,14 +1,14 @@
 # Virtual Showcase
 
-View-dependent stereo in the Unity game engine. Allows viewing runtime imported *.glb* models with motion parallax. Off-axis projection is used to achieve proper camera perspective.
+View-dependent stereo in the Unity game engine. Allows viewing runtime imported .GLB models with motion parallax. Off-axis projection is used to achieve the correct camera perspective.
 
-Please note that the project is specific to my use-case, making it available in a public repo was not the main goal.
+The Unity project source code is in the [src](src) folder. In addition to the Unity application, there are the [scripts](scripts) and [models](models) folders. Those are related to my photogrammetry pipeline for visualizing the restoration process of statues in different stages of restoration, which I then import into the Virtual Showcase application.
 
-**Download Windows build in [releases](https://github.com/YelovSK/Virtual-Showcase/releases).**
+**Download the latest [Windows build](https://github.com/YelovSK/Virtual-Showcase/releases/latest).**
 
 ## SET UP INSTRUCTIONS
 
-I would advise against it. If you just want to see how it works, download the build from the releases. You might have issues changing/adding functionality, as the code quality is questionable at best with heavy coupling.
+If you just want to see how it works, download the build from the [releases](https://github.com/YelovSK/Virtual-Showcase/releases/latest).
 
 1. Clone the repo: `git clone https://github.com/YelovSK/Virtual-Showcase.git`.
 
@@ -16,7 +16,7 @@ I would advise against it. If you just want to see how it works, download the bu
 
 2. Import these assets from the Unity Asset Store:
 
--   [Big Furniture Pack](https://assetstore.unity.com/packages/3d/props/furniture/big-furniture-pack-7717) for the room decoration. To change the materials to be URP compatible, select the materials in `Assets/BigFurniturePack/Models/Materials` and go to _Edit_ → _Rendering_ → _Materials_ → _Convert Selected Built-in Materials to URP_.
+- [Big Furniture Pack](https://assetstore.unity.com/packages/3d/props/furniture/big-furniture-pack-7717) for the room decoration. To change the materials to be URP compatible, select the materials in `Assets/BigFurniturePack/Models/Materials` and go to _Edit_ → _Rendering_ → _Materials_ → _Convert Selected Built-in Materials to URP_.
 
 ---
 
@@ -26,22 +26,7 @@ I would advise against it. If you just want to see how it works, download the bu
 
 4. You should be asked to import TextMeshPro after the first run (the essentials are enough).
 
-## DEFAULT CONTROLS AND KEY BINDS
-
--   **ESC** - toggle menu
--   **TAB** - toggle mono/stereo view
--   **S** - cycle main scenes
--   **C** - toggle calibration
--   **P** - toggle webcam preview
--   **R** - reset the position of the loaded object
--   **X/Y/Z** + **Mouse drag** - rotate object around X/Y/Z-axis
--   **LMB + Mouse drag** - move the loaded object on the ground
--   **RMB + Mouse drag** - move the loaded object up/down
--   **Mouse wheel** - scale the loaded object
-
 ## USED CODE SOURCES
-
-[NativeCounter](https://coffeebraingames.wordpress.com/2021/10/24/some-dots-utilities-nativecounter-and-nativesum/) for keeping count of pixels inside of a job.
 
 [KalmanFilter](https://gist.github.com/davidfoster/48acce6c13e5f7f247dc5d5909dce349) for smoothing eye keypoints.
 
