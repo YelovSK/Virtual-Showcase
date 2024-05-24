@@ -22,10 +22,22 @@ class Transformation:
     def __str__(self):
         return f"Rotation: {self.rotation_matrix}\nTranslation: {self.translation}\nScale: {self.scale}"
 
+def gram_schmidt(A):
+    # Don't modify the original matrix
+    Q = np.copy(A)
+
+    for i in range(Q.shape[1]):
+        for j in range(i):
+            proj = np.dot(Q[:, j], Q[:, i]) * Q[:, j]
+            Q[:, i] -= proj
+        Q[:, i] /= np.linalg.norm(Q[:, i]) 
+
+    return Q
+
 def decompose_transformation_matrix(transformation_matrix) -> Transformation:
     # Rotation
     rotation_matrix = transformation_matrix[:3, :3]
-    rotation_matrix = scipy.linalg.orth(rotation_matrix)
+    rotation_matrix = gram_schmidt(rotation_matrix)
     angles = scipy.spatial.transform.Rotation.from_matrix(rotation_matrix).as_euler("xyz", degrees=True)
 
     # Translation
