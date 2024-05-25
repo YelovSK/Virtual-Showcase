@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -73,7 +74,18 @@ namespace VirtualShowcase.Core
         {
             Application.Quit();
         }
-
+        
+        public string GetSceneName(MainScenes scene)
+        {
+            return scene switch
+            {
+                MainScenes.MainRoom => ROOM_SCENE_NAME,
+                MainScenes.MainLines => LINES_SCENE_NAME,
+                MainScenes.MainWhite => WHITE_SCENE_NAME,
+                _ => throw new ArgumentOutOfRangeException(nameof(scene), scene, null)
+            };
+        }
+        
         private IEnumerator LoadSceneCoroutine(string scene)
         {
             AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(scene);

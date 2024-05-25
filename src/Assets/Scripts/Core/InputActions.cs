@@ -585,6 +585,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Pick scene"",
+                    ""type"": ""Button"",
+                    ""id"": ""4b25c96f-882c-49db-b61d-afcb0f88e6d4"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -653,6 +662,17 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Previous scene"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b58a5940-a5d0-45a3-bbfc-7a2b522e2e8b"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Pick scene"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -691,6 +711,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_MainGeneral_Menutoggle = m_MainGeneral.FindAction("Menu toggle", throwIfNotFound: true);
         m_MainGeneral_Nextscene = m_MainGeneral.FindAction("Next scene", throwIfNotFound: true);
         m_MainGeneral_Previousscene = m_MainGeneral.FindAction("Previous scene", throwIfNotFound: true);
+        m_MainGeneral_Pickscene = m_MainGeneral.FindAction("Pick scene", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -1016,6 +1037,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_MainGeneral_Menutoggle;
     private readonly InputAction m_MainGeneral_Nextscene;
     private readonly InputAction m_MainGeneral_Previousscene;
+    private readonly InputAction m_MainGeneral_Pickscene;
     public struct MainGeneralActions
     {
         private @InputActions m_Wrapper;
@@ -1026,6 +1048,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         public InputAction @Menutoggle => m_Wrapper.m_MainGeneral_Menutoggle;
         public InputAction @Nextscene => m_Wrapper.m_MainGeneral_Nextscene;
         public InputAction @Previousscene => m_Wrapper.m_MainGeneral_Previousscene;
+        public InputAction @Pickscene => m_Wrapper.m_MainGeneral_Pickscene;
         public InputActionMap Get() { return m_Wrapper.m_MainGeneral; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1053,6 +1076,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Previousscene.started += instance.OnPreviousscene;
             @Previousscene.performed += instance.OnPreviousscene;
             @Previousscene.canceled += instance.OnPreviousscene;
+            @Pickscene.started += instance.OnPickscene;
+            @Pickscene.performed += instance.OnPickscene;
+            @Pickscene.canceled += instance.OnPickscene;
         }
 
         private void UnregisterCallbacks(IMainGeneralActions instance)
@@ -1075,6 +1101,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Previousscene.started -= instance.OnPreviousscene;
             @Previousscene.performed -= instance.OnPreviousscene;
             @Previousscene.canceled -= instance.OnPreviousscene;
+            @Pickscene.started -= instance.OnPickscene;
+            @Pickscene.performed -= instance.OnPickscene;
+            @Pickscene.canceled -= instance.OnPickscene;
         }
 
         public void RemoveCallbacks(IMainGeneralActions instance)
@@ -1127,5 +1156,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         void OnMenutoggle(InputAction.CallbackContext context);
         void OnNextscene(InputAction.CallbackContext context);
         void OnPreviousscene(InputAction.CallbackContext context);
+        void OnPickscene(InputAction.CallbackContext context);
     }
 }

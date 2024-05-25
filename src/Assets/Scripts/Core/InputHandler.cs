@@ -30,7 +30,10 @@ namespace VirtualShowcase.Core
 
         [SerializeField]
         private Sprite[] rotationImages;
-
+        
+        [SerializeField]
+        private Canvas scenesCanvas;
+        
         #endregion
 
         private RotationImage _currentRotationImage;
@@ -121,6 +124,7 @@ namespace VirtualShowcase.Core
                 calibrationController.ToggleCalibrationUI();
             };
             _inputActions.MainGeneral.Menutoggle.performed += _ => MySceneManager.Instance.ToggleMenu();
+            _inputActions.MainGeneral.Pickscene.performed += _ => scenesCanvas.gameObject.SetActive(!scenesCanvas.gameObject.activeSelf);
 
             _inputActions.Calibration.Nextcalibration.performed += _ => calibrationController.SetNextState();
             _inputActions.Calibration.Topedge.performed += _ => calibrationController.SetState(CalibrationState.Top);
