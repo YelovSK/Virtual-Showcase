@@ -1,8 +1,7 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using GLTFast;
 using UnityEngine;
 using UnityMeshSimplifier;
 using VirtualShowcase.Common;
@@ -10,23 +9,20 @@ using VirtualShowcase.Core;
 using VirtualShowcase.FaceTracking.Transform;
 using VirtualShowcase.Utilities;
 
-namespace VirtualShowcase.Showcase
+namespace VirtualShowcase.ModelLoading
 {
-    public class ModelInfo
+    public class ModelLoaderClient : MonoSingleton<ModelLoaderClient>
     {
-        public string Name => Path.GetFileNameWithoutExtension(FullPath);
-        public string FullPath { get; set; }
-        public GameObject Object { get; set; }
-    }
-
-    public class ModelLoader : MonoSingleton<ModelLoader>
-    {
+        public static string[] SUPPORTED_EXTENSIONS => LOADERS_DICT.Keys.ToArray();
+        
+        private static readonly Dictionary<string, IModelLoader> LOADERS_DICT = new()
+        {
+            { ".glb", new GLBLoader() },
+        };
         public List<ModelInfo> ModelsInfo { get; } = new();
         public List<GameObject> Models => ModelsInfo.Select(x => x.Object).ToList();
 
-        #region Event Functions
-
-        private void Start()
+        public void Start()
         {
             MyEvents.ScreenSizeChanged.AddListener((sender, size) =>
             {
@@ -35,31 +31,118 @@ namespace VirtualShowcase.Showcase
                     ResetTransform();
                 }
             });
-            MyEvents.ModelAdded.AddListener(async (sender, path) => await LoadModels());
+            MyEvents.ModelAdded.AddListener(async (sender, path) => await LoadModels(MyPrefs.ModelPaths));
             MyEvents.ModelRemoved.AddListener((sender, path) => DeleteModel(path));
             MyEvents.ModelsRemoveRequest.AddListener(sender => DeleteModels());
-            GltfImportBase.SetDefaultDeferAgent(new UninterruptedDeferAgent());
         }
+        
+        public async Task LoadModels(IEnumerable<string> paths)
+        {
+            MyEvents.ModelsLoadingStart?.Invoke(gameObject);
 
-        #endregion
+            var tasks = new List<Task<GameObject>>();
+            foreach (string path in paths)
+            {
+                // Check if it's already loaded (in the models list).
+                if (ModelsInfo.Any(x => x.FullPath == path) || File.Exists(path) == false)
+                {
+                    continue;
+                }
+
+                // Hierarchy: {this} -> {obj} -> {model}
+                var obj = new GameObject(path)
+                {
+                    transform = { parent = gameObject.transform },
+                };
+                
+                IModelLoader loader = GetLoader(path);
+                tasks.Add(loader.InstantiateModel(path ,obj));
+
+                ModelsInfo.Add(new ModelInfo
+                {
+                    FullPath = path,
+                    Object = obj,
+                });
+            }
+
+            // Load
+            Task<GameObject[]> entireTask = Task.WhenAll(tasks);
+            while (await Task.WhenAny(entireTask, Task.Delay(16)) != entireTask)
+            {
+                MyEvents.ModelLoaded.Invoke(gameObject, (ModelsInfo.Count, MyPrefs.ModelPaths.Count));
+            }
+            GameObject[] models = entireTask.Result;
+
+            // Post-load
+            await Task.WhenAll(models.Select(ApplyPostLoadingBehavior));
+ 
+            // Only the first one visible.
+            for (var i = 0; i < ModelsInfo.Count; i++)
+            {
+                ModelsInfo[i].Object.SetActive(i == 0);
+            }
+
+            if (tasks.Any())
+            {
+                ResetTransform();
+            }
+            
+            MyEvents.ModelsLoadingEnd?.Invoke(gameObject);
+        }
+        
+        private void DeleteModel(string path)
+        {
+            ModelInfo model = ModelsInfo.FirstOrDefault(x => x.FullPath == path);
+            if (model is null)
+            {
+                return;
+            }
+            
+            ModelsInfo.Remove(model);
+            Destroy(model.Object);
+        }
+        
+        private void DeleteModels()
+        {
+            foreach (ModelInfo model in ModelsInfo)
+            {
+                Destroy(model.Object);
+            }
+            
+            ModelsInfo.Clear();
+        }
+        
+        /// <param name="next">true for next, false for previous</param>
+        public void CycleActiveModel(bool next = true)
+        {
+            int activeIx = ModelsInfo.FindIndex(x => x.Object.activeSelf);
+            if (activeIx == -1)
+            {
+                return;
+            }
+            
+            ModelsInfo[activeIx].Object.SetActive(false);
+            
+            if (next)
+            {
+                ModelsInfo[(activeIx + 1) % ModelsInfo.Count].Object.SetActive(true);
+            }
+            else
+            {
+                ModelsInfo[(activeIx - 1 + ModelsInfo.Count) % ModelsInfo.Count].Object.SetActive(true);
+            }
+        }
 
         /// <summary>
         ///     Adjusts the position and size of the model.
         /// </summary>
         public void ResetTransform()
         {
-            if (ModelsInfo.IsEmpty())
-            {
-                return;
-            }
-
             // Reset position.
             foreach (GameObject model in Models)
             {
                 model.transform.parent = Instance.transform;
-                // X is rotated by 90 degrees because the coordinate system of the .glb models
-                // and importer seems to be different than the default Unity system.
-                model.transform.localRotation = Quaternion.Euler(-90, 0, 0);
+                model.transform.localRotation = Quaternion.identity;
                 model.transform.localPosition = Vector3.zero;
             }
 
@@ -107,126 +190,34 @@ namespace VirtualShowcase.Showcase
             }
         }
 
-        public async Task LoadModels()
+        private IModelLoader GetLoader(string filePath)
         {
-            MyEvents.ModelsLoadingStart?.Invoke(gameObject);
+            string extension = Path.GetExtension(filePath).ToLower();
+            IModelLoader loader = LOADERS_DICT.GetValueOrDefault(extension);
 
-            var tasks = new List<Task>();
-
-            foreach (string path in MyPrefs.ModelPaths)
+            // Unknown extension should NEVER be selected,
+            // because the file browser should only allow selecting files with the supported extensions.
+            if (loader is null)
             {
-                // Check if it's already loaded (in the models list).
-                if (ModelsInfo.Any(x => x.FullPath == path) || File.Exists(path) == false)
-                {
-                    continue;
-                }
-
-                Task task = LoadModel(path);
-                tasks.Add(task);
+                throw new System.NotImplementedException($"Model type not supported: {extension}");
             }
-
-            Task entireTask = Task.WhenAll(tasks);
-            while (await Task.WhenAny(entireTask, Task.Delay(16)) != entireTask)
-            {
-                MyEvents.ModelLoaded.Invoke(gameObject, (ModelsInfo.Count, MyPrefs.ModelPaths.Count));
-            }
-
-            // Only the first one visible.
-            for (var i = 0; i < ModelsInfo.Count; i++)
-            {
-                ModelsInfo[i].Object.SetActive(i == 0);
-            }
-
-            if (tasks.Any())
-            {
-                ResetTransform();
-            }
-
-            MyEvents.ModelsLoadingEnd?.Invoke(gameObject);
+            
+            return loader;
         }
 
-        public Task LoadModel(string path)
+        private async Task ApplyPostLoadingBehavior(GameObject obj)
         {
-            var gltf = new GltfImport();
-
-            Task<Task> task = gltf.Load($"file://{path}").ContinueWith(
-                async t =>
-                {
-                    if (t.Result == false)
-                    {
-                        return;
-                    }
-
-                    var obj = new GameObject(path);
-                    obj.transform.parent = gameObject.transform;
-                    obj.transform.rotation = Quaternion.Euler(-90, 0, 0);
-                    await gltf.InstantiateMainSceneAsync(obj.transform);
-
-                    foreach (Transform child in obj.GetComponentsInChildren<Transform>(true))
-                    {
-                        child.gameObject.layer = Constants.LAYER_MODEL;
-                    }
-
-                    if (MyPrefs.SimplifyMesh)
-                    {
-                        await SimplifyObject(obj, MyPrefs.MaxTriCount);
-                    }
-
-                    ModelsInfo.Add(new ModelInfo
-                    {
-                        FullPath = path,
-                        Object = obj,
-                    });
-                },
-                TaskScheduler.FromCurrentSynchronizationContext()
-            );
-
-            return task;
-        }
-
-        public void DeleteModel(string path)
-        {
-            ModelInfo model = ModelsInfo.FirstOrDefault(x => x.FullPath == path);
-            if (model is null)
+            foreach (Transform child in obj.GetComponentsInChildren<Transform>(true))
             {
-                return;
+                child.gameObject.layer = Constants.LAYER_MODEL;
             }
-
-            ModelsInfo.Remove(model);
-            Destroy(model.Object);
-        }
-
-        public void DeleteModels()
-        {
-            foreach (ModelInfo model in ModelsInfo)
+            
+            if (MyPrefs.SimplifyMesh)
             {
-                Destroy(model.Object);
-            }
-
-            ModelsInfo.Clear();
-        }
-
-        /// <param name="next">true for next, false for previous</param>
-        public void CycleActiveModel(bool next = true)
-        {
-            int activeIx = ModelsInfo.FindIndex(x => x.Object.activeSelf);
-            if (activeIx == -1)
-            {
-                return;
-            }
-
-            ModelsInfo[activeIx].Object.SetActive(false);
-
-            if (next)
-            {
-                ModelsInfo[(activeIx + 1) % ModelsInfo.Count].Object.SetActive(true);
-            }
-            else
-            {
-                ModelsInfo[(activeIx - 1 + ModelsInfo.Count) % ModelsInfo.Count].Object.SetActive(true);
+                await SimplifyObject(obj, MyPrefs.MaxTriCount);
             }
         }
-
+        
         private async Task SimplifyObject(GameObject obj, int maxTriCount)
         {
             // Sometimes the result is split into multiple meshes, combine them into one.
@@ -284,5 +275,6 @@ namespace VirtualShowcase.Showcase
             meshFilter.name += "_optimized";
             meshFilter.sharedMesh.name += "_optimized";
         }
+
     }
 }

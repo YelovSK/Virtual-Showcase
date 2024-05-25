@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VirtualShowcase.Enums;
+using VirtualShowcase.ModelLoading;
 using VirtualShowcase.Showcase;
 using VirtualShowcase.Utilities;
 
@@ -43,7 +44,7 @@ namespace VirtualShowcase.Core
 
         public async void LoadShowcaseScene()
         {
-            await ModelLoader.Instance.LoadModels();
+            await ModelLoaderClient.Instance.LoadModels(MyPrefs.ModelPaths);
             MyEvents.MainSceneOpened?.Invoke(gameObject);
             StartCoroutine(LoadSceneCoroutine(MyPrefs.MainScene));
         }

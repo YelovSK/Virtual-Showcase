@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using VirtualShowcase.Enums;
+using VirtualShowcase.ModelLoading;
 using VirtualShowcase.Showcase;
 using VirtualShowcase.Utilities;
 
@@ -127,19 +128,19 @@ namespace VirtualShowcase.Core
             _inputActions.Calibration.Leftedge.performed += _ => calibrationController.SetState(CalibrationState.Left);
             _inputActions.Calibration.Rightedge.performed += _ => calibrationController.SetState(CalibrationState.Right);
 
-            _inputActions.Model.Resettransform.performed += _ => ModelLoader.Instance.ResetTransform();
-            _inputActions.Model.Nextmodel.performed += _ => ModelLoader.Instance.CycleActiveModel();
-            _inputActions.Model.Previousmodel.performed += _ => ModelLoader.Instance.CycleActiveModel(false);
+            _inputActions.Model.Resettransform.performed += _ => ModelLoaderClient.Instance.ResetTransform();
+            _inputActions.Model.Nextmodel.performed += _ => ModelLoaderClient.Instance.CycleActiveModel();
+            _inputActions.Model.Previousmodel.performed += _ => ModelLoaderClient.Instance.CycleActiveModel(false);
 
             _inputActions.Model.MoveXY.performed += ctx =>
             {
                 var delta = ctx.ReadValue<Vector2>();
-                ModelLoader.Instance.Models.ForEach(model => model.transform.Translate(delta.x, delta.y, 0, Space.World));
+                ModelLoaderClient.Instance.Models.ForEach(model => model.transform.Translate(delta.x, delta.y, 0, Space.World));
             };
             _inputActions.Model.MoveYZ.performed += ctx =>
             {
                 var delta = ctx.ReadValue<Vector2>();
-                ModelLoader.Instance.Models.ForEach(model => model.transform.Translate(delta.x, 0, delta.y, Space.World));
+                ModelLoaderClient.Instance.Models.ForEach(model => model.transform.Translate(delta.x, 0, delta.y, Space.World));
             };
             _inputActions.Model.Scale.performed += ctx =>
             {
@@ -153,12 +154,12 @@ namespace VirtualShowcase.Core
                 float scale = delta > 0
                     ? 1.1f
                     : 0.9f;
-                ModelLoader.Instance.Models.ForEach(model => model.transform.localScale *= scale);
+                ModelLoaderClient.Instance.Models.ForEach(model => model.transform.localScale *= scale);
             };
             _inputActions.Model.RotateX.performed += ctx =>
             {
                 var delta = ctx.ReadValue<float>();
-                ModelLoader.Instance.Models.ForEach(model => model.transform.Rotate(delta, 0, 0, Space.World));
+                ModelLoaderClient.Instance.Models.ForEach(model => model.transform.Rotate(delta, 0, 0, Space.World));
             };
             _inputActions.Model.RotateXmodifier.performed += ctx =>
             {
@@ -169,7 +170,7 @@ namespace VirtualShowcase.Core
             _inputActions.Model.RotateY.performed += ctx =>
             {
                 var delta = ctx.ReadValue<float>();
-                ModelLoader.Instance.Models.ForEach(model => model.transform.Rotate(0, -delta, 0, Space.World));
+                ModelLoaderClient.Instance.Models.ForEach(model => model.transform.Rotate(0, -delta, 0, Space.World));
             };
             _inputActions.Model.RotateYmodifier.performed += ctx =>
             {
@@ -180,7 +181,7 @@ namespace VirtualShowcase.Core
             _inputActions.Model.RotateZ.performed += ctx =>
             {
                 var delta = ctx.ReadValue<float>();
-                ModelLoader.Instance.Models.ForEach(model => model.transform.Rotate(0, 0, -delta, Space.World));
+                ModelLoaderClient.Instance.Models.ForEach(model => model.transform.Rotate(0, 0, -delta, Space.World));
             };
             _inputActions.Model.RotateZmodifier.performed += ctx =>
             {
