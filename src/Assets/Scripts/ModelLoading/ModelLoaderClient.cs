@@ -14,7 +14,6 @@ namespace VirtualShowcase.ModelLoading
     public class ModelLoaderClient : MonoSingleton<ModelLoaderClient>
     {
         public static string[] SUPPORTED_EXTENSIONS => LOADERS_DICT.Keys.ToArray();
-        
         private static readonly Dictionary<string, IModelLoader> LOADERS_DICT = new()
         {
             { ".glb", new GLBLoader() },

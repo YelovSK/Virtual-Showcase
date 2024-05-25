@@ -7,14 +7,13 @@ using SimpleFileBrowser;
 using UnityEngine;
 using UnityEngine.UI;
 using VirtualShowcase.Core;
+using VirtualShowcase.ModelLoading;
 using VirtualShowcase.Utilities;
 
 namespace VirtualShowcase.Menu.Options
 {
     public class ModelOptions : MonoBehaviour
     {
-        private const string MODEL_EXTENSION = ".glb";
-
         #region Serialized Fields
 
         [SerializeField]
@@ -104,8 +103,7 @@ namespace VirtualShowcase.Menu.Options
 
         public void AddModel()
         {
-            FileBrowser.SetFilters(true, new FileBrowser.Filter("Models", MODEL_EXTENSION));
-            FileBrowser.SetDefaultFilter(MODEL_EXTENSION);
+            FileBrowser.SetFilters(false, new FileBrowser.Filter("Models", ModelLoaderClient.SUPPORTED_EXTENSIONS));
             FileBrowser.AddQuickLink("Desktop", "Desktop");
             FileBrowser.AddQuickLink("Local models", "Models");
             StartCoroutine(ShowLoadDialogCoroutine());
