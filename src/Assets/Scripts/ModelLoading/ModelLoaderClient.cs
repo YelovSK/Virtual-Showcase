@@ -55,18 +55,21 @@ namespace VirtualShowcase.ModelLoading
                 };
                 
                 IModelLoader loader = GetLoader(path);
-                tasks.Add(loader.InstantiateModel(path ,obj));
-
-                ModelsInfo.Add(new ModelInfo
+                Task<GameObject> task = loader.InstantiateModel(path, obj).ContinueWith(t =>
                 {
-                    FullPath = path,
-                    Object = obj,
+                    ModelsInfo.Add(new ModelInfo
+                    {
+                        FullPath = path,
+                        Object = obj,
+                    });
+                    return t.Result;
                 });
+                tasks.Add(task);
             }
 
-            // Load
+            // Load + periodically report progress
             Task<GameObject[]> entireTask = Task.WhenAll(tasks);
-            while (await Task.WhenAny(entireTask, Task.Delay(16)) != entireTask)
+            while (await Task.WhenAny(entireTask, Task.Delay(50)) != entireTask)
             {
                 MyEvents.ModelLoaded.Invoke(gameObject, (ModelsInfo.Count, MyPrefs.ModelPaths.Count));
             }
