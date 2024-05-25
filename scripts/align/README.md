@@ -4,9 +4,9 @@ Aligns target models with the source model. Prints the resulting transformation 
 
 `python main.py` with the following arguments:
 
-- `-s --source` (str): Path of the polygon mesh source model. Required.
+- `-t --target` (str): Path of the polygon mesh target model. Required.
 
-- `-t --targets` (str): Paths of the polygon mesh target models. Required.
+- `-s --sources` (str): Paths of the polygon mesh source models, which get aligned to the target model. Required.
 
 - `-v --voxel_size` (float): Voxel size in meters for global registration.
 
@@ -14,4 +14,4 @@ Aligns target models with the source model. Prints the resulting transformation 
 
 # Example
 
-    python main.py -s "source.glb" -t "target1.glb" "target2.glb" -v 0.01 -n 100000
+    python main.py -t "target.glb" -s "source1.glb" "source2.glb" -v 0.01 -n 100000
