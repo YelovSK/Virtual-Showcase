@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityMeshSimplifier;
 using VirtualShowcase.Common;
 using VirtualShowcase.Core;
+using VirtualShowcase.Enums;
 using VirtualShowcase.FaceTracking.Transform;
 using VirtualShowcase.Utilities;
 
@@ -218,6 +219,14 @@ namespace VirtualShowcase.ModelLoading
             {
                 await SimplifyObject(obj, MyPrefs.MaxTriCount);
             }
+            
+            // Disable culling for high quality.
+            // Sometimes the model has holes, so with culling it looks weird.
+            if (MyPrefs.Quality == GraphicsQuality.High)
+            {
+                obj.GetComponent<MeshRenderer>().material.SetFloat("_Cull", 0);
+            }
+
         }
         
         private async Task SimplifyObject(GameObject obj, int maxTriCount)
