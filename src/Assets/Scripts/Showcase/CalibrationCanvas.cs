@@ -3,7 +3,7 @@ using VirtualShowcase.Utilities;
 
 namespace VirtualShowcase.Showcase
 {
-    public class ShowcaseCanvas : MonoBehaviour
+    public class CalibrationCanvas : MonoBehaviour
     {
         #region Event Functions
 

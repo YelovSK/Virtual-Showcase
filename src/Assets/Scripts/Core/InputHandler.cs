@@ -4,6 +4,7 @@ using VirtualShowcase.Enums;
 using VirtualShowcase.ModelLoading;
 using VirtualShowcase.Showcase;
 using VirtualShowcase.Utilities;
+using Canvas = UnityEngine.Canvas;
 
 namespace VirtualShowcase.Core
 {

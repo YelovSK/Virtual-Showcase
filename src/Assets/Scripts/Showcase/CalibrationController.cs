@@ -16,7 +16,7 @@ namespace VirtualShowcase.Showcase
 
         [Header("UI Elements")]
         [SerializeField]
-        private Canvas canvas;
+        private UnityEngine.Canvas canvas;
 
         [SerializeField]
         private Image monitorImage;
@@ -70,14 +70,12 @@ namespace VirtualShowcase.Showcase
             // If UI is disabled, go to the first state.
             if (_calibrationState == CalibrationState.Off)
             {
-                Cursor.visible = true;
                 _calibrationState = _calibrationState.Next();
                 UpdateCalibrationState();
             }
             // Else disable UI.
             else
             {
-                Cursor.visible = false;
                 _calibrationState = CalibrationState.Off;
                 UpdateCalibrationState();
             }
