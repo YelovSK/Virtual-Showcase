@@ -139,6 +139,8 @@ namespace VirtualShowcase.Menu.Options
             var modelRow = gameObject.GetComponent<ModelRow>();
             modelRow.SetModel(path);
             modelRow.OnRemove.AddListener(() => RemoveModel(path));
+            modelRow.OnMoveUp.AddListener(() => MoveModelUp(path));
+            modelRow.OnMoveDown.AddListener(() => MoveModelDown(path));
             _modelRows.Add(modelRow);
         }
 
@@ -150,6 +152,37 @@ namespace VirtualShowcase.Menu.Options
             MyPrefs.RemoveModelPath(path);
 
             MyEvents.ModelRemoved?.Invoke(gameObject, path);
+        }
+        
+        private void MoveModelUp(string path)
+        {
+            MoveModel(path, -1);
+        }
+
+        private void MoveModelDown(string path)
+        {
+            MoveModel(path, 1);
+        }
+        
+        private void MoveModel(string path, int offset)
+        {
+            // Need to re-order 3 things:
+            // 1. _modelRows
+            // 2. modelRowParent (UI)
+            // 3. MyPrefs.ModelPaths
+
+            ModelRow modelRow = _modelRows.First(row => row.FullPath == path);
+            int index = _modelRows.IndexOf(modelRow);
+            if (index + offset < 0 || index + offset >= _modelRows.Count)
+            {
+                return;
+            }
+            
+            _modelRows.RemoveAt(index);
+            _modelRows.Insert(index + offset, modelRow);
+            
+            modelRowParent.GetChild(index).SetSiblingIndex(index + offset);
+            MyPrefs.ModelPaths = _modelRows.Select(row => row.FullPath).ToList();
         }
     }
 }

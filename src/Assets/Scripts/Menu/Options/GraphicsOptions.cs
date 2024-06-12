@@ -120,9 +120,6 @@ namespace VirtualShowcase.Menu.Options
             }
 
             MyPrefs.Quality = (GraphicsQuality)sender.value;
-
-            // If quality changed, destroy model to load it again with updated max triangle count.
-            MyEvents.ModelsRemoveRequest?.Invoke(gameObject);
         }
 
         public void SetFpsLimit(Slider sender)

@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityMeshSimplifier;
 using VirtualShowcase.Common;
 using VirtualShowcase.Core;
@@ -18,9 +20,13 @@ namespace VirtualShowcase.ModelLoading
         private static readonly Dictionary<string, IModelLoader> LOADERS_DICT = new()
         {
             { ".glb", new GLBLoader() },
+            { ".obj", new OBJLoader() },
         };
-        public List<ModelInfo> ModelsInfo { get; } = new();
+
+        public List<ModelInfo> ModelsInfo { get; private set; } = new();
         public List<GameObject> Models => ModelsInfo.Select(x => x.Object).ToList();
+        public bool IsSideBySideViewEnabled => ModelsInfo.Count > 1 && ModelsInfo.All(x => x.Object.activeSelf);
+        public bool IsRotationEnabled = false;
 
         public void Start()
         {
@@ -34,6 +40,15 @@ namespace VirtualShowcase.ModelLoading
             MyEvents.ModelAdded.AddListener(async (sender, path) => await LoadModels(MyPrefs.ModelPaths));
             MyEvents.ModelRemoved.AddListener((sender, path) => DeleteModel(path));
             MyEvents.ModelsRemoveRequest.AddListener(sender => DeleteModels());
+        }
+        
+        public void Update()
+        {
+            if (IsRotationEnabled)
+            {
+                // TODO: some arbitrary rotation speed, mby use a slider or sth.
+                ModelsInfo.ForEach(model => model.Object.transform.Rotate(Vector3.up, Time.deltaTime * 15));
+            }
         }
         
         public async Task LoadModels(IEnumerable<string> paths)
@@ -79,6 +94,9 @@ namespace VirtualShowcase.ModelLoading
             // Post-load
             await Task.WhenAll(models.Select(ApplyPostLoadingBehavior));
  
+            // Re-order models by the original order of paths.
+            ModelsInfo = ModelsInfo.OrderBy(model => paths.ToList().IndexOf(model.FullPath)).ToList();
+            
             // Only the first one visible.
             for (var i = 0; i < ModelsInfo.Count; i++)
             {
@@ -118,6 +136,11 @@ namespace VirtualShowcase.ModelLoading
         /// <param name="next">true for next, false for previous</param>
         public void CycleActiveModel(bool next = true)
         {
+            if (IsSideBySideViewEnabled)
+            {
+                return;
+            }
+
             int activeIx = ModelsInfo.FindIndex(x => x.Object.activeSelf);
             if (activeIx == -1)
             {
@@ -192,6 +215,29 @@ namespace VirtualShowcase.ModelLoading
                 model.transform.localPosition = reference.transform.localPosition;
             }
         }
+        
+        public void EnableSideBySideView()
+        {
+            ModelsInfo.ForEach(model => model.Object.SetActive(true));
+            for (var i = 1; i < ModelsInfo.Count; i++)
+            {
+                GameObject model = ModelsInfo[i].Object;
+                GameObject previousModel = ModelsInfo[i - 1].Object;
+                Bounds bounds = previousModel.GetObjectBounds();
+                float offset = Math.Max(bounds.size.x, bounds.size.z) * 1.2f;
+                model.transform.localPosition = previousModel.transform.localPosition + new Vector3(offset, 0, 0);
+            }
+        }
+        
+        public void DisableSideBySideView()
+        {
+            for (var i = 0; i < ModelsInfo.Count; i++)
+            {
+                GameObject model = ModelsInfo[i].Object;
+                model.SetActive(i == 0);
+                model.transform.localPosition = ModelsInfo[0].Object.transform.localPosition;
+            }
+        }
 
         private IModelLoader GetLoader(string filePath)
         {
@@ -224,9 +270,11 @@ namespace VirtualShowcase.ModelLoading
             // Sometimes the model has holes, so with culling it looks weird.
             if (MyPrefs.Quality == GraphicsQuality.High)
             {
-                obj.GetComponent<MeshRenderer>().material.SetFloat("_Cull", 0);
+                foreach (MeshRenderer meshRenderer in obj.GetComponentsInChildren<MeshRenderer>(true))
+                {
+                    meshRenderer.material.SetFloat("_Cull", (float) CullMode.Off);
+                }
             }
-
         }
         
         private async Task SimplifyObject(GameObject obj, int maxTriCount)

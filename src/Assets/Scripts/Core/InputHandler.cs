@@ -160,6 +160,12 @@ namespace VirtualShowcase.Core
                     ? 1.1f
                     : 0.9f;
                 ModelLoaderClient.Instance.Models.ForEach(model => model.transform.localScale *= scale);
+
+                if (ModelLoaderClient.Instance.IsSideBySideViewEnabled)
+                {
+                    // Recompute the distance between models.
+                    ModelLoaderClient.Instance.EnableSideBySideView();
+                }
             };
             _inputActions.Model.RotateX.performed += ctx =>
             {

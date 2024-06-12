@@ -23,6 +23,12 @@ namespace VirtualShowcase.Menu.Options
 
         [SerializeField]
         private Button removeButton;
+        
+        [SerializeField]
+        private Button moveUpButton;
+        
+        [SerializeField]
+        private Button moveDownButton;
 
         [SerializeField]
         private TooltipTrigger pathTooltip;
@@ -31,6 +37,12 @@ namespace VirtualShowcase.Menu.Options
 
         [NonSerialized]
         public readonly UnityEvent OnRemove = new();
+        
+        [NonSerialized]
+        public readonly UnityEvent OnMoveUp = new();
+
+        [NonSerialized]
+        public readonly UnityEvent OnMoveDown = new();
 
         [NonSerialized]
         public string FullPath;
@@ -40,6 +52,8 @@ namespace VirtualShowcase.Menu.Options
         private void Awake()
         {
             removeButton.onClick.AddListener(() => OnRemove.Invoke());
+            moveUpButton.onClick.AddListener(() => OnMoveUp.Invoke());
+            moveDownButton.onClick.AddListener(() => OnMoveDown.Invoke());
         }
 
         #endregion

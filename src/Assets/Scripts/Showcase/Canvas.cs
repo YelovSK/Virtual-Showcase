@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using VirtualShowcase.Core;
+using VirtualShowcase.ModelLoading;
 
 namespace VirtualShowcase.Showcase
 {
@@ -48,6 +49,33 @@ namespace VirtualShowcase.Showcase
         public void ShowMenu()
         {
             MySceneManager.Instance.LoadMenuScene();
+        }
+        
+        public void ToggleSideBySideView()
+        {
+            if (ModelLoaderClient.Instance.IsSideBySideViewEnabled)
+            {
+                ModelLoaderClient.Instance.DisableSideBySideView();
+            }
+            else
+            {
+                ModelLoaderClient.Instance.EnableSideBySideView();
+            }
+        }
+        
+        public void ToggleRotation()
+        {
+            ModelLoaderClient.Instance.IsRotationEnabled = !ModelLoaderClient.Instance.IsRotationEnabled;
+        }
+        
+        public void SwitchNextModel()
+        {
+            ModelLoaderClient.Instance.CycleActiveModel(next: true);
+        }
+
+        public void SwitchPreviousModel()
+        {
+            ModelLoaderClient.Instance.CycleActiveModel(next: false);
         }
 
         private IEnumerator HideCursorDelay(int delaySeconds)
