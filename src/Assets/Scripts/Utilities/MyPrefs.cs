@@ -168,7 +168,7 @@ namespace VirtualShowcase.Utilities
         {
             get
             {
-                List<string> paths = PlayerPrefs.GetString("modelPath").Split(",").ToList();
+                List<string> paths = PlayerPrefs.GetString("modelPath").Split("|").ToList();
                 if (paths.Count == 0 || string.IsNullOrEmpty(paths[0]))
                 {
                     return new List<string>();
@@ -184,7 +184,7 @@ namespace VirtualShowcase.Utilities
                 }
                 else
                 {
-                    PlayerPrefs.SetString("modelPath", string.Join(",", value));
+                    PlayerPrefs.SetString("modelPath", string.Join("|", value.Distinct()));
                 }
             }
         }

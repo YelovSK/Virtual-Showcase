@@ -37,7 +37,7 @@ namespace VirtualShowcase.ModelLoading
                     ResetTransform();
                 }
             });
-            MyEvents.ModelAdded.AddListener(async (sender, path) => await LoadModels(MyPrefs.ModelPaths));
+            MyEvents.ModelAdded.AddListener( (sender, path) => LoadModels(new[] { path }));
             MyEvents.ModelRemoved.AddListener((sender, path) => DeleteModel(path));
             MyEvents.ModelsRemoveRequest.AddListener(sender => DeleteModels());
         }
@@ -113,14 +113,11 @@ namespace VirtualShowcase.ModelLoading
         
         private void DeleteModel(string path)
         {
-            ModelInfo model = ModelsInfo.FirstOrDefault(x => x.FullPath == path);
-            if (model is null)
+            foreach (ModelInfo model in ModelsInfo.Where(x => x.FullPath == path).ToList())
             {
-                return;
+                ModelsInfo.Remove(model);
+                Destroy(model.Object);
             }
-            
-            ModelsInfo.Remove(model);
-            Destroy(model.Object);
         }
         
         private void DeleteModels()

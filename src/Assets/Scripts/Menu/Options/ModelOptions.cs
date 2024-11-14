@@ -119,16 +119,17 @@ namespace VirtualShowcase.Menu.Options
                 yield break;
             }
 
-
             foreach (string path in FileBrowser.Result)
             {
-                if (MyPrefs.AddModelPath(path))
+                if (!MyPrefs.AddModelPath(path))
                 {
-                    InstantiateModelRow(path);
-                    if (MyPrefs.LoadModelImmediately)
-                    {
-                        MyEvents.ModelAdded?.Invoke(gameObject, path);
-                    }
+                    continue;
+                }
+                
+                InstantiateModelRow(path);
+                if (MyPrefs.LoadModelImmediately)
+                {
+                    MyEvents.ModelAdded?.Invoke(gameObject, path);
                 }
             }
         }
@@ -146,7 +147,7 @@ namespace VirtualShowcase.Menu.Options
 
         private void RemoveModel(string path)
         {
-            ModelRow modelRow = _modelRows.First(row => row.FullPath == path);
+            ModelRow modelRow = _modelRows.Single(row => row.FullPath == path);
             _modelRows.Remove(modelRow);
             Destroy(modelRow.gameObject);
             MyPrefs.RemoveModelPath(path);
